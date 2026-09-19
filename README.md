@@ -1,0 +1,147 @@
+<div align="center">
+
+<img src="docs/assets/banner.svg" alt="OmniCmd Banner" width="100%" />
+
+# OmniCmd
+
+### The Keyboard-First AI Command Palette for Power Users & Developers
+
+<p align="center">
+  <a href="https://github.com/omnicmd/omnicmd/releases">
+    <img src="https://img.shields.io/github/v/release/omnicmd/omnicmd?style=for-the-badge&color=6366f1" alt="Release" />
+  </a>
+  <a href="https://github.com/omnicmd/omnicmd/blob/main/LICENSE">
+    <img src="https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge" alt="License" />
+  </a>
+  <img src="https://img.shields.io/badge/Platform-Linux%20%7C%20Windows%20%7C%20macOS-334155?style=for-the-badge" alt="Platforms" />
+  <img src="https://img.shields.io/badge/Tauri-v2-24c8db?style=for-the-badge&logo=tauri&logoColor=white" alt="Tauri v2" />
+  <img src="https://img.shields.io/badge/Rust-1.77+-orange?style=for-the-badge&logo=rust&logoColor=white" alt="Rust" />
+</p>
+
+<p align="center">
+  <a href="#-key-features">Key Features</a> •
+  <a href="#-quick-start">Quick Start</a> •
+  <a href="#-keyboard-shortcuts">Shortcuts</a> •
+  <a href="#-multiplatform-builds">Multiplatform Builds</a> •
+  <a href="#-support--donations">Support &amp; Donations</a>
+</p>
+
+</div>
+
+---
+
+## ⚡ What is OmniCmd?
+
+**OmniCmd** is a blazingly fast, lightweight, keyboard-driven AI command palette that stays out of your way until you need it. 
+
+Instead of juggling browser tabs, copy-pasting into chat windows, and breaking your train of thought, invoke OmniCmd with a single keystroke (`Super+Space`), apply any AI prompt action to your active clipboard content, and immediately paste the result back into your IDE, terminal, or document.
+
+Built with **Tauri v2**, **Rust**, and **React 19**, OmniCmd consumes a fraction of the RAM required by typical Electron apps while delivering instantaneous startup and native OS window integration.
+
+---
+
+## 🚀 Key Features
+
+* ⚡ **Zero-Latency HUD Overlay**: Floating, borderless interface that opens over any window with native acrylic/blur styling.
+* 📋 **Automatic Clipboard Context**: Captures your selected text or snippet automatically upon launch.
+* 🔀 **Multi-Provider Architecture**: Connect seamlessly to **9router**, **OpenAI**, **Ollama**, or custom local LLM endpoints with quick switching (`/provider`).
+* 🎭 **Instant Persona Presets**: Shift reasoning styles on the fly (`Alt+1..6`) for code review, executive summaries, creative brainstorming, or strict conciseness.
+* ⌨️ **Vim & Numbered Navigation**: Execute actions instantly with `#1..9`, navigate with `Ctrl+j / Ctrl+k` or arrow keys, and inspect tokens with zero mouse interaction.
+* 📦 **Local & Private SQLite Database**: Full history of generations, custom prompts, and appearance settings saved locally on your machine.
+* 🎛️ **Background Daemon & System Tray**: Persistent background runner that keeps your hotkey responsive at all times without taking window focus when idle.
+
+---
+
+## ⌨️ Keyboard Shortcuts
+
+| Shortcut | Action | Description |
+| :--- | :--- | :--- |
+| <kbd>Super</kbd> + <kbd>Space</kbd> | **Toggle HUD** | Shows or hides the OmniCmd command window |
+| <kbd>Enter</kbd> | **Execute Selected** | Runs the highlighted action against active context |
+| <kbd>#1</kbd> .. <kbd>#9</kbd> | **Direct Action Run** | Immediately triggers the corresponding item in the list |
+| <kbd>Ctrl</kbd> + <kbd>j</kbd> / <kbd>k</kbd> | **Vim Navigation** | Moves selection down / up |
+| <kbd>Alt</kbd> + <kbd>1..6</kbd> | **Persona Switch** | Cycles between Developer, Concise, Creative, etc. |
+| <kbd>/provider</kbd> | **Cycle Provider** | Toggles between 9router, Omni, and Custom endpoints |
+| <kbd>/history</kbd> | **Open History** | Searches past queries, tokens, and outputs |
+| <kbd>/settings</kbd> | **Settings Modal** | Configures models, temperatures, and API endpoints |
+| <kbd>Esc</kbd> | **Dismiss / Back** | Clears current view or hides the window |
+
+---
+
+## 📦 Downloads & Releases
+
+Pre-compiled binary packages are automatically built on every release tag for all major desktop platforms:
+
+| OS | Architecture | Package Format | Download Link |
+| :--- | :--- | :--- | :--- |
+| **Linux** | `x86_64` | `.deb`, `.AppImage` | [GitHub Releases](https://github.com/omnicmd/omnicmd/releases) |
+| **Windows** | `x64` | `.msi`, `.exe` installer | [GitHub Releases](https://github.com/omnicmd/omnicmd/releases) |
+| **macOS** | Universal (`arm64` & `x86_64`) | `.dmg` | [GitHub Releases](https://github.com/omnicmd/omnicmd/releases) |
+
+---
+
+## 🛠️ Building from Source
+
+### 1. Prerequisites
+* **Node.js** (v20+) & **pnpm** (v9+)
+* **Rust toolchain**: `curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh`
+* *(Linux only)*: GTK & WebKit development packages:
+  ```bash
+  sudo apt-get install -y libwebkit2gtk-4.1-dev libayatana-appindicator3-dev librsvg2-dev libssl-dev build-essential
+  ```
+
+### 2. Clone & Run Development Server
+```bash
+git clone https://github.com/omnicmd/omnicmd.git
+cd omnicmd
+
+# Install dependencies
+pnpm install
+
+# Start development HUD with hot-reload
+pnpm tauri dev
+```
+
+### 3. Compiling Release Packages Locally
+We provide a turnkey multiplatform build helper:
+```bash
+# Verify typecheck and Rust compilation:
+./scripts/build-local.sh check
+
+# Build full installers/binaries:
+./scripts/build-local.sh bundle
+```
+
+---
+
+## 💖 Support & Donations
+
+OmniCmd is a free, open-source project created and maintained by independent developers. If OmniCmd saves you time and boosts your day-to-day coding productivity, please consider supporting continued development!
+
+<p align="center">
+  <a href="https://www.buymeacoffee.com/omnicmd">
+    <img src="https://img.shields.io/badge/Buy%20Me%20A%20Coffee-FFDD00?style=for-the-badge&logo=buy-me-a-coffee&logoColor=black" alt="Buy Me A Coffee" />
+  </a>
+  &nbsp;&nbsp;
+  <a href="https://ko-fi.com/omnicmd">
+    <img src="https://img.shields.io/badge/Ko--fi-F16061?style=for-the-badge&logo=ko-fi&logoColor=white" alt="Ko-fi" />
+  </a>
+  &nbsp;&nbsp;
+  <a href="https://github.com/sponsors/omnicmd">
+    <img src="https://img.shields.io/badge/GitHub%20Sponsors-EA4AAA?style=for-the-badge&logo=github-sponsors&logoColor=white" alt="GitHub Sponsors" />
+  </a>
+</p>
+
+### 🇧🇷 Apoie via Pix (Brasil)
+Se você utiliza o OmniCmd no Brasil e deseja apoiar diretamente via Pix:
+
+```text
+Chave Pix (E-mail / Aleatória): pix@omnicmd.dev
+Beneficiário: OmniCmd Open Source Project
+```
+
+---
+
+## 📄 License
+
+Distributed under the **MIT License**. See [`LICENSE`](LICENSE) for more information.
