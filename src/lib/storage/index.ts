@@ -9,6 +9,7 @@ export const DEFAULT_APPEARANCE: AppearanceSettings = {
   hudBlur: 24,
   fontFamily: 'ibm_plex',
   accentColor: 'sky',
+  nativeBorders: true,
 };
 
 function hydrateActions(savedActions: PromptAction[]): PromptAction[] {

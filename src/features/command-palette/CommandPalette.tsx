@@ -491,7 +491,9 @@ export const CommandPalette: React.FC = () => {
   return (
     <div
       onKeyDown={handleKeyDown}
-      className="w-full h-full hud-window rounded-2xl border border-hud flex flex-col overflow-hidden relative select-none"
+      className={`w-full h-full hud-window ${
+        settings.appearance?.nativeBorders ? 'rounded-none border-0 shadow-none' : 'rounded-2xl border border-hud'
+      } flex flex-col overflow-hidden relative select-none`}
     >
       {/* Top Search bar when in SEARCH mode */}
       {viewMode === 'SEARCH' && (

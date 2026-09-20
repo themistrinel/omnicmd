@@ -73,6 +73,13 @@ const CodeBlock: React.FC<CodeBlockProps> = ({ code, language }) => {
         <button
           type="button"
           onClick={handleCopy}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              handleCopy();
+            }
+          }}
+          aria-label={copied ? "Code copied to clipboard" : "Copy code snippet"}
           className="flex items-center gap-1 text-slate-400 hover:text-white transition-colors cursor-pointer"
         >
           {copied ? (
@@ -87,8 +94,16 @@ const CodeBlock: React.FC<CodeBlockProps> = ({ code, language }) => {
             </>
           )}
         </button>
+        <div aria-live="polite" aria-atomic="true" className="sr-only">
+          {copied ? "Code copied to clipboard" : ""}
+        </div>
       </div>
-      <pre className="p-3 overflow-x-auto text-slate-200 leading-relaxed m-0 whitespace-pre">
+      <pre
+        tabIndex={0}
+        role="region"
+        aria-label={`${language || 'code'} snippet`}
+        className="p-3 overflow-x-auto text-slate-200 leading-relaxed m-0 whitespace-pre focus:outline-none"
+      >
         <code>{code}</code>
       </pre>
     </div>

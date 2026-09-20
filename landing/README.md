@@ -17,20 +17,21 @@ Esta pasta contém a **Landing Page 100% independente** do OmniCmd, totalmente d
 
 ```text
 landing/
-├── assets/
-│   └── demo.gif              # Cópia do GIF animado de demonstração do HUD
 ├── public/
-│   └── demo.gif              # Asset servido publicamente na raiz do Vite
+│   ├── demo.gif              # Asset servido publicamente na raiz do Vite
+│   └── favicon.svg           # Favicon vetorial
 ├── src/
 │   ├── components/
 │   │   ├── Navbar.tsx        # Cabeçalho com logo, âncoras e botão de download
-│   │   ├── HeroSection.tsx   # Hero com título, download por SO e o GIF do HUD
+│   │   ├── HeroSection.tsx   # Hero com título, especificações e download por SO
+│   │   ├── InteractiveHudSimulator.tsx # Simulador interativo do HUD com streaming
 │   │   ├── BenchmarksSection.tsx # Tabela comparativa (Rust 24MB vs Electron 380MB)
 │   │   ├── WorkflowSection.tsx   # Ergonomia em 3 tempos (Trigger -> Action -> Paste)
-│   │   ├── ShortcutsSection.tsx  # Matriz de cheatsheet dos atalhos
+│   │   ├── DevlogSection.tsx # Log de atualizações e releases
 │   │   ├── DownloadSection.tsx   # Hub de distribuição (.dmg, .deb, .AppImage, .msi)
 │   │   ├── Footer.tsx        # Rodapé com licença MIT e links
-│   │   └── GithubIcon.tsx    # Ícone SVG do GitHub
+│   │   ├── GithubIcon.tsx    # Ícone SVG do GitHub
+│   │   └── MarkdownView.tsx  # Renderizador estilizado de output markdown
 │   ├── constants.ts          # Links, comandos curl e dados de benchmarks
 │   ├── types.ts              # Tipagens TypeScript
 │   ├── utils.ts              # Detecção automática de SO do visitante

@@ -31,6 +31,10 @@ src-tauri/target/
 *.db-journal
 *.sock
 
+# Keys & Secrets
+*.key
+*.key.pub
+
 # Agent cache & scratch
 .agent/
 .agents/

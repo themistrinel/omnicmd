@@ -39,7 +39,7 @@ export const DevlogSection: React.FC = () => {
           href="https://github.com/themistrinel/omnicmd/releases"
           target="_blank"
           rel="noreferrer"
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-mono text-sky-400 bg-sky-500/10 hover:bg-sky-500/15 border border-sky-500/20 transition-all shrink-0 self-start sm:self-auto"
+          className="inline-flex items-center justify-center gap-1.5 min-h-[44px] px-3.5 py-2 rounded-xl text-xs font-mono text-sky-400 bg-sky-500/10 hover:bg-sky-500/15 border border-sky-500/20 transition-all shrink-0 self-start sm:self-auto cursor-pointer"
         >
           <span>All Releases</span>
           <ExternalLink className="w-3.5 h-3.5" />

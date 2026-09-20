@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - feat-develop
     tags:
       - 'v*'
   workflow_dispatch:
@@ -97,7 +98,7 @@ jobs:
             
             ### 🚀 Quick Install on Arch Linux / Hyprland
             ```bash
-            curl -fsSL https://raw.githubusercontent.com/themistrinel/omnicmd/main/scripts/install-arch-hyprland.sh | bash
+            curl -fsSL https://raw.githubusercontent.com/themistrinel/omnicmd/main/install.sh | bash
             ```
             
             ### 📦 Binaries & Installers

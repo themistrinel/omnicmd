@@ -36,11 +36,11 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ downloadInfo }) => {
         {/* Release Pill with Hardware Pulse */}
         <div className="inline-flex items-center gap-2.5 px-3 py-1 rounded-full bg-white/[0.03] border border-white/[0.08] shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] text-xs text-slate-300">
           <span className="relative flex h-2 w-2">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+            <span className="motion-safe:animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
             <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
           </span>
           <span className="font-mono text-slate-400">OmniCmd v0.1.0</span>
-          <span className="text-slate-600">•</span>
+          <span className="text-slate-400">•</span>
           <span className="text-slate-300 font-medium">Rust Core &amp; Tauri v2</span>
         </div>
 
@@ -56,7 +56,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ downloadInfo }) => {
           <kbd className="keycap-3d inline-block px-2 py-0.5 rounded-md bg-[#161a23] text-white font-mono text-xs font-semibold mx-1">
             Super
           </kbd>
-          <span className="text-slate-500 font-mono text-xs">+</span>
+          <span className="text-slate-400 font-mono text-xs">+</span>
           <kbd className="keycap-3d inline-block px-2.5 py-0.5 rounded-md bg-[#161a23] text-white font-mono text-xs font-semibold mx-1">
             Space
           </kbd>{' '}
@@ -67,13 +67,13 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ downloadInfo }) => {
         <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
           <a
             href={downloadInfo.url}
-            className="flex items-center gap-3 px-5 py-3 rounded-xl bg-white hover:bg-slate-200 text-slate-950 font-semibold text-sm transition-all shadow-[0_4px_20px_rgba(255,255,255,0.16)] hover:shadow-[0_6px_25px_rgba(255,255,255,0.25)] cursor-pointer group"
+            className="flex items-center gap-3 px-5 py-3 min-h-[44px] rounded-xl bg-white hover:bg-slate-200 text-slate-950 font-semibold text-sm transition-all shadow-[0_4px_20px_rgba(255,255,255,0.16)] hover:shadow-[0_6px_25px_rgba(255,255,255,0.25)] cursor-pointer group"
           >
             <span className="text-slate-900 group-hover:scale-105 transition-transform">
               {downloadInfo.icon}
             </span>
             <div className="flex flex-col text-left">
-              <span className="leading-tight text-xs font-mono uppercase tracking-wider text-slate-500">
+              <span className="leading-tight text-xs font-mono uppercase tracking-wider text-slate-400">
                 Download Native
               </span>
               <span className="font-semibold text-sm">
@@ -86,7 +86,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ downloadInfo }) => {
             href={GITHUB_URL}
             target="_blank"
             rel="noreferrer"
-            className="flex items-center gap-2 px-4 py-3 rounded-xl bg-white/[0.03] hover:bg-white/[0.08] text-slate-200 border border-white/[0.08] text-sm font-medium transition-all shadow-inner"
+            className="flex items-center gap-2 px-4 py-3 min-h-[44px] rounded-xl bg-white/[0.03] hover:bg-white/[0.08] text-slate-200 border border-white/[0.08] text-sm font-medium transition-all shadow-inner"
           >
             <GithubIcon className="w-4 h-4" />
             <span>GitHub</span>
@@ -95,45 +95,54 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ downloadInfo }) => {
         </div>
 
         {/* Quick 1-liner install snippet */}
-        <div className="flex items-center justify-between gap-3 px-3.5 py-2 rounded-xl bg-[#090b10] border border-white/[0.08] font-mono text-xs text-slate-300 max-w-md w-full shadow-inner mt-1">
-          <div className="flex items-center gap-2 overflow-hidden text-ellipsis whitespace-nowrap">
-            <span className="text-sky-400 font-bold select-none">$</span>
+        <div className="flex items-center justify-between gap-3 px-3.5 py-1.5 sm:py-2 rounded-xl bg-[#090b10] border border-white/[0.08] font-mono text-xs text-slate-300 max-w-md w-full shadow-inner mt-1">
+          <div className="flex items-center gap-2 overflow-hidden text-ellipsis whitespace-nowrap min-w-0">
+            <span className="text-sky-400 font-bold select-none shrink-0">$</span>
             <span className="select-all text-slate-300 truncate">{INSTALL_CURL_COMMAND}</span>
           </div>
           <button
             type="button"
             onClick={copyInstallCommand}
-            aria-label="Copy terminal install command"
-            className="p-1.5 rounded-lg bg-white/[0.05] hover:bg-white/[0.1] text-slate-400 hover:text-white transition-colors cursor-pointer shrink-0"
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                copyInstallCommand();
+              }
+            }}
+            aria-label={copiedInstallCmd ? "Terminal install command copied" : "Copy terminal install command"}
+            className="min-w-[44px] min-h-[44px] flex items-center justify-center rounded-lg bg-white/[0.05] hover:bg-white/[0.1] text-slate-400 hover:text-white transition-colors cursor-pointer shrink-0"
           >
             {copiedInstallCmd ? (
-              <Check className="w-3.5 h-3.5 text-emerald-400" />
+              <Check className="w-4 h-4 text-emerald-400" />
             ) : (
-              <Copy className="w-3.5 h-3.5" />
+              <Copy className="w-4 h-4" />
             )}
           </button>
+          <div aria-live="polite" aria-atomic="true" className="sr-only">
+            {copiedInstallCmd ? "Copied terminal install command to clipboard" : ""}
+          </div>
         </div>
 
         {/* Specification Ledger */}
         <div className="flex flex-wrap items-center justify-center gap-x-6 sm:gap-x-8 gap-y-2.5 pt-6 border-t border-white/[0.06] text-xs text-slate-400 font-mono">
           <div className="flex items-center gap-2">
             <span className="text-white font-semibold tabular-nums">18ms</span>
-            <span className="text-slate-500">wake latency</span>
+            <span className="text-slate-400">wake latency</span>
           </div>
-          <span className="text-slate-700 hidden sm:inline">•</span>
+          <span className="text-slate-400 hidden sm:inline">•</span>
           <div className="flex items-center gap-2">
             <span className="text-white font-semibold tabular-nums">24MB</span>
-            <span className="text-slate-500">memory footprint</span>
+            <span className="text-slate-400">memory footprint</span>
           </div>
-          <span className="text-slate-700 hidden sm:inline">•</span>
+          <span className="text-slate-400 hidden sm:inline">•</span>
           <div className="flex items-center gap-2">
             <span className="text-white font-semibold">Zero telemetry</span>
-            <span className="text-slate-500">local SQLite</span>
+            <span className="text-slate-400">local SQLite</span>
           </div>
-          <span className="text-slate-700 hidden sm:inline">•</span>
+          <span className="text-slate-400 hidden sm:inline">•</span>
           <div className="flex items-center gap-2">
             <span className="text-white font-semibold">Native overlay</span>
-            <span className="text-slate-500">0 window switches</span>
+            <span className="text-slate-400">0 window switches</span>
           </div>
         </div>
       </div>

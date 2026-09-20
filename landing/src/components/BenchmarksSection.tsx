@@ -23,7 +23,7 @@ export const BenchmarksSection: React.FC = () => {
               <Cpu className="w-4 h-4 text-sky-400" />
               <span className="text-sm font-semibold text-white">Runtime Telemetry</span>
             </div>
-            <span className="text-xs font-mono text-slate-500">Benchmark vs Electron</span>
+            <span className="text-xs font-mono text-slate-400">Benchmark vs Electron</span>
           </div>
 
           <div className="divide-y divide-white/[0.04]">
@@ -31,18 +31,18 @@ export const BenchmarksSection: React.FC = () => {
               <div key={row.metric} className="py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                 <div>
                   <div className="text-xs font-medium text-slate-200">{row.metric}</div>
-                  <div className="text-[11px] text-slate-500 font-mono">{row.advantage}</div>
+                  <div className="text-[11px] text-slate-400 font-mono">{row.advantage}</div>
                 </div>
 
                 <div className="flex items-center gap-4 text-xs font-mono shrink-0">
                   <div className="text-right">
                     <span className="text-emerald-400 font-semibold">{row.omniValue}</span>
-                    <span className="text-[10px] text-slate-600 block">OmniCmd</span>
+                    <span className="text-[10px] text-slate-400 block">OmniCmd</span>
                   </div>
-                  <span className="text-slate-700">/</span>
+                  <span className="text-slate-400">/</span>
                   <div className="text-right">
-                    <span className="text-slate-400">{row.electronValue}</span>
-                    <span className="text-[10px] text-slate-600 block">Electron</span>
+                    <span className="text-slate-300">{row.electronValue}</span>
+                    <span className="text-[10px] text-slate-400 block">Electron</span>
                   </div>
                 </div>
               </div>
@@ -76,7 +76,7 @@ export const BenchmarksSection: React.FC = () => {
             <p className="text-xs text-slate-400 leading-relaxed">
               Sub-millisecond IPC connects directly to Ollama, Anthropic, OpenAI, or custom endpoints with asynchronous SSE token streaming.
             </p>
-            <div className="pt-2 text-xs font-mono text-slate-500">
+            <div className="pt-2 text-xs font-mono text-slate-400">
               Protocol: <span className="text-slate-300">Tokio + Reqwest native async</span>
             </div>
           </div>
