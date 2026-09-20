@@ -2,10 +2,10 @@ import { BenchmarkRow, ShortcutItem } from './types';
 
 export const GITHUB_URL = 'https://github.com/themistrinel/omnicmd';
 export const RELEASES_URL = 'https://github.com/themistrinel/omnicmd/releases';
-export const LICENSE_URL = 'https://github.com/themistrinel/omnicmd/blob/main/LICENSE';
+export const LICENSE_URL = 'https://github.com/themistrinel/omnicmd/blob/master/LICENSE';
 
 export const INSTALL_CURL_COMMAND =
-  'curl -fsSL https://raw.githubusercontent.com/themistrinel/omnicmd/main/install.sh | bash';
+  'curl -fsSL https://raw.githubusercontent.com/themistrinel/omnicmd/master/install.sh | bash';
 
 export const UPDATE_COMMAND = 'omnicmd-update';
 

@@ -26,7 +26,7 @@ log_warn() { echo -e "${YELLOW}[AVISO]${NC} $1"; }
 log_error() { echo -e "${RED}[ERRO]${NC} $1"; }
 
 REPO="themistrinel/omnicmd"
-BRANCH="${OMNICMD_BRANCH:-main}"
+BRANCH="${OMNICMD_BRANCH:-master}"
 RAW_BASE_URL="https://raw.githubusercontent.com/${REPO}/${BRANCH}"
 FALLBACK_RAW_URL="https://raw.githubusercontent.com/${REPO}/feat-develop"
 
@@ -95,7 +95,7 @@ PACKAGES=(
   "openssl"
   "wl-clipboard"
   "librsvg"
-  "libxdo"
+  "xdotool"
   "curl"
   "jq"
 )

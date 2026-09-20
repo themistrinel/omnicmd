@@ -3,16 +3,16 @@
 # OmniCmd - Quick Universal & Arch/Hyprland Installer Entrypoint
 # ==============================================================================
 # Usage:
-#   curl -fsSL https://raw.githubusercontent.com/themistrinel/omnicmd/main/install.sh | bash
+#   curl -fsSL https://raw.githubusercontent.com/themistrinel/omnicmd/master/install.sh | bash
 #
 # Environment variables:
-#   OMNICMD_BRANCH   Branch to download from (default: main, with fallback to feat-develop)
+#   OMNICMD_BRANCH   Branch to download from (default: master, with fallback to feat-develop)
 # ==============================================================================
 
 set -eo pipefail
 
 REPO="themistrinel/omnicmd"
-BRANCH="${OMNICMD_BRANCH:-main}"
+BRANCH="${OMNICMD_BRANCH:-master}"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" 2>/dev/null && pwd || echo "$PWD")"
 
 if [ -f "$SCRIPT_DIR/scripts/install-arch-hyprland.sh" ]; then
