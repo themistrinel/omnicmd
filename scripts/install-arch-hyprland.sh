@@ -170,7 +170,7 @@ if [ "$INSTALLED_FROM_LOCAL" = false ]; then
   log_info "Buscando release oficial mais recente no GitHub (${REPO})..."
   RELEASE_JSON="$(curl -sSL -H "Accept: application/vnd.github.v3+json" "https://api.github.com/repos/${REPO}/releases/latest" 2>/dev/null || true)"
   
-  DOWNLOAD_URL="$(echo "$RELEASE_JSON" | grep -o '"browser_download_url": "[^"]*"' | grep -iE 'amd64\.AppImage|\.AppImage|linux.*x86_64.*tar\.gz|linux-x64' | head -1 | cut -d'"' -f4 || true)"
+  DOWNLOAD_URL="$(echo "$RELEASE_JSON" | grep -o '"browser_download_url": "[^"]*"' | grep -iE 'amd64\.deb|\.deb|amd64\.AppImage|\.AppImage|linux.*x86_64.*tar\.gz|linux-x64' | head -1 | cut -d'"' -f4 || true)"
   
   if [ -n "$DOWNLOAD_URL" ]; then
     log_info "Baixando release oficial de: $DOWNLOAD_URL..."
@@ -243,6 +243,16 @@ fi
 chmod +x "$INSTALL_DIR/omnicmd-update"
 log_success "Script de auto-atualização instalado: ${INSTALL_DIR}/omnicmd-update"
 
+# Script de desinstalação (Uninstall)
+if [ -f "$SCRIPT_DIR/uninstall-arch-hyprland.sh" ]; then
+  cp "$SCRIPT_DIR/uninstall-arch-hyprland.sh" "$INSTALL_DIR/omnicmd-uninstall"
+else
+  log_info "Baixando script omnicmd-uninstall..."
+  fetch_raw_file "scripts/uninstall-arch-hyprland.sh" "$INSTALL_DIR/omnicmd-uninstall"
+fi
+chmod +x "$INSTALL_DIR/omnicmd-uninstall"
+log_success "Script de desinstalação instalado: ${INSTALL_DIR}/omnicmd-uninstall"
+
 # ------------------------------------------------------------------------------
 # 6. Instalação de Ícones e Atalho do Sistema (.desktop)
 # ------------------------------------------------------------------------------
@@ -285,12 +295,12 @@ cat << 'EOF' > "$OMNICMD_HYPR_CONF"
 
 # 1. Regras de Janela (Window Rules v2)
 # Modo Nativo: Delega bordas ativas (col.active_border), cantos arredondados (rounding) e sombras ao Hyprland
-windowrulev2 = float, class:^(omnicmd)$
-windowrulev2 = center, class:^(omnicmd)$
-windowrulev2 = size 800 560, class:^(omnicmd)$
-windowrulev2 = stayfocused, class:^(omnicmd)$
-windowrulev2 = pin, class:^(omnicmd)$
-windowrulev2 = animation popin 95%, class:^(omnicmd)$
+windowrulev2 = float, class:^(?i)omnicmd$
+windowrulev2 = center, class:^(?i)omnicmd$
+windowrulev2 = size 800 560, class:^(?i)omnicmd$
+windowrulev2 = stayfocused, class:^(?i)omnicmd$
+windowrulev2 = pin, class:^(?i)omnicmd$
+windowrulev2 = animation popin 95%, class:^(?i)omnicmd$
 
 # 2. Atalhos de Teclado (Shortcuts / Binds)
 # Pressione Super + Espaço para abrir ou fechar/alternar a paleta

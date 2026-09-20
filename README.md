@@ -109,6 +109,14 @@ curl -fsSL https://raw.githubusercontent.com/themistrinel/omnicmd/master/install
    omnicmd-update
    ```
    - O OmniCmd também verifica silenciosamente se há novas versões e oferece atualização automática in-app.
+7. **Desinstalação Limpa com 1 Comando**:
+   - Para remover completamente todos os arquivos, regras do Hyprland e binários:
+   ```bash
+   omnicmd-uninstall
+   # Ou para limpar também o histórico SQLite e configurações locais:
+   omnicmd-uninstall --purge
+   ```
+   *(ou sem clonar o repositório: `curl -fsSL https://raw.githubusercontent.com/themistrinel/omnicmd/master/uninstall.sh | bash`)*
 
 ---
 

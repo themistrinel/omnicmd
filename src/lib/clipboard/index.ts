@@ -1,4 +1,5 @@
 import { readText, writeText, readImage } from '@tauri-apps/plugin-clipboard-manager';
+import { invoke } from '@tauri-apps/api/core';
 
 function isTauriEnvironment(): boolean {
   return typeof window !== 'undefined' && '__TAURI_INTERNALS__' in window;
@@ -6,6 +7,19 @@ function isTauriEnvironment(): boolean {
 
 export class ClipboardService {
   static async read(): Promise<string> {
+    // 1. Tenta via comando Tauri nativo (wl-paste nativo no Wayland/Hyprland)
+    if (isTauriEnvironment()) {
+      try {
+        const res = await invoke<string>('read_from_clipboard');
+        if (typeof res === 'string') {
+          return res.trim();
+        }
+      } catch (err) {
+        console.warn('Native read_from_clipboard failed, falling back:', err);
+      }
+    }
+
+    // 2. Tenta plugin do Tauri
     try {
       if (isTauriEnvironment()) {
         const text = await readText();
@@ -62,17 +76,55 @@ export class ClipboardService {
   }
 
   static async write(content: string): Promise<boolean> {
+    if (!content) return false;
+
+    // 1. Tenta via comando Tauri nativo (wl-copy nativo para Hyprland/Wayland)
+    if (isTauriEnvironment()) {
+      try {
+        await invoke('copy_to_clipboard', { text: content });
+        return true;
+      } catch (err) {
+        console.warn('Native copy_to_clipboard failed, trying fallback:', err);
+      }
+    }
+
+    // 2. Tenta plugin oficial do Tauri
     try {
       if (isTauriEnvironment()) {
         await writeText(content);
         return true;
-      } else if (navigator.clipboard && navigator.clipboard.writeText) {
+      }
+    } catch (err) {
+      console.warn('Plugin writeText failed:', err);
+    }
+
+    // 3. Tenta API moderna do navegador (navigator.clipboard)
+    try {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
         await navigator.clipboard.writeText(content);
         return true;
       }
     } catch (err) {
-      console.error('Could not write to clipboard:', err);
+      console.warn('navigator.clipboard.writeText failed:', err);
     }
+
+    // 4. Fallback com textarea temporário (document.execCommand)
+    try {
+      const textarea = document.createElement('textarea');
+      textarea.value = content;
+      textarea.style.position = 'fixed';
+      textarea.style.opacity = '0';
+      textarea.style.left = '-9999px';
+      document.body.appendChild(textarea);
+      textarea.focus();
+      textarea.select();
+      const success = document.execCommand('copy');
+      document.body.removeChild(textarea);
+      if (success) return true;
+    } catch (err) {
+      console.error('All clipboard methods failed:', err);
+    }
+
     return false;
   }
 }
