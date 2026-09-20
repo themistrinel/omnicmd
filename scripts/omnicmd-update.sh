@@ -82,8 +82,8 @@ if [ -t 0 ]; then
   fi
 fi
 
-# Localizar asset de download para Linux (.AppImage ou .deb ou tar.gz ou binário)
-DOWNLOAD_URL="$(echo "$RELEASE_JSON" | grep -o '"browser_download_url": "[^"]*"' | grep -iE 'amd64\.AppImage|\.AppImage|linux.*x86_64.*tar\.gz|linux-x64' | head -1 | cut -d'"' -f4 || true)"
+# Localizar asset de download para Linux (.deb ou .AppImage ou tar.gz ou binário)
+DOWNLOAD_URL="$(echo "$RELEASE_JSON" | grep -o '"browser_download_url": "[^"]*"' | grep -iE 'amd64\.deb|\.deb|amd64\.AppImage|\.AppImage|linux.*x86_64.*tar\.gz|linux-x64' | head -1 | cut -d'"' -f4 || true)"
 
 if [ -z "$DOWNLOAD_URL" ]; then
   # Fallback: tentar qualquer asset de linux
@@ -106,6 +106,17 @@ curl -sSL --progress-bar -o "$DOWNLOAD_FILE" "$DOWNLOAD_URL"
 # Tratar arquivo baixado
 if [[ "$DOWNLOAD_URL" =~ \.tar\.gz$ ]]; then
   tar -xzf "$DOWNLOAD_FILE" -C "$TMP_DIR"
+  FOUND_BIN="$(find "$TMP_DIR" -type f -name "omnicmd" | head -1)"
+  if [ -n "$FOUND_BIN" ]; then
+    DOWNLOAD_FILE="$FOUND_BIN"
+  fi
+elif [[ "$DOWNLOAD_URL" =~ \.deb$ ]]; then
+  ar -x "$DOWNLOAD_FILE" --output="$TMP_DIR" 2>/dev/null || true
+  if [ -f "$TMP_DIR/data.tar.gz" ]; then
+    tar -xzf "$TMP_DIR/data.tar.gz" -C "$TMP_DIR"
+  elif [ -f "$TMP_DIR/data.tar.xz" ]; then
+    tar -xJf "$TMP_DIR/data.tar.xz" -C "$TMP_DIR"
+  fi
   FOUND_BIN="$(find "$TMP_DIR" -type f -name "omnicmd" | head -1)"
   if [ -n "$FOUND_BIN" ]; then
     DOWNLOAD_FILE="$FOUND_BIN"
