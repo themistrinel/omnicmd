@@ -26,6 +26,10 @@ log_warn() { echo -e "${YELLOW}[AVISO]${NC} $1"; }
 log_error() { echo -e "${RED}[ERRO]${NC} $1"; }
 
 REPO="themistrinel/omnicmd"
+BRANCH="${OMNICMD_BRANCH:-main}"
+RAW_BASE_URL="https://raw.githubusercontent.com/${REPO}/${BRANCH}"
+FALLBACK_RAW_URL="https://raw.githubusercontent.com/${REPO}/feat-develop"
+
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" 2>/dev/null && pwd || echo "$PWD")"
 ROOT_DIR="$(cd "${SCRIPT_DIR}/.." 2>/dev/null && pwd || echo "$PWD")"
 
@@ -35,6 +39,15 @@ ICONS_DIR="${HOME}/.local/share/icons/hicolor/scalable/apps"
 HYPR_CONFIG_DIR="${HOME}/.config/hypr"
 HYPR_CONF="${HYPR_CONFIG_DIR}/hyprland.conf"
 OMNICMD_HYPR_CONF="${HYPR_CONFIG_DIR}/omnicmd.conf"
+
+fetch_raw_file() {
+  local rel_path="$1"
+  local dest="$2"
+
+  if ! curl -fsSL "${RAW_BASE_URL}/${rel_path}" -o "$dest" 2>/dev/null; then
+    curl -fsSL "${FALLBACK_RAW_URL}/${rel_path}" -o "$dest"
+  fi
+}
 
 echo -e "${CYAN}${BOLD}"
 echo "=============================================================================="
@@ -59,9 +72,12 @@ fi
 
 if [ "$IS_ARCH" = false ]; then
   log_warn "Não foi detectado Arch Linux puro ou baseado em Arch (/etc/arch-release)."
-  read -r -p "Deseja prosseguir mesmo assim? [s/N]: " FORCE_RUN
+  FORCE_RUN="N"
+  if [ -c /dev/tty ]; then
+    read -r -p "Deseja prosseguir mesmo assim? [s/N]: " FORCE_RUN < /dev/tty || FORCE_RUN="N"
+  fi
   if [[ ! "$FORCE_RUN" =~ ^[SsYy]$ ]]; then
-    log_error "Instalação cancelada."
+    log_error "Instalação cancelada. O instalador automático é otimizado para sistemas baseados em Arch Linux."
     exit 1
   fi
 else
@@ -126,18 +142,20 @@ log_info "Preparando binário do OmniCmd..."
 
 INSTALLED_FROM_LOCAL=false
 
-# Se estamos dentro do repositório e o usuário quer compilar localmente
+# Se o usuário passou flag para compilar localmente
 if [ "$1" = "--build" ] || [ "$1" = "-b" ]; then
-  log_info "Flag --build detectada. Compilando binário nativo com Cargo..."
-  cd "$ROOT_DIR"
-  if command -v pnpm >/dev/null 2>&1; then
-    pnpm build
-    pnpm tauri build
-  else
-    cargo build --release --manifest-path src-tauri/Cargo.toml
+  if [ -d "$ROOT_DIR/src-tauri" ]; then
+    log_info "Flag --build detectada. Compilando binário nativo com Cargo..."
+    cd "$ROOT_DIR"
+    if command -v pnpm >/dev/null 2>&1; then
+      pnpm build
+      pnpm tauri build
+    else
+      cargo build --release --manifest-path src-tauri/Cargo.toml
+    fi
+    cp "$ROOT_DIR/src-tauri/target/release/omnicmd" "$INSTALL_DIR/omnicmd"
+    INSTALLED_FROM_LOCAL=true
   fi
-  cp "$ROOT_DIR/src-tauri/target/release/omnicmd" "$INSTALL_DIR/omnicmd"
-  INSTALLED_FROM_LOCAL=true
 elif [ -f "$ROOT_DIR/src-tauri/target/release/omnicmd" ]; then
   log_info "Binário local compilado encontrado em target/release/omnicmd."
   cp "$ROOT_DIR/src-tauri/target/release/omnicmd" "$INSTALL_DIR/omnicmd"
@@ -149,19 +167,30 @@ elif [ -f "$ROOT_DIR/src-tauri/target/debug/omnicmd" ]; then
 fi
 
 if [ "$INSTALLED_FROM_LOCAL" = false ]; then
-  log_info "Buscando release mais recente do GitHub (${REPO})..."
-  RELEASE_JSON="$(curl -sSL -H "Accept: application/vnd.github.v3+json" "https://api.github.com/repos/${REPO}/releases/latest" || true)"
+  log_info "Buscando release oficial mais recente no GitHub (${REPO})..."
+  RELEASE_JSON="$(curl -sSL -H "Accept: application/vnd.github.v3+json" "https://api.github.com/repos/${REPO}/releases/latest" 2>/dev/null || true)"
   
   DOWNLOAD_URL="$(echo "$RELEASE_JSON" | grep -o '"browser_download_url": "[^"]*"' | grep -iE 'amd64\.AppImage|\.AppImage|linux.*x86_64.*tar\.gz|linux-x64' | head -1 | cut -d'"' -f4 || true)"
   
   if [ -n "$DOWNLOAD_URL" ]; then
     log_info "Baixando release oficial de: $DOWNLOAD_URL..."
     TMP_DIR="$(mktemp -d)"
-    DOWNLOAD_FILE="$TMP_DIR/omnicmd_bin"
+    DOWNLOAD_FILE="$TMP_DIR/omnicmd_download"
     curl -sSL --progress-bar -o "$DOWNLOAD_FILE" "$DOWNLOAD_URL"
     
     if [[ "$DOWNLOAD_URL" =~ \.tar\.gz$ ]]; then
       tar -xzf "$DOWNLOAD_FILE" -C "$TMP_DIR"
+      FOUND_BIN="$(find "$TMP_DIR" -type f -name "omnicmd" | head -1)"
+      if [ -n "$FOUND_BIN" ]; then
+        DOWNLOAD_FILE="$FOUND_BIN"
+      fi
+    elif [[ "$DOWNLOAD_URL" =~ \.deb$ ]]; then
+      ar -x "$DOWNLOAD_FILE" --output="$TMP_DIR" 2>/dev/null || true
+      if [ -f "$TMP_DIR/data.tar.gz" ]; then
+        tar -xzf "$TMP_DIR/data.tar.gz" -C "$TMP_DIR"
+      elif [ -f "$TMP_DIR/data.tar.xz" ]; then
+        tar -xJf "$TMP_DIR/data.tar.xz" -C "$TMP_DIR"
+      fi
       FOUND_BIN="$(find "$TMP_DIR" -type f -name "omnicmd" | head -1)"
       if [ -n "$FOUND_BIN" ]; then
         DOWNLOAD_FILE="$FOUND_BIN"
@@ -172,11 +201,17 @@ if [ "$INSTALLED_FROM_LOCAL" = false ]; then
     rm -rf "$TMP_DIR"
     log_success "Binário baixado com sucesso!"
   else
-    log_warn "Nenhuma release remota encontrada ainda no repositório."
-    log_info "Tentando compilar binário local com Cargo..."
-    cd "$ROOT_DIR"
-    cargo build --release --manifest-path src-tauri/Cargo.toml
-    cp "$ROOT_DIR/src-tauri/target/release/omnicmd" "$INSTALL_DIR/omnicmd"
+    log_warn "Nenhuma release pré-compilada remota encontrada ainda no repositório."
+    if [ -d "$ROOT_DIR/src-tauri" ] && command -v cargo >/dev/null 2>&1; then
+      log_info "Compilando binário local com Cargo..."
+      cd "$ROOT_DIR"
+      cargo build --release --manifest-path src-tauri/Cargo.toml
+      cp "$ROOT_DIR/src-tauri/target/release/omnicmd" "$INSTALL_DIR/omnicmd"
+    else
+      log_error "Não foi possível encontrar a release nem compilar localmente."
+      log_info "Por favor, aguarde a conclusão do build de release no GitHub ou clone o repositório."
+      exit 1
+    fi
   fi
 fi
 
@@ -188,39 +223,22 @@ log_success "Executável instalado em: ${INSTALL_DIR}/omnicmd"
 # ------------------------------------------------------------------------------
 log_info "Instalando ferramentas auxiliares..."
 
+# Script de alternância inteligente (Toggle)
 if [ -f "$SCRIPT_DIR/omnicmd-toggle.sh" ]; then
   cp "$SCRIPT_DIR/omnicmd-toggle.sh" "$INSTALL_DIR/omnicmd-toggle"
 else
-  # Fallback inline se baixado solto
-  cat << 'EOF' > "$INSTALL_DIR/omnicmd-toggle"
-#!/usr/bin/env bash
-OMNICMD_BIN="$(command -v omnicmd 2>/dev/null || echo "$HOME/.local/bin/omnicmd")"
-if ! command -v hyprctl >/dev/null 2>&1; then
-  pkill -x omnicmd 2>/dev/null || "$OMNICMD_BIN" "$@" &
-  exit 0
-fi
-if ! pgrep -x "omnicmd" >/dev/null 2>&1; then
-  "$OMNICMD_BIN" "$@" >/dev/null 2>&1 &
-  exit 0
-fi
-ACTIVE_CLASS="$(hyprctl activewindow -j 2>/dev/null | grep -o '"class": "[^"]*"' | cut -d'"' -f4 || true)"
-if [[ "$ACTIVE_CLASS" =~ ^[oO]mnicmd$ ]]; then
-  hyprctl dispatch closewindow "class:^(omnicmd)$" 2>/dev/null || pkill -x "omnicmd"
-else
-  hyprctl dispatch focuswindow "class:^(omnicmd)$" 2>/dev/null || "$OMNICMD_BIN" "$@" >/dev/null 2>&1 &
-fi
-EOF
+  log_info "Baixando script omnicmd-toggle..."
+  fetch_raw_file "scripts/omnicmd-toggle.sh" "$INSTALL_DIR/omnicmd-toggle"
 fi
 chmod +x "$INSTALL_DIR/omnicmd-toggle"
 log_success "Script de alternância rápida instalado: ${INSTALL_DIR}/omnicmd-toggle"
 
+# Script de auto-atualização (Update)
 if [ -f "$SCRIPT_DIR/omnicmd-update.sh" ]; then
   cp "$SCRIPT_DIR/omnicmd-update.sh" "$INSTALL_DIR/omnicmd-update"
 else
-  cat << 'EOF' > "$INSTALL_DIR/omnicmd-update"
-#!/usr/bin/env bash
-echo "Para atualizar, execute: ./scripts/omnicmd-update.sh"
-EOF
+  log_info "Baixando script omnicmd-update..."
+  fetch_raw_file "scripts/omnicmd-update.sh" "$INSTALL_DIR/omnicmd-update"
 fi
 chmod +x "$INSTALL_DIR/omnicmd-update"
 log_success "Script de auto-atualização instalado: ${INSTALL_DIR}/omnicmd-update"
@@ -233,6 +251,9 @@ log_info "Configurando ícones e atalho no lançador de aplicativos..."
 ICON_SRC="$ROOT_DIR/src-tauri/icons/ai-commander-icon.svg"
 if [ -f "$ICON_SRC" ]; then
   cp "$ICON_SRC" "$ICONS_DIR/omnicmd.svg"
+else
+  log_info "Baixando ícone oficial do OmniCmd..."
+  fetch_raw_file "src-tauri/icons/ai-commander-icon.svg" "$ICONS_DIR/omnicmd.svg" || true
 fi
 
 cat << EOF > "$APPLICATIONS_DIR/omnicmd.desktop"
@@ -263,11 +284,10 @@ cat << 'EOF' > "$OMNICMD_HYPR_CONF"
 # ==============================================================================
 
 # 1. Regras de Janela (Window Rules v2)
-# Garante exibição fluida como Spotlight/Raycast: flutuante, centralizada e sem bordas
+# Modo Nativo: Delega bordas ativas (col.active_border), cantos arredondados (rounding) e sombras ao Hyprland
 windowrulev2 = float, class:^(omnicmd)$
 windowrulev2 = center, class:^(omnicmd)$
 windowrulev2 = size 800 560, class:^(omnicmd)$
-windowrulev2 = noborder, class:^(omnicmd)$
 windowrulev2 = stayfocused, class:^(omnicmd)$
 windowrulev2 = pin, class:^(omnicmd)$
 windowrulev2 = animation popin 95%, class:^(omnicmd)$
@@ -324,6 +344,6 @@ echo ""
 echo -e "  • ${BOLD}Atalho Principal:${NC} ${CYAN}SUPER + SPACE${NC} (Abre ou fecha a paleta instantaneamente)"
 echo -e "  • ${BOLD}Atalho Secundário:${NC} ${CYAN}SUPER + SHIFT + SPACE${NC}"
 echo -e "  • ${BOLD}Comando de Alternância:${NC} ${CYAN}omnicmd-toggle${NC}"
-echo -e "  • ${BOLD}Comando de Atualização:${NC} ${CYAN}omnicmd-update${NC} (Busca e instala novas versões da main)"
+echo -e "  • ${BOLD}Comando de Atualização:${NC} ${CYAN}omnicmd-update${NC} (Busca e instala novas versões do GitHub)"
 echo -e "  • ${BOLD}Arquivo de Configuração:${NC} ${YELLOW}~/.config/hypr/omnicmd.conf${NC}"
 echo ""

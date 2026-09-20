@@ -5,7 +5,9 @@ export const RELEASES_URL = 'https://github.com/themistrinel/omnicmd/releases';
 export const LICENSE_URL = 'https://github.com/themistrinel/omnicmd/blob/main/LICENSE';
 
 export const INSTALL_CURL_COMMAND =
-  'curl -fsSL https://raw.githubusercontent.com/themistrinel/omnicmd/main/scripts/install-arch-hyprland.sh | bash';
+  'curl -fsSL https://raw.githubusercontent.com/themistrinel/omnicmd/main/install.sh | bash';
+
+export const UPDATE_COMMAND = 'omnicmd-update';
 
 export const BUILD_FROM_SOURCE_COMMAND =
   'git clone https://github.com/themistrinel/omnicmd.git && pnpm install && pnpm tauri build';
