@@ -127,11 +127,6 @@ OmniCmd is a free, open-source project created and maintained by independent dev
 698b86a2-3f72-4be7-ab3e-f838522a41e2
 ```
 
-### 📋 Pix Copia e Cola
-```text
-00020126580014br.gov.bcb.pix0136698b86a2-3f72-4be7-ab3e-f838522a41e25204000053039865802BR5907OmniCmd6009SAO PAULO62070503***63041D7E
-```
-
 ---
 
 ## 📄 License
