@@ -10,8 +10,8 @@
   <a href="https://github.com/themistrinel/omnicmd/releases">
     <img src="https://img.shields.io/github/v/release/themistrinel/omnicmd?style=for-the-badge&color=38bdf8" alt="Release" />
   </a>
-  <a href="https://github.com/themistrinel/omnicmd/blob/main/LICENSE">
-    <img src="https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge" alt="License" />
+  <a href="https://github.com/themistrinel/omnicmd/blob/master/LICENSE">
+    <img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="License" />
   </a>
   <img src="https://img.shields.io/badge/Platform-Linux%20%7C%20Windows%20%7C%20macOS-334155?style=for-the-badge" alt="Platforms" />
   <img src="https://img.shields.io/badge/Tauri-v2-24c8db?style=for-the-badge&logo=tauri&logoColor=white" alt="Tauri v2" />
@@ -87,7 +87,7 @@ O OmniCmd possui instalador oficial dedicado para **Arch Linux** e o compositor 
 ### ⚡ 1-Liner Quick Install (Sem clonar repositório)
 Execute diretamente em qualquer terminal sem precisar clonar ou instalar o git:
 ```bash
-curl -fsSL https://raw.githubusercontent.com/themistrinel/omnicmd/main/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/themistrinel/omnicmd/master/install.sh | bash
 ```
 *(ou se já clonou o repositório localmente: `./install.sh` ou `./scripts/install-arch-hyprland.sh`)*
 

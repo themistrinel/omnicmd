@@ -98,7 +98,7 @@ jobs:
             
             ### 🚀 Quick Install on Arch Linux / Hyprland
             ```bash
-            curl -fsSL https://raw.githubusercontent.com/themistrinel/omnicmd/main/install.sh | bash
+            curl -fsSL https://raw.githubusercontent.com/themistrinel/omnicmd/master/install.sh | bash
             ```
             
             ### 📦 Binaries & Installers
