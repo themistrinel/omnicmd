@@ -3,8 +3,8 @@ name: Deploy Landing Page to GitHub Pages
 on:
   push:
     branches:
+      - master
       - main
-      - feat-develop
     paths:
       - 'landing/**'
       - 'package.json'
