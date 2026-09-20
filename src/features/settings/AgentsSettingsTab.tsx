@@ -86,7 +86,7 @@ export const AgentsSettingsTab: React.FC<AgentsSettingsTabProps> = ({
         <div>
           <h2 className="text-sm font-semibold flex items-center gap-2">
             <span>Agentes de IA Contextuais</span>
-            <span className="text-xs px-1.5 py-0.2 rounded bg-indigo-500/20 text-indigo-300 font-mono">
+            <span className="text-xs px-1.5 py-0.2 rounded bg-sky-500/20 text-sky-300 font-mono">
               @agente
             </span>
           </h2>
@@ -130,7 +130,7 @@ export const AgentsSettingsTab: React.FC<AgentsSettingsTabProps> = ({
                 onClick={() => setSelectedAgentId(agent.id)}
                 className={`flex items-center justify-between p-2.5 rounded-xl cursor-pointer border transition-all ${
                   isSelected
-                    ? 'bg-white/[0.08] border-indigo-500/40 shadow-xs'
+                    ? 'bg-white/[0.08] border-sky-500/40 shadow-xs'
                     : 'bg-black/10 dark:bg-zinc-900/40 border-hud hover:bg-white/[0.04]'
                 }`}
               >
@@ -138,7 +138,7 @@ export const AgentsSettingsTab: React.FC<AgentsSettingsTabProps> = ({
                   <div
                     className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 border ${
                       isSelected
-                        ? 'bg-indigo-500/20 text-indigo-300 border-indigo-500/30'
+                        ? 'bg-sky-500/20 text-sky-300 border-sky-500/30'
                         : 'bg-zinc-800/40 text-zinc-400 border-white/10'
                     }`}
                   >
@@ -153,7 +153,7 @@ export const AgentsSettingsTab: React.FC<AgentsSettingsTabProps> = ({
                         </span>
                       )}
                     </div>
-                    <span className="text-[11px] font-mono text-indigo-400 block truncate">
+                    <span className="text-[11px] font-mono text-sky-400 block truncate">
                       {agent.handle}
                     </span>
                   </div>
@@ -162,7 +162,7 @@ export const AgentsSettingsTab: React.FC<AgentsSettingsTabProps> = ({
                 <Icon
                   name="ChevronRight"
                   className={`w-3.5 h-3.5 shrink-0 transition-transform ${
-                    isSelected ? 'text-indigo-400 translate-x-0.5' : 'text-zinc-600'
+                    isSelected ? 'text-sky-400 translate-x-0.5' : 'text-zinc-600'
                   }`}
                 />
               </div>
@@ -176,7 +176,7 @@ export const AgentsSettingsTab: React.FC<AgentsSettingsTabProps> = ({
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <span className="text-xs font-semibold text-zinc-300">Editando Agente:</span>
-                <span className="text-xs font-mono font-medium px-2 py-0.5 rounded bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
+                <span className="text-xs font-mono font-medium px-2 py-0.5 rounded bg-sky-500/20 text-sky-300 border border-sky-500/30">
                   {selectedAgent.handle}
                 </span>
               </div>
@@ -217,7 +217,7 @@ export const AgentsSettingsTab: React.FC<AgentsSettingsTabProps> = ({
                     if (val && !val.startsWith('@')) val = `@${val}`;
                     handleUpdateCurrentAgent('handle', val);
                   }}
-                  className="hud-input w-full px-3 py-1.5 rounded-lg border text-xs font-mono focus:outline-none text-indigo-300"
+                  className="hud-input w-full px-3 py-1.5 rounded-lg border text-xs font-mono focus:outline-none text-sky-300"
                   placeholder="@dev"
                 />
               </div>
@@ -267,7 +267,7 @@ export const AgentsSettingsTab: React.FC<AgentsSettingsTabProps> = ({
                       onClick={() => handleUpdateCurrentAgent('icon', iconName)}
                       className={`p-2 rounded-lg border text-xs transition-colors cursor-pointer ${
                         isCur
-                          ? 'bg-indigo-500/20 text-indigo-300 border-indigo-500/40'
+                          ? 'bg-sky-500/20 text-sky-300 border-sky-500/40'
                           : 'bg-black/10 dark:bg-zinc-800/40 border-hud text-zinc-400 hover:text-zinc-200'
                       }`}
                       title={iconName}
@@ -283,7 +283,7 @@ export const AgentsSettingsTab: React.FC<AgentsSettingsTabProps> = ({
             <div className="space-y-1.5 pt-1">
               <div className="flex items-center justify-between">
                 <label className="text-xs font-semibold text-zinc-200 flex items-center gap-1.5">
-                  <Icon name="Terminal" className="w-3.5 h-3.5 text-indigo-400" />
+                  <Icon name="Terminal" className="w-3.5 h-3.5 text-sky-400" />
                   <span>Instrução de Sistema (Prompt do Agente)</span>
                 </label>
                 <span className="text-[10px] text-zinc-500 font-mono">
@@ -299,7 +299,7 @@ export const AgentsSettingsTab: React.FC<AgentsSettingsTabProps> = ({
               />
               <p className="text-[11px] text-zinc-400">
                 Este prompt é enviado como contexto de sistema sempre que o usuário invocar{' '}
-                <code className="text-indigo-300 font-mono">{selectedAgent.handle}</code> em texto livre.
+                <code className="text-sky-300 font-mono">{selectedAgent.handle}</code> em texto livre.
               </p>
             </div>
           </div>

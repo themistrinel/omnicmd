@@ -1,7 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Terminal, Download, Menu, X, ArrowUpRight } from 'lucide-react';
+import { Download, Menu, X, ArrowUpRight } from 'lucide-react';
 import { GithubIcon } from './GithubIcon';
 import { GITHUB_URL } from '../constants';
+import { OSPlatform } from '../types';
+import { detectUserOS, getDownloadInfo } from '../utils';
 
 interface NavItem {
   label: string;
@@ -9,16 +11,19 @@ interface NavItem {
 }
 
 const NAV_LINKS: NavItem[] = [
-  { label: 'Preview', href: '#preview' },
-  { label: 'Architecture', href: '#benchmarks' },
-  { label: 'Cadence', href: '#workflow' },
-  { label: 'Releases', href: '#devlog' },
-  { label: 'Downloads', href: '#downloads' },
+  { label: 'Cockpit', href: '#cockpit' },
+  { label: 'Cadence', href: '#cadence' },
+  { label: 'Profiler', href: '#architecture' },
+  { label: 'Commands', href: '#commands' },
+  { label: 'Artifacts', href: '#downloads' },
+  { label: 'Changelog', href: '#devlog' },
 ];
 
 export const Navbar: React.FC = () => {
   const [scrolled, setScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [detectedOS] = useState<OSPlatform>(detectUserOS);
+  const downloadInfo = getDownloadInfo(detectedOS);
   const menuButtonRef = useRef<HTMLButtonElement>(null);
   const drawerRef = useRef<HTMLDivElement>(null);
 
@@ -57,44 +62,6 @@ export const Navbar: React.FC = () => {
     }
   }, [isMobileMenuOpen]);
 
-  // Accessible focus trap inside drawer
-  useEffect(() => {
-    if (!isMobileMenuOpen || !drawerRef.current) return;
-
-    const drawer = drawerRef.current;
-    const focusable = drawer.querySelectorAll<HTMLElement>(
-      'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])'
-    );
-    if (focusable.length > 0) {
-      focusable[0]?.focus();
-    }
-
-    const handleTabTrap = (e: KeyboardEvent) => {
-      if (e.key !== 'Tab') return;
-      const elements = drawer.querySelectorAll<HTMLElement>(
-        'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])'
-      );
-      if (elements.length === 0) return;
-      const first = elements[0];
-      const last = elements[elements.length - 1];
-
-      if (e.shiftKey) {
-        if (document.activeElement === first) {
-          e.preventDefault();
-          last.focus();
-        }
-      } else {
-        if (document.activeElement === last) {
-          e.preventDefault();
-          first.focus();
-        }
-      }
-    };
-
-    drawer.addEventListener('keydown', handleTabTrap);
-    return () => drawer.removeEventListener('keydown', handleTabTrap);
-  }, [isMobileMenuOpen]);
-
   const closeMobileMenu = () => {
     setIsMobileMenuOpen(false);
     menuButtonRef.current?.focus();
@@ -102,182 +69,132 @@ export const Navbar: React.FC = () => {
 
   return (
     <>
-      <header className="fixed top-0 left-0 right-0 z-50 flex justify-center px-3 sm:px-4 py-3 sm:py-4 pointer-events-none">
-        <div
-          className={`pointer-events-auto w-full max-w-6xl transition-all duration-300 rounded-2xl flex items-center justify-between px-3.5 sm:px-6 h-14 ${
-            scrolled
-              ? 'bg-[#090b10]/85 backdrop-blur-xl border border-white/[0.08] shadow-[0_8px_32px_rgba(0,0,0,0.5),inset_0_1px_0_0_rgba(255,255,255,0.1)]'
-              : 'bg-[#090b10]/50 backdrop-blur-md border border-white/[0.04]'
-          }`}
-        >
-          {/* Brand */}
-          <a
-            href="#"
-            aria-label="OmniCmd Home"
-            className="flex items-center gap-2.5 sm:gap-3 group cursor-pointer min-h-[44px] py-1 focus:outline-none"
-          >
-            <div className="w-8 h-8 rounded-xl bg-white/[0.04] border border-white/[0.1] flex items-center justify-center text-white shadow-inner group-hover:border-white/25 transition-colors shrink-0">
-              <Terminal className="w-4 h-4 text-sky-400" />
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="text-sm font-semibold tracking-tight text-white font-sans">
-                OmniCmd
-              </span>
-              <span className="text-[10px] font-mono px-1.5 py-0.5 rounded-md bg-white/[0.05] text-slate-300 border border-white/[0.06] hidden sm:inline-flex items-center gap-1">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
-                v0.1.0 • Rust Core
-              </span>
-            </div>
-          </a>
+      <header
+        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-150 font-mono ${
+          scrolled
+            ? 'bg-[#050608]/95 backdrop-blur-md border-b border-white/[0.1]'
+            : 'bg-transparent border-b border-white/[0.04]'
+        }`}
+      >
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 h-13 flex items-center justify-between">
+          {/* Logo & Platform Tag */}
+          <div className="flex items-center gap-3">
+            <a
+              href="#"
+              className="flex items-center gap-2 text-white font-bold tracking-tight text-sm focus:outline-none"
+            >
+              <div className="w-5 h-5 rounded bg-[#38bdf8] text-black flex items-center justify-center font-mono font-bold text-xs">
+                &gt;_
+              </div>
+              <span className="font-display font-extrabold tracking-tight">OMNICMD</span>
+            </a>
 
-          {/* Desktop Links (Screens >= 768px) */}
-          <nav aria-label="Main Navigation" className="hidden md:flex items-center gap-6 text-[13px] text-slate-400 font-medium">
+            <a
+              href="#devlog"
+              className="hidden sm:inline-flex items-center px-1.5 py-0.2 rounded text-[10px] font-mono text-zinc-400 hover:text-white bg-[#10131b] border border-white/[0.08]"
+            >
+              v0.1.0
+            </a>
+          </div>
+
+          {/* Navigation Items (Desktop) */}
+          <nav className="hidden md:flex items-center gap-6 text-xs font-mono text-zinc-400">
             {NAV_LINKS.map((link) => (
               <a
-                key={link.href}
+                key={link.label}
                 href={link.href}
-                className="hover:text-white transition-colors min-h-[44px] inline-flex items-center py-2"
+                className="hover:text-[#38bdf8] transition-colors"
               >
                 {link.label}
               </a>
             ))}
           </nav>
 
-          {/* Action Controls & Mobile Toggle */}
-          <div className="flex items-center gap-2">
-            {/* Desktop Action Controls */}
-            <div className="hidden sm:flex items-center gap-2.5">
-              <a
-                href={GITHUB_URL}
-                target="_blank"
-                rel="noreferrer"
-                aria-label="View OmniCmd on GitHub"
-                className="flex items-center gap-1.5 px-3 py-1.5 min-h-[44px] text-xs font-medium rounded-lg bg-white/[0.04] hover:bg-white/[0.08] text-slate-300 hover:text-white border border-white/[0.08] transition-all"
-              >
-                <GithubIcon className="w-3.5 h-3.5" />
-                <span>GitHub</span>
-              </a>
-
-              <a
-                href="#downloads"
-                aria-label="Download OmniCmd"
-                className="flex items-center gap-1.5 px-3.5 py-1.5 min-h-[44px] text-xs font-semibold rounded-lg bg-white text-slate-950 hover:bg-slate-200 transition-all shadow-[0_2px_10px_rgba(255,255,255,0.15)] cursor-pointer"
-              >
-                <Download className="w-3.5 h-3.5" />
-                <span>Get OmniCmd</span>
-              </a>
-            </div>
-
-            {/* Compact download button on small screens without drawer open */}
+          {/* Right Action Cluster */}
+          <div className="flex items-center gap-2.5">
             <a
-              href="#downloads"
-              aria-label="Download OmniCmd"
-              className="sm:hidden flex items-center justify-center min-w-[44px] min-h-[44px] px-3 rounded-lg bg-white text-slate-950 font-semibold text-xs cursor-pointer shadow-sm"
+              href={GITHUB_URL}
+              target="_blank"
+              rel="noreferrer"
+              aria-label="View OmniCmd on GitHub"
+              className="hidden xs:inline-flex items-center gap-1.5 px-3 py-1.5 rounded text-xs font-mono text-zinc-300 hover:text-white bg-[#0e1118] hover:bg-[#161a24] border border-white/[0.08] transition-all"
             >
-              <Download className="w-4 h-4" />
+              <GithubIcon className="w-3.5 h-3.5" />
+              <span>GH</span>
+              <ArrowUpRight className="w-3 h-3 text-zinc-500" />
             </a>
 
-            {/* Mobile Menu Hamburger Toggle (Screens < 768px) */}
+            <a
+              href={downloadInfo.url}
+              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded text-xs font-mono font-bold bg-[#38bdf8] text-black hover:bg-[#0ea5e9] transition-all shadow-[0_0_15px_rgba(56,189,248,0.25)]"
+            >
+              <Download className="w-3.5 h-3.5 text-black" />
+              <span>{downloadInfo.osName.toUpperCase()}</span>
+            </a>
+
+            {/* Mobile Hamburger Button */}
             <button
               ref={menuButtonRef}
               type="button"
-              onClick={() => setIsMobileMenuOpen((prev) => !prev)}
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
               aria-expanded={isMobileMenuOpen}
-              aria-controls="mobile-navigation-drawer"
+              aria-controls="mobile-drawer"
               aria-label={isMobileMenuOpen ? 'Close navigation menu' : 'Open navigation menu'}
-              className="md:hidden flex items-center justify-center min-w-[44px] min-h-[44px] rounded-xl bg-white/[0.04] hover:bg-white/[0.08] text-slate-200 border border-white/[0.08] transition-colors cursor-pointer"
+              className="md:hidden p-1.5 rounded text-zinc-400 hover:text-white bg-[#10131b] border border-white/[0.08] transition-colors cursor-pointer"
             >
-              {isMobileMenuOpen ? (
-                <X className="w-5 h-5 text-white" />
-              ) : (
-                <Menu className="w-5 h-5 text-slate-200" />
-              )}
+              {isMobileMenuOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
             </button>
           </div>
         </div>
       </header>
 
-      {/* Accessible Mobile Drawer & Backdrop Overlay (Screens < 768px) */}
+      {/* Accessible Mobile Navigation Drawer */}
       {isMobileMenuOpen && (
         <div
-          className="fixed inset-0 z-50 md:hidden flex flex-col justify-start"
+          id="mobile-drawer"
+          ref={drawerRef}
           role="dialog"
           aria-modal="true"
-          aria-label="Mobile Navigation"
+          aria-label="Mobile Navigation Menu"
+          className="fixed inset-0 z-40 bg-[#050608]/98 backdrop-blur-2xl md:hidden pt-20 px-6 flex flex-col justify-between pb-8 font-mono"
         >
-          {/* Backdrop */}
-          <div
-            className="fixed inset-0 bg-black/80 backdrop-blur-md transition-opacity"
-            onClick={closeMobileMenu}
-            aria-hidden="true"
-          />
-
-          {/* Drawer Sheet Panel */}
-          <div
-            ref={drawerRef}
-            id="mobile-navigation-drawer"
-            className="relative z-10 w-[calc(100%-1.5rem)] max-w-md mx-auto mt-20 mb-6 p-5 rounded-2xl bg-[#090b10] border border-white/[0.12] shadow-[0_20px_50px_rgba(0,0,0,0.9),inset_0_1px_0_0_rgba(255,255,255,0.1)] flex flex-col gap-4 overflow-y-auto max-h-[calc(100vh-6rem)]"
-          >
-            {/* Sheet Header */}
-            <div className="flex items-center justify-between pb-3 border-b border-white/[0.08]">
-              <div className="flex items-center gap-2">
-                <div className="w-7 h-7 rounded-lg bg-white/[0.04] border border-white/[0.1] flex items-center justify-center text-white">
-                  <Terminal className="w-3.5 h-3.5 text-sky-400" />
-                </div>
-                <span className="font-semibold text-sm text-white font-sans">Navigation</span>
-                <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-white/[0.05] text-slate-300 border border-white/[0.06]">
-                  v0.1.0
-                </span>
-              </div>
-
-              <button
-                type="button"
-                onClick={closeMobileMenu}
-                aria-label="Close navigation sheet"
-                className="flex items-center justify-center min-w-[44px] min-h-[44px] rounded-lg text-slate-400 hover:text-white hover:bg-white/[0.05] transition-colors cursor-pointer"
-              >
-                <X className="w-5 h-5" />
-              </button>
+          <div className="flex flex-col gap-2">
+            <div className="text-[10px] uppercase tracking-wider text-zinc-500 mb-2">
+              SYSTEM DIRECTORY
             </div>
-
-            {/* Navigation Links */}
-            <nav aria-label="Mobile Drawer Navigation" className="flex flex-col gap-1">
-              {NAV_LINKS.map((link) => (
-                <a
-                  key={link.href}
-                  href={link.href}
-                  onClick={closeMobileMenu}
-                  className="flex items-center justify-between min-h-[44px] px-4 py-2.5 rounded-xl text-sm font-medium text-slate-200 hover:text-white hover:bg-white/[0.06] transition-colors border border-transparent hover:border-white/[0.06]"
-                >
-                  <span>{link.label}</span>
-                  <span className="text-slate-400 text-xs font-mono">→</span>
-                </a>
-              ))}
-            </nav>
-
-            {/* Action Buttons inside Drawer */}
-            <div className="flex flex-col gap-2.5 pt-3 border-t border-white/[0.08]">
+            {NAV_LINKS.map((link) => (
               <a
-                href={GITHUB_URL}
-                target="_blank"
-                rel="noreferrer"
+                key={link.label}
+                href={link.href}
                 onClick={closeMobileMenu}
-                className="flex items-center justify-center gap-2 min-h-[44px] px-4 py-2.5 rounded-xl text-xs font-medium text-slate-200 bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] transition-colors"
+                className="py-3 text-base font-bold text-zinc-200 hover:text-[#38bdf8] border-b border-white/[0.06] transition-colors"
               >
-                <GithubIcon className="w-4 h-4" />
-                <span>Star on GitHub</span>
-                <ArrowUpRight className="w-3.5 h-3.5 text-slate-400" />
+                {link.label}
               </a>
+            ))}
+          </div>
 
-              <a
-                href="#downloads"
-                onClick={closeMobileMenu}
-                className="flex items-center justify-center gap-2 min-h-[44px] px-4 py-2.5 rounded-xl text-xs font-semibold bg-white text-slate-950 hover:bg-slate-200 transition-all shadow-[0_2px_12px_rgba(255,255,255,0.18)]"
-              >
-                <Download className="w-4 h-4" />
-                <span>Get OmniCmd for your OS</span>
-              </a>
-            </div>
+          <div className="flex flex-col gap-3 pt-6 border-t border-white/[0.08]">
+            <a
+              href={downloadInfo.url}
+              onClick={closeMobileMenu}
+              className="flex items-center justify-center gap-2 w-full py-3 rounded bg-[#38bdf8] text-black font-bold text-xs"
+            >
+              <Download className="w-4 h-4" />
+              <span>DOWNLOAD FOR {downloadInfo.osName.toUpperCase()}</span>
+            </a>
+
+            <a
+              href={GITHUB_URL}
+              target="_blank"
+              rel="noreferrer"
+              onClick={closeMobileMenu}
+              className="flex items-center justify-center gap-2 w-full py-2.5 rounded bg-[#10131b] text-zinc-300 border border-white/[0.08] text-xs font-mono"
+            >
+              <GithubIcon className="w-4 h-4" />
+              <span>themistrinel/omnicmd</span>
+              <ArrowUpRight className="w-3.5 h-3.5 text-zinc-500" />
+            </a>
           </div>
         </div>
       )}

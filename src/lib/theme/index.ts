@@ -17,10 +17,10 @@ export interface AccentColorMeta {
 export const ACCENT_COLORS: Record<AccentColor, AccentColorMeta> = {
   sky: {
     id: 'sky',
-    name: 'Azul Ícone',
-    hex: '#50a2e8',
-    rgb: '80, 162, 232',
-    textHex: '#70b7f5',
+    name: 'Azul Omni (Padrão)',
+    hex: '#38bdf8',
+    rgb: '56, 189, 248',
+    textHex: '#38bdf8',
     textClass: 'text-sky-400',
     bgClass: 'bg-sky-500',
     borderClass: 'border-sky-400',

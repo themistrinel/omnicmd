@@ -1,9 +1,15 @@
+#[cfg(unix)]
 use std::fs;
+#[cfg(unix)]
 use std::io::{BufRead, BufReader, Write};
+#[cfg(unix)]
 use std::os::unix::net::{UnixListener, UnixStream};
+#[cfg(unix)]
 use std::path::PathBuf;
+#[cfg(unix)]
 use tauri::{Emitter, Manager};
 
+#[cfg(unix)]
 pub fn get_socket_path() -> PathBuf {
     if let Ok(runtime_dir) = std::env::var("XDG_RUNTIME_DIR") {
         PathBuf::from(runtime_dir).join("omnicmd.sock")
@@ -13,6 +19,7 @@ pub fn get_socket_path() -> PathBuf {
     }
 }
 
+#[cfg(unix)]
 pub fn send_command(cmd: &str) -> bool {
     let socket_path = get_socket_path();
     if let Ok(mut stream) = UnixStream::connect(&socket_path) {
@@ -23,6 +30,7 @@ pub fn send_command(cmd: &str) -> bool {
     false
 }
 
+#[cfg(unix)]
 pub fn start_ipc_server(handle: tauri::AppHandle) {
     let socket_path = get_socket_path();
 
@@ -76,4 +84,14 @@ pub fn start_ipc_server(handle: tauri::AppHandle) {
             }
         }
     });
+}
+
+#[cfg(not(unix))]
+pub fn send_command(_cmd: &str) -> bool {
+    false
+}
+
+#[cfg(not(unix))]
+pub fn start_ipc_server(_handle: tauri::AppHandle) {
+    // IPC via UNIX domain socket is not supported on non-unix systems
 }

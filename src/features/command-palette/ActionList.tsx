@@ -110,36 +110,36 @@ export const ActionList: React.FC<ActionListProps> = ({
               }`}
             >
               <div className="flex items-center gap-3 min-w-0">
-                <div
-                  className={`w-5 h-5 flex items-center justify-center shrink-0 transition-colors ${
-                    isSelected
-                      ? 'text-[var(--accent-text,var(--accent-color))]'
-                      : isAgent
-                      ? 'text-indigo-400 group-hover:text-indigo-300'
-                      : 'text-slate-400 group-hover:text-slate-200'
-                  }`}
-                >
-                  <Icon name={item.icon} className="w-4 h-4" />
-                </div>
-                <div className="flex flex-col truncate">
-                  <span className="text-[13px] font-medium tracking-tight flex items-center gap-2">
-                    <span>{item.title}</span>
-                    {item.token && (
-                      <span
-                        className="text-[11px] font-mono font-medium px-1.5 py-0.2 rounded"
-                        style={
-                          isAgent
-                            ? {
-                                backgroundColor: 'rgba(99, 102, 241, 0.16)',
-                                color: '#a5b4fc',
-                                border: '1px solid rgba(99, 102, 241, 0.25)',
-                              }
-                            : {
-                                backgroundColor: 'rgba(var(--accent-rgb), 0.14)',
-                                color: 'var(--accent-text, var(--accent-color))',
-                              }
-                        }
-                      >
+                  <div
+                    className={`w-5 h-5 flex items-center justify-center shrink-0 transition-colors ${
+                      isSelected
+                        ? 'text-[var(--accent-text,var(--accent-color))]'
+                        : isAgent
+                        ? 'text-sky-400 group-hover:text-sky-300'
+                        : 'text-slate-400 group-hover:text-slate-200'
+                    }`}
+                  >
+                    <Icon name={item.icon} className="w-4 h-4" />
+                  </div>
+                  <div className="flex flex-col truncate">
+                    <span className="text-[13px] font-medium tracking-tight flex items-center gap-2">
+                      <span>{item.title}</span>
+                      {item.token && (
+                        <span
+                          className="text-[11px] font-mono font-medium px-1.5 py-0.2 rounded"
+                          style={
+                            isAgent
+                              ? {
+                                  backgroundColor: 'rgba(56, 189, 248, 0.16)',
+                                  color: '#38bdf8',
+                                  border: '1px solid rgba(56, 189, 248, 0.3)',
+                                }
+                              : {
+                                  backgroundColor: 'rgba(var(--accent-rgb), 0.14)',
+                                  color: 'var(--accent-text, var(--accent-color))',
+                                }
+                          }
+                        >
                         {item.token}
                       </span>
                     )}
