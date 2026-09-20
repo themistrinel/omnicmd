@@ -52,20 +52,30 @@ export interface PromptAction {
   icon: string;
   systemPrompt: string;
   userPromptTemplate?: (input: string) => string;
+  userPromptTemplateString?: string; // template format with {input}, e.g. "Traduza:\n\n{input}"
   shortcutHint?: string;
   command?: string;
   aliases?: string[];
   isVisionAction?: boolean;
+  isCustom?: boolean;
 }
 
-export interface Profile {
+export interface Agent {
   id: string;
   name: string;
+  handle: string; // e.g. '@dev'
+  aliases: string[]; // e.g. ['@code', '@coding']
   description: string;
   icon: string;
   systemInstruction: string;
   preferredModel?: string;
+  isCustom?: boolean;
 }
+
+// Retrocompatibility alias for Profile
+export type Profile = Agent;
+
+export type ExecutionTargetType = 'action' | 'agent' | 'general';
 
 export interface HistoryEntry {
   id?: number;
@@ -81,8 +91,8 @@ export interface HistoryEntry {
 export type KeyboardNavigationMode = 'hybrid' | 'vim' | 'standard';
 
 export type ThemeMode = 'dark' | 'light' | 'system';
-export type FontFamily = 'system' | 'sans' | 'mono';
-export type AccentColor = 'indigo' | 'emerald' | 'violet' | 'amber' | 'cyan' | 'rose' | 'zinc';
+export type FontFamily = 'ibm_plex' | 'mono' | 'sans' | 'system';
+export type AccentColor = 'sky' | 'cyan' | 'amber' | 'emerald' | 'indigo' | 'violet' | 'rose' | 'zinc';
 
 export interface AppearanceSettings {
   themeMode: ThemeMode;
@@ -119,4 +129,6 @@ export interface AppSettings {
   appearance?: AppearanceSettings;
   customVisionPrompt?: string;
   customUiPrompt?: string;
+  agents?: Agent[];
+  actions?: PromptAction[];
 }

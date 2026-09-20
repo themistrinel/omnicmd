@@ -1,13 +1,24 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { listen } from '@tauri-apps/api/event';
-import { PromptAction, Profile, AppSettings, HistoryEntry, AIProviderId } from '@/types';
+import { PromptAction, Agent, AppSettings, HistoryEntry, AIProviderId } from '@/types';
 import { PROMPT_ACTIONS } from '@/lib/actions';
-import { PROFILES, getProfile } from '@/lib/profiles';
+import { AGENTS, DEFAULT_AGENT, getAgent } from '@/lib/agents';
 import { StorageService, DEFAULT_SETTINGS } from '@/lib/storage';
 import { ClipboardService } from '@/lib/clipboard';
 import { WindowService } from '@/lib/shortcuts';
 import { aiRegistry, NineRouterProvider } from '@/lib/ai';
 import { applyAppearanceSettings } from '@/lib/theme';
+import {
+  parseCommandInput,
+  composeExecutionPlan,
+  ParsedInput,
+  ComposedExecution,
+} from '@/lib/prompt-composer';
+import {
+  getPaletteSuggestions,
+  completeQuery,
+  PaletteItem,
+} from '@/lib/prompt-composer/autocomplete';
 
 import { ActionList } from './ActionList';
 import { InputView } from './InputView';
@@ -24,9 +35,13 @@ type ViewMode = 'SEARCH' | 'INPUT' | 'RESULT' | 'HISTORY' | 'SETTINGS';
 export const CommandPalette: React.FC = () => {
   const [viewMode, setViewMode] = useState<ViewMode>('SEARCH');
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedActionIndex, setSelectedActionIndex] = useState(0);
-  const [selectedAction, setSelectedAction] = useState<PromptAction>(PROMPT_ACTIONS[0]);
-  const [activeProfile, setActiveProfile] = useState<Profile>(PROFILES[0]);
+  const [selectedItemIndex, setSelectedItemIndex] = useState(0);
+
+  // Active execution state
+  const [activeAction, setActiveAction] = useState<PromptAction>(PROMPT_ACTIONS[0]);
+  const [activeAgent, setActiveAgent] = useState<Agent>(DEFAULT_AGENT);
+  const [activeExecutionPlan, setActiveExecutionPlan] = useState<ComposedExecution | null>(null);
+
   const [settings, setSettings] = useState<AppSettings>(DEFAULT_SETTINGS);
 
   const [clipboardText, setClipboardText] = useState('');
@@ -40,14 +55,16 @@ export const CommandPalette: React.FC = () => {
 
   const searchInputRef = useRef<HTMLInputElement>(null);
 
-  // Load settings and setup listeners
+  // Load settings and listeners
   useEffect(() => {
     StorageService.getSettings().then((loaded) => {
       setSettings(loaded);
       if (loaded.appearance) {
         applyAppearanceSettings(loaded.appearance);
       }
-      setActiveProfile(getProfile(loaded.defaultProfile));
+      const initialAgent = getAgent(loaded.defaultProfile || 'general');
+      setActiveAgent(initialAgent);
+
       const providerId = loaded.activeProviderId || '9router';
       aiRegistry.setActiveProvider(providerId);
       const provider = aiRegistry.getProvider(providerId) as NineRouterProvider;
@@ -75,7 +92,7 @@ export const CommandPalette: React.FC = () => {
     WindowService.onPaletteOpened(() => {
       setViewMode('SEARCH');
       setSearchQuery('');
-      setSelectedActionIndex(0);
+      setSelectedItemIndex(0);
       checkClipboard();
       setTimeout(() => {
         searchInputRef.current?.focus();
@@ -105,63 +122,49 @@ export const CommandPalette: React.FC = () => {
     };
   }, []);
 
-  // Filter actions based on search query, commands and aliases
-  const trimmedSearch = searchQuery.trim();
-  const isSlash = trimmedSearch.startsWith('/');
+  // Filter items (Actions and Agents) based on search query and custom settings
+  const currentActions = settings.actions || PROMPT_ACTIONS;
+  const currentAgents = settings.agents || AGENTS;
 
-  const filteredActions = PROMPT_ACTIONS.filter((action) => {
-    if (!trimmedSearch) return true;
+  const suggestions = useMemo(() => {
+    return getPaletteSuggestions(searchQuery, currentActions, currentAgents);
+  }, [searchQuery, currentActions, currentAgents]);
 
-    if (isSlash) {
-      const slashPart = trimmedSearch.split(' ')[0].toLowerCase();
-      const matchesCommand = action.command?.toLowerCase().startsWith(slashPart);
-      const matchesAlias = action.aliases?.some((alias) => alias.toLowerCase().startsWith(slashPart));
-      return matchesCommand || matchesAlias;
+  // Safe bounded index without state cascading
+  const safeIndex = selectedItemIndex >= suggestions.length
+    ? Math.max(0, suggestions.length - 1)
+    : selectedItemIndex;
+
+  // Dynamic context badge for StatusBar
+  const contextBadge = useMemo(() => {
+    const trimmed = searchQuery.trim();
+    if (trimmed.startsWith('@')) {
+      const token = trimmed.split(/\s+/)[0];
+      const matched = currentAgents.find(
+        (a) => a.handle.toLowerCase() === token.toLowerCase()
+      );
+      if (matched) {
+        return { type: 'agent' as const, label: matched.handle, icon: matched.icon };
+      }
+      return { type: 'agent' as const, label: 'Agente', icon: 'Sparkles' };
     }
-
-    const queryLower = searchQuery.toLowerCase();
-    return (
-      action.title.toLowerCase().includes(queryLower) ||
-      action.description.toLowerCase().includes(queryLower) ||
-      action.command?.toLowerCase().includes(queryLower) ||
-      action.aliases?.some((a) => a.toLowerCase().includes(queryLower))
-    );
-  });
-
-  // Keep selected index within bounds
-  useEffect(() => {
-    if (selectedActionIndex >= filteredActions.length) {
-      setSelectedActionIndex(Math.max(0, filteredActions.length - 1));
+    if (trimmed.startsWith('/')) {
+      const token = trimmed.split(/\s+/)[0];
+      const matched = currentActions.find(
+        (a) => a.command?.toLowerCase() === token.toLowerCase()
+      );
+      if (matched) {
+        return { type: 'action' as const, label: matched.command || matched.title, icon: matched.icon };
+      }
+      return { type: 'action' as const, label: 'Ação', icon: 'Terminal' };
     }
-  }, [filteredActions.length, selectedActionIndex]);
+    return null;
+  }, [searchQuery, currentAgents, currentActions]);
 
-  // Profile cycle helper
-  const handleCycleProfile = () => {
-    const currentIndex = PROFILES.findIndex((p) => p.id === activeProfile.id);
-    const nextIndex = (currentIndex + 1) % PROFILES.length;
-    const nextProfile = PROFILES[nextIndex];
-    setActiveProfile(nextProfile);
-  };
-
-  // Execution pipeline
-  const executeActionWithInput = async (
-    action: PromptAction,
-    inputContent: string,
-    imageDataUrl?: string | null
-  ) => {
-    // If it's a vision action without an image, check if we have one in clipboard
-    const imageToUse = imageDataUrl !== undefined ? imageDataUrl : clipboardImage;
-
-    if (!inputContent.trim() && !imageToUse) {
-      // If empty, transition to manual input view
-      setSelectedAction(action);
-      setCurrentInputText('');
-      setViewMode('INPUT');
-      return;
-    }
-
-    setSelectedAction(action);
-    setCurrentInputText(inputContent);
+  // Pure execution engine
+  const executePlan = async (plan: ComposedExecution) => {
+    setActiveExecutionPlan(plan);
+    setCurrentInputText(plan.effectiveInputText);
     setViewMode('RESULT');
     setIsLoading(true);
     setOutputText('');
@@ -172,43 +175,14 @@ export const CommandPalette: React.FC = () => {
       const provider = aiRegistry.getProvider(activePid) as NineRouterProvider;
       provider.setCredentials(settings.endpoint, settings.apiKey, settings.model);
 
-      const formattedTextPrompt = action.userPromptTemplate
-        ? action.userPromptTemplate(inputContent)
-        : inputContent;
-
-      let actionSystemPrompt = action.systemPrompt;
-      if (action.id === 'analyze_image' && settings.customVisionPrompt?.trim()) {
-        actionSystemPrompt = settings.customVisionPrompt;
-      } else if (action.id === 'inspect_ui' && settings.customUiPrompt?.trim()) {
-        actionSystemPrompt = settings.customUiPrompt;
-      }
-
-      const systemPromptCombined = `${activeProfile.systemInstruction}\n\nInstrução da Ação:\n${actionSystemPrompt}`;
-
-      // Build user content (text only or multimodal text + image)
-      let userMessageContent: any = formattedTextPrompt;
-      if (imageToUse && action.isVisionAction) {
-        userMessageContent = [
-          {
-            type: 'text',
-            text: formattedTextPrompt || 'Analise a imagem com extremo detalhe conforme solicitado.',
-          },
-          {
-            type: 'image_url',
-            image_url: {
-              url: imageToUse,
-              detail: 'high',
-            },
-          },
-        ];
-      }
+      const messages: any[] = [
+        { role: 'system', content: plan.systemPrompt },
+        { role: 'user', content: plan.userMessageContent },
+      ];
 
       const response = await provider.generateCompletion({
-        messages: [
-          { role: 'system', content: systemPromptCombined },
-          { role: 'user', content: userMessageContent },
-        ],
-        model: settings.model || activeProfile.preferredModel,
+        messages,
+        model: settings.model,
         temperature: settings.temperature,
       });
 
@@ -216,11 +190,11 @@ export const CommandPalette: React.FC = () => {
 
       // Save to SQLite history
       const entry: HistoryEntry = {
-        action_id: action.id,
-        action_title: action.title,
+        action_id: plan.actionId,
+        action_title: plan.title,
         model: response.model || settings.model,
-        profile_id: activeProfile.id,
-        input_text: inputContent || (imageToUse ? '[Imagem Analisada]' : ''),
+        profile_id: plan.agentId || 'general',
+        input_text: plan.effectiveInputText,
         output_text: response.text,
       };
       await StorageService.saveHistory(entry);
@@ -232,6 +206,35 @@ export const CommandPalette: React.FC = () => {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  // Trigger execution from parsed command
+  const runParsedInput = (parsed: ParsedInput) => {
+    const plan = composeExecutionPlan(parsed, {
+      clipboardText,
+      clipboardImage,
+      customVisionPrompt: settings.customVisionPrompt,
+      customUiPrompt: settings.customUiPrompt,
+      defaultAgentId: settings.defaultProfile || 'general',
+      availableAgents: currentAgents,
+    });
+
+    if (parsed.action) {
+      setActiveAction(parsed.action);
+    }
+    if (parsed.agent) {
+      setActiveAgent(parsed.agent);
+    }
+
+    // If text and image are both empty and it's an action, give user chance to type in InputView
+    if (!plan.effectiveInputText && !plan.imageToUse && parsed.target === 'action' && parsed.action) {
+      setActiveAction(parsed.action);
+      setCurrentInputText('');
+      setViewMode('INPUT');
+      return;
+    }
+
+    executePlan(plan);
   };
 
   // Cycle AI Provider
@@ -257,36 +260,74 @@ export const CommandPalette: React.FC = () => {
     await StorageService.saveSettings(updatedSettings);
   };
 
-  const handleSelectAction = (action: PromptAction) => {
-    const query = searchQuery.trim();
-    const clipText = clipboardText.trim();
-
-    // Check if query is slash command /provider
-    if (query === '/provider' || query === '/provedor') {
-      handleCycleProvider();
-      setSearchQuery('');
+  // User selects an item from the list (via click or Enter)
+  const handleSelectItem = (item: PaletteItem) => {
+    if (item.type === 'agent' && item.agent) {
+      const currentQuery = searchQuery.trim();
+      // If query is just "@" or begins with "@", autocomplete to "@agent "
+      if (!currentQuery.includes(' ') || currentQuery === '@') {
+        const completed = `${item.agent.handle} `;
+        setSearchQuery(completed);
+        setTimeout(() => searchInputRef.current?.focus(), 20);
+        return;
+      }
+      // If query already has arguments, run agent
+      const parsed = parseCommandInput(
+        `${item.agent.handle} ${currentQuery.replace(/^@\w+\s*/, '')}`,
+        currentActions,
+        currentAgents
+      );
+      runParsedInput(parsed);
       return;
     }
 
-    // Check if query is a slash command: /comando <texto opcional>
-    let textToUse = '';
-    if (query.startsWith('/')) {
-      const parts = query.split(/\s+/);
-      const afterCommand = parts.slice(1).join(' ').trim();
-      textToUse = afterCommand || clipText;
-    } else {
-      textToUse = query || clipText;
-    }
+    if (item.type === 'action' && item.action) {
+      const action = item.action;
+      setActiveAction(action);
 
-    if (action.isVisionAction) {
-      // Vision action can run with image directly even if text is empty
-      executeActionWithInput(action, textToUse, clipboardImage);
-    } else if (textToUse) {
-      executeActionWithInput(action, textToUse);
-    } else {
-      setSelectedAction(action);
-      setCurrentInputText('');
-      setViewMode('INPUT');
+      // Check if query is slash command /provider
+      const query = searchQuery.trim();
+      if (query === '/provider' || query === '/provedor') {
+        handleCycleProvider();
+        setSearchQuery('');
+        return;
+      }
+
+      // Check for user-provided argument in search input
+      let textToUse = '';
+      if (query.startsWith('/')) {
+        const parts = query.split(/\s+/);
+        const afterCommand = parts.slice(1).join(' ').trim();
+        textToUse = afterCommand || clipboardText.trim();
+      } else {
+        textToUse = query || clipboardText.trim();
+      }
+
+      const parsed: ParsedInput = {
+        target: 'action',
+        action,
+        prefixToken: action.command,
+        payloadText: textToUse,
+        rawInput: query,
+      };
+
+      runParsedInput(parsed);
+    }
+  };
+
+  // Direct keyboard shortcut execution (Alt+1..9, Alt+0)
+  const handleDirectActionShortcut = (index: number) => {
+    const targetAction = currentActions[index];
+    if (targetAction) {
+      handleSelectItem({
+        id: `action-${targetAction.id}`,
+        type: 'action',
+        title: targetAction.title,
+        description: targetAction.description,
+        icon: targetAction.icon,
+        token: targetAction.command || '',
+        action: targetAction,
+      });
     }
   };
 
@@ -308,7 +349,7 @@ export const CommandPalette: React.FC = () => {
       return;
     }
 
-    // Question mark (?) -> Toggle Keyboard Cheatsheet (only when not typing in an input/textarea)
+    // Question mark (?) -> Toggle Keyboard Cheatsheet
     const target = e.target as HTMLElement | null;
     const isEditingInput = target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA');
     if (e.key === '?' && (!isEditingInput || (target === searchInputRef.current && !searchQuery))) {
@@ -331,10 +372,14 @@ export const CommandPalette: React.FC = () => {
       return;
     }
 
-    // Tab -> Cycle Profile
-    if (e.key === 'Tab') {
+    // Tab -> Autocomplete in SEARCH mode (Raycast style)
+    if (e.key === 'Tab' && viewMode === 'SEARCH') {
       e.preventDefault();
-      handleCycleProfile();
+      const currentItem = suggestions[safeIndex];
+      if (currentItem) {
+        const nextQuery = completeQuery(searchQuery, currentItem);
+        setSearchQuery(nextQuery);
+      }
       return;
     }
 
@@ -343,20 +388,13 @@ export const CommandPalette: React.FC = () => {
       // Direct number shortcuts: Alt+1 to Alt+9, Alt+0
       if (e.altKey || e.ctrlKey) {
         if (/^[1-9]$/.test(e.key)) {
-          const num = parseInt(e.key, 10);
-          const targetAction = PROMPT_ACTIONS[num - 1];
-          if (targetAction) {
-            e.preventDefault();
-            handleSelectAction(targetAction);
-            return;
-          }
+          e.preventDefault();
+          handleDirectActionShortcut(parseInt(e.key, 10) - 1);
+          return;
         } else if (e.key === '0') {
-          const targetAction = PROMPT_ACTIONS[9]; // 10th action: inspect_ui
-          if (targetAction) {
-            e.preventDefault();
-            handleSelectAction(targetAction);
-            return;
-          }
+          e.preventDefault();
+          handleDirectActionShortcut(9); // 10th action: inspect_ui
+          return;
         }
       }
 
@@ -371,17 +409,40 @@ export const CommandPalette: React.FC = () => {
 
       if (isDownNav) {
         e.preventDefault();
-        setSelectedActionIndex((prev) => (prev + 1) % Math.max(1, filteredActions.length));
+        setSelectedItemIndex((prev) => (prev + 1) % Math.max(1, suggestions.length));
       } else if (isUpNav) {
         e.preventDefault();
-        setSelectedActionIndex((prev) =>
-          prev === 0 ? Math.max(0, filteredActions.length - 1) : prev - 1
+        setSelectedItemIndex((prev) =>
+          prev === 0 ? Math.max(0, suggestions.length - 1) : prev - 1
         );
       } else if (e.key === 'Enter') {
         e.preventDefault();
-        const action = filteredActions[selectedActionIndex];
-        if (action) {
-          handleSelectAction(action);
+
+        // 1. Check if raw query matches /provider command
+        const trimmed = searchQuery.trim();
+        if (trimmed === '/provider' || trimmed === '/provedor') {
+          handleCycleProvider();
+          setSearchQuery('');
+          return;
+        }
+
+        // 2. Check if the user typed an explicit @agent or /action command
+        const parsed = parseCommandInput(searchQuery, currentActions, currentAgents);
+        if (parsed.target === 'action' || parsed.target === 'agent') {
+          runParsedInput(parsed);
+          return;
+        }
+
+        // 3. If there is a selected suggestion in the list, use it
+        const selectedItem = suggestions[safeIndex];
+        if (selectedItem) {
+          handleSelectItem(selectedItem);
+          return;
+        }
+
+        // 4. Fallback: Free text -> run with General AI
+        if (trimmed) {
+          runParsedInput(parsed);
         }
       }
     }
@@ -393,164 +454,192 @@ export const CommandPalette: React.FC = () => {
       className="w-full h-full hud-window rounded-2xl border border-hud flex flex-col overflow-hidden relative select-none"
     >
       {/* Top Search bar when in SEARCH mode */}
-        {viewMode === 'SEARCH' && (
-          <div className="flex items-center px-4 py-3.5 border-b border-hud gap-3 shrink-0 hud-header">
-            <Icon name="Search" className="w-5 h-5 text-zinc-400 shrink-0" />
-            <input
-              ref={searchInputRef}
-              type="text"
-              role="combobox"
-              aria-expanded={filteredActions.length > 0}
-              aria-autocomplete="list"
-              aria-controls="command-action-list"
-              aria-activedescendant={
-                filteredActions[selectedActionIndex]
-                  ? `action-item-${filteredActions[selectedActionIndex].id}`
-                  : undefined
-              }
-              value={searchQuery}
-              onChange={(e) => {
-                setSearchQuery(e.target.value);
-                setSelectedActionIndex(0);
-              }}
-              placeholder="Digite um comando, ação ou texto livre..."
-              autoFocus
-              className="flex-1 bg-transparent text-[15px] placeholder:text-zinc-400 focus:outline-none tracking-normal"
-            />
+      {viewMode === 'SEARCH' && (
+        <div className="flex items-center px-4 py-3.5 border-b border-hud gap-3 shrink-0 hud-header">
+          <Icon name="Search" className="w-5 h-5 text-slate-400 shrink-0" />
+          <input
+            ref={searchInputRef}
+            type="text"
+            role="combobox"
+            aria-expanded={suggestions.length > 0}
+            aria-autocomplete="list"
+            aria-controls="command-action-list"
+            aria-activedescendant={
+              suggestions[safeIndex]
+                ? `palette-item-${suggestions[safeIndex].id}`
+                : undefined
+            }
+            value={searchQuery}
+            onChange={(e) => {
+              setSearchQuery(e.target.value);
+              setSelectedItemIndex(0);
+            }}
+            placeholder="Digite / para ações, @ para agentes, ou texto livre..."
+            autoFocus
+            className="flex-1 bg-transparent text-[15px] placeholder:text-slate-400 focus:outline-none tracking-normal font-sans"
+          />
 
-            <div className="flex items-center gap-2 shrink-0">
-              <button
-                onClick={() => setIsVoiceOpen(true)}
-                className="p-1.5 rounded-lg hover:bg-black/10 dark:hover:bg-zinc-800 text-zinc-400 hover:text-inherit transition-colors cursor-pointer"
-                title="Entrada por Voz"
-              >
-                <Icon name="Mic" className="w-4 h-4" />
-              </button>
+          <div className="flex items-center gap-1.5 shrink-0">
+            <button
+              onClick={() => setIsVoiceOpen(true)}
+              className="p-1.5 rounded-lg hover:bg-white/10 text-slate-400 hover:text-white transition-colors cursor-pointer"
+              title="Entrada por Voz"
+            >
+              <Icon name="Mic" className="w-4 h-4" />
+            </button>
 
-              <button
-                onClick={() => WindowService.hide()}
-                className="p-1.5 rounded-lg text-zinc-400 hover:text-inherit hover:bg-black/10 dark:hover:bg-zinc-800 transition-colors cursor-pointer"
-                title="Fechar (Esc)"
-              >
-                <Icon name="X" className="w-4 h-4" />
-              </button>
-            </div>
+            <button
+              onClick={() => WindowService.hide()}
+              className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
+              title="Fechar (Esc)"
+            >
+              <Icon name="X" className="w-4 h-4" />
+            </button>
           </div>
+        </div>
+      )}
+
+      {/* Dynamic Center Views */}
+      <div className="flex-1 min-h-0 flex flex-col overflow-hidden">
+        {viewMode === 'SEARCH' && (
+          <ActionList
+            items={suggestions}
+            selectedIndex={safeIndex}
+            onSelectItem={handleSelectItem}
+            onHoverIndex={setSelectedItemIndex}
+            clipboardPreview={clipboardText}
+            clipboardImagePreview={clipboardImage}
+          />
         )}
 
-        {/* Dynamic Center Views */}
-        <div className="flex-1 min-h-0 flex flex-col overflow-hidden">
-          {viewMode === 'SEARCH' && (
-            <ActionList
-              actions={filteredActions}
-              selectedIndex={selectedActionIndex}
-              onSelectAction={handleSelectAction}
-              onHoverIndex={setSelectedActionIndex}
-              clipboardPreview={clipboardText}
-              clipboardImagePreview={clipboardImage}
-            />
-          )}
+        {viewMode === 'INPUT' && (
+          <InputView
+            action={activeAction}
+            profile={activeAgent}
+            inputText={currentInputText}
+            onChangeInput={setCurrentInputText}
+            onSubmit={() => {
+              const parsed: ParsedInput = {
+                target: 'action',
+                action: activeAction,
+                prefixToken: activeAction.command,
+                payloadText: currentInputText,
+                rawInput: currentInputText,
+              };
+              runParsedInput(parsed);
+            }}
+            onBack={() => setViewMode('SEARCH')}
+            onPasteClipboard={async () => {
+              const text = await ClipboardService.read();
+              if (text) setCurrentInputText(text);
+            }}
+            isLoading={isLoading}
+          />
+        )}
 
-          {viewMode === 'INPUT' && (
-            <InputView
-              action={selectedAction}
-              profile={activeProfile}
-              inputText={currentInputText}
-              onChangeInput={setCurrentInputText}
-              onSubmit={() => executeActionWithInput(selectedAction, currentInputText)}
-              onBack={() => setViewMode('SEARCH')}
-              onPasteClipboard={async () => {
-                const text = await ClipboardService.read();
-                if (text) setCurrentInputText(text);
-              }}
-              isLoading={isLoading}
-            />
-          )}
+        {viewMode === 'RESULT' && (
+          <ResultView
+            action={activeAction}
+            profile={activeAgent}
+            model={settings.model}
+            inputText={currentInputText}
+            outputText={outputText}
+            errorMessage={errorMessage}
+            isLoading={isLoading}
+            enableVimMnemonicShortcuts={settings.enableVimMnemonicShortcuts}
+            sourceImage={activeAction.isVisionAction ? clipboardImage : null}
+            onCopy={() => {}}
+            onRegenerate={() => {
+              if (activeExecutionPlan) {
+                executePlan(activeExecutionPlan);
+              } else {
+                const parsed: ParsedInput = {
+                  target: 'action',
+                  action: activeAction,
+                  prefixToken: activeAction.command,
+                  payloadText: currentInputText,
+                  rawInput: currentInputText,
+                };
+                runParsedInput(parsed);
+              }
+            }}
+            onEdit={() => setViewMode('INPUT')}
+            onOpenSettings={() => setViewMode('SETTINGS')}
+            onTransformToPrompt={(text) => {
+              const improveAction = PROMPT_ACTIONS[0];
+              const parsed: ParsedInput = {
+                target: 'action',
+                action: improveAction,
+                prefixToken: improveAction.command,
+                payloadText: text,
+                rawInput: text,
+              };
+              runParsedInput(parsed);
+            }}
+            onClose={() => WindowService.hide()}
+            onBack={() => setViewMode('SEARCH')}
+          />
+        )}
 
-          {viewMode === 'RESULT' && (
-            <ResultView
-              action={selectedAction}
-              profile={activeProfile}
-              model={settings.model}
-              inputText={currentInputText}
-              outputText={outputText}
-              errorMessage={errorMessage}
-              isLoading={isLoading}
-              enableVimMnemonicShortcuts={settings.enableVimMnemonicShortcuts}
-              sourceImage={selectedAction.isVisionAction ? clipboardImage : null}
-              onCopy={() => {}}
-              onRegenerate={() => executeActionWithInput(selectedAction, currentInputText)}
-              onEdit={() => setViewMode('INPUT')}
-              onOpenSettings={() => setViewMode('SETTINGS')}
-              onTransformToPrompt={(text) => {
-                const improveAction = PROMPT_ACTIONS[0];
-                executeActionWithInput(improveAction, text);
-              }}
-              onClose={() => WindowService.hide()}
-              onBack={() => setViewMode('SEARCH')}
-            />
-          )}
+        {viewMode === 'HISTORY' && (
+          <HistoryView
+            onBack={() => setViewMode('SEARCH')}
+            onReuseText={(text) => {
+              setClipboardText(text);
+              setCurrentInputText(text);
+              setViewMode('SEARCH');
+            }}
+          />
+        )}
 
-          {viewMode === 'HISTORY' && (
-            <HistoryView
-              onBack={() => setViewMode('SEARCH')}
-              onReuseText={(text) => {
-                setClipboardText(text);
-                setCurrentInputText(text);
-                setViewMode('SEARCH');
-              }}
-            />
-          )}
-
-          {viewMode === 'SETTINGS' && (
-            <SettingsView
-              onBack={() => setViewMode('SEARCH')}
-              onSaved={(newSettings) => {
-                setSettings(newSettings);
-                if (newSettings.appearance) {
-                  applyAppearanceSettings(newSettings.appearance);
-                }
-                setActiveProfile(getProfile(newSettings.defaultProfile));
-                const pid = newSettings.activeProviderId || '9router';
-                aiRegistry.setActiveProvider(pid);
-                const provider = aiRegistry.getProvider(pid) as NineRouterProvider;
-                provider.setCredentials(newSettings.endpoint, newSettings.apiKey, newSettings.model);
-              }}
-            />
-          )}
-        </div>
-
-        {/* Global Bottom Status Bar */}
-        <StatusBar
-          activeProfile={activeProfile}
-          onToggleProfile={handleCycleProfile}
-          activeProviderId={settings.activeProviderId}
-          onCycleProvider={handleCycleProvider}
-          model={settings.model}
-          hasClipboardText={!!clipboardText}
-          onOpenHistory={() => setViewMode('HISTORY')}
-          onOpenSettings={() => setViewMode('SETTINGS')}
-          onOpenCheatsheet={() => setIsCheatsheetOpen(true)}
-        />
-
-        {/* Voice Input Modal */}
-        <VoiceInputModal
-          isOpen={isVoiceOpen}
-          onTranscriptionComplete={(transcript) => {
-            setIsVoiceOpen(false);
-            if (transcript) {
-              setSearchQuery(transcript);
-              setClipboardText(transcript);
-            }
-          }}
-          onCancel={() => setIsVoiceOpen(false)}
-        />
-
-        {/* Keyboard Cheatsheet Modal (?) */}
-        <KeyboardCheatsheetModal
-          isOpen={isCheatsheetOpen}
-          onClose={() => setIsCheatsheetOpen(false)}
-        />
+        {viewMode === 'SETTINGS' && (
+          <SettingsView
+            onBack={() => setViewMode('SEARCH')}
+            onSaved={(newSettings) => {
+              setSettings(newSettings);
+              if (newSettings.appearance) {
+                applyAppearanceSettings(newSettings.appearance);
+              }
+              setActiveAgent(getAgent(newSettings.defaultProfile || 'general'));
+              const pid = newSettings.activeProviderId || '9router';
+              aiRegistry.setActiveProvider(pid);
+              const provider = aiRegistry.getProvider(pid) as NineRouterProvider;
+              provider.setCredentials(newSettings.endpoint, newSettings.apiKey, newSettings.model);
+            }}
+          />
+        )}
       </div>
-    );
-  };
+
+      {/* Global Bottom Status Bar */}
+      <StatusBar
+        contextBadge={contextBadge}
+        activeProviderId={settings.activeProviderId}
+        onCycleProvider={handleCycleProvider}
+        model={settings.model}
+        hasClipboardText={!!clipboardText}
+        onOpenHistory={() => setViewMode('HISTORY')}
+        onOpenSettings={() => setViewMode('SETTINGS')}
+        onOpenCheatsheet={() => setIsCheatsheetOpen(true)}
+      />
+
+      {/* Voice Input Modal */}
+      <VoiceInputModal
+        isOpen={isVoiceOpen}
+        onTranscriptionComplete={(transcript) => {
+          setIsVoiceOpen(false);
+          if (transcript) {
+            setSearchQuery(transcript);
+            setClipboardText(transcript);
+          }
+        }}
+        onCancel={() => setIsVoiceOpen(false)}
+      />
+
+      {/* Keyboard Cheatsheet Modal (?) */}
+      <KeyboardCheatsheetModal
+        isOpen={isCheatsheetOpen}
+        onClose={() => setIsCheatsheetOpen(false)}
+      />
+    </div>
+  );
+};

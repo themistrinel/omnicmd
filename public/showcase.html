@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>OmniCmd Hero Showcase</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body {
+      width: 1280px;
+      height: 720px;
+      background: #06080e;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, -apple-system, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      padding-top: 22px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* Ambient Glow background */
+    .glow-bg {
+      position: absolute;
+      inset: 0;
+      background: 
+        radial-gradient(circle 750px at 50% -15%, rgba(56, 189, 248, 0.18), transparent 75%),
+        radial-gradient(circle 650px at 6% 85%, rgba(99, 102, 241, 0.14), transparent 70%),
+        radial-gradient(circle 650px at 94% 80%, rgba(168, 85, 247, 0.14), transparent 70%),
+        linear-gradient(180deg, #090c14 0%, #030407 100%);
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    /* Subtle grid pattern */
+    .grid-overlay {
+      position: absolute;
+      inset: 0;
+      background-image: 
+        linear-gradient(to right, rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+      background-size: 36px 36px;
+      mask-image: radial-gradient(ellipse 80% 65% at 50% 45%, black 25%, transparent 80%);
+      -webkit-mask-image: radial-gradient(ellipse 80% 65% at 50% 45%, black 25%, transparent 80%);
+      pointer-events: none;
+      z-index: 2;
+    }
+
+    /* Top Branding Bar */
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 900px;
+      margin-bottom: 16px;
+      z-index: 10;
+    }
+
+    .brand-left {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .app-icon-wrapper {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 20px rgba(0, 245, 255, 0.3);
+      flex-shrink: 0;
+    }
+
+    .app-icon-wrapper svg {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    .brand-names {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .title-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .title {
+      font-size: 26px;
+      font-weight: 800;
+      color: #ffffff;
+      letter-spacing: -0.6px;
+      line-height: 1.1;
+    }
+
+    .badge-tag {
+      font-size: 11px;
+      font-weight: 700;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      color: #38bdf8;
+      background: rgba(56, 189, 248, 0.12);
+      border: 1px solid rgba(56, 189, 248, 0.28);
+      padding: 2px 8px;
+      border-radius: 9999px;
+      letter-spacing: 0.3px;
+    }
+
+    .subtitle {
+      font-size: 13px;
+      font-weight: 500;
+      color: #94a3b8;
+      letter-spacing: 0.1px;
+    }
+
+    .brand-meta {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .meta-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      padding: 5px 12px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 500;
+      color: #cbd5e1;
+      backdrop-filter: blur(8px);
+    }
+
+    .meta-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #10b981;
+      box-shadow: 0 0 8px #10b981;
+    }
+
+    .meta-shortcut {
+      font-family: ui-monospace, monospace;
+      font-weight: 600;
+      font-size: 11px;
+      color: #38bdf8;
+      background: rgba(56, 189, 248, 0.14);
+      padding: 1px 6px;
+      border-radius: 4px;
+    }
+
+    /* The Real Window Container (Native 900x560 HUD) */
+    .window-container {
+      position: relative;
+      width: 900px;
+      height: 560px;
+      border-radius: 16px;
+      box-shadow: 
+        0 30px 75px -12px rgba(0, 0, 0, 0.94),
+        0 0 0 1px rgba(255, 255, 255, 0.14),
+        0 0 60px -15px rgba(56, 189, 248, 0.22);
+      z-index: 10;
+      overflow: hidden;
+      background: #0c0d10;
+    }
+
+    iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <div class="glow-bg"></div>
+  <div class="grid-overlay"></div>
+
+  <div class="header">
+    <div class="brand-left">
+      <div class="app-icon-wrapper"><svg viewBox="0 0 512 512" width="512" height="512" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <!-- Background Gradient (Obsidian to Deep Space Navy) -->
+    <linearGradient id="bgBase" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0F172A"/>
+      <stop offset="60%" stop-color="#090D16"/>
+      <stop offset="100%" stop-color="#02040A"/>
+    </linearGradient>
+
+    <!-- Top Rim Specular Highlight for Glass / Premium hardware feel -->
+    <linearGradient id="rimLight" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.25"/>
+      <stop offset="40%" stop-color="#38BDF8" stop-opacity="0.15"/>
+      <stop offset="100%" stop-color="#000000" stop-opacity="0"/>
+    </linearGradient>
+
+    <!-- Squircle Border Gradient -->
+    <linearGradient id="squircleBorder" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#38BDF8" stop-opacity="0.9"/>
+      <stop offset="35%" stop-color="#00F0FF" stop-opacity="0.6"/>
+      <stop offset="70%" stop-color="#818CF8" stop-opacity="0.5"/>
+      <stop offset="100%" stop-color="#C084FC" stop-opacity="0.85"/>
+    </linearGradient>
+
+    <!-- Glowing Cyber Symbol Gradient -->
+    <linearGradient id="symbolGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#00F5FF"/>
+      <stop offset="30%" stop-color="#38BDF8"/>
+      <stop offset="70%" stop-color="#818CF8"/>
+      <stop offset="100%" stop-color="#B76EFF"/>
+    </linearGradient>
+
+    <!-- AI Spark Core Gradient -->
+    <radialGradient id="sparkCore" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#FFFFFF"/>
+      <stop offset="40%" stop-color="#E0F2FE"/>
+      <stop offset="85%" stop-color="#38BDF8"/>
+      <stop offset="100%" stop-color="#A855F7"/>
+    </radialGradient>
+
+    <!-- Outer Neon Ambient Glow -->
+    <filter id="symbolGlow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="0" stdDeviation="12" flood-color="#00F0FF" flood-opacity="0.5"/>
+      <feDropShadow dx="0" dy="6" stdDeviation="20" flood-color="#818CF8" flood-opacity="0.3"/>
+    </filter>
+
+    <!-- Squircle Shadow for Desktop & Launcher -->
+    <filter id="badgeShadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="16" stdDeviation="24" flood-color="#000000" flood-opacity="0.6"/>
+    </filter>
+  </defs>
+
+  <!-- Squircle Base with Border -->
+  <g filter="url(#badgeShadow)">
+    <rect x="24" y="24" width="464" height="464" rx="112"
+          fill="url(#bgBase)"
+          stroke="url(#squircleBorder)"
+          stroke-width="10"/>
+
+    <!-- Subtle Inner Rim Lighting -->
+    <rect x="29" y="29" width="454" height="454" rx="107"
+          fill="none"
+          stroke="url(#rimLight)"
+          stroke-width="4"/>
+  </g>
+
+  <!-- Central Visual Composition: Command Chevron + AI Spark + Underscore -->
+  <g filter="url(#symbolGlow)">
+    <!-- Main Command Chevron (Bold, refined curvature, modern apex) -->
+    <path d="M 136 136
+             C 148 124 168 124 180 136
+             L 288 244
+             C 296 252 296 260 288 268
+             L 180 376
+             C 168 388 148 388 136 376
+             C 124 364 124 344 136 332
+             L 214 256
+             L 136 180
+             C 124 168 124 148 136 136 Z"
+          fill="url(#symbolGrad)"/>
+
+    <!-- Underscore Prompt Cursor -->
+    <rect x="242" y="344" width="134" height="34" rx="17" fill="url(#symbolGrad)"/>
+
+    <!-- AI Nova Sparkle (Prominent intelligence accent in top-right) -->
+    <path d="M 352 114
+             C 352 156 374 178 416 178
+             C 374 178 352 200 352 242
+             C 352 200 330 178 288 178
+             C 330 178 352 156 352 114 Z"
+          fill="url(#sparkCore)"/>
+
+    <!-- Center Glint on the AI Spark -->
+    <circle cx="352" cy="178" r="14" fill="#FFFFFF"/>
+
+    <!-- Micro Orbit Particle -->
+    <circle cx="414" cy="116" r="8" fill="#38BDF8" opacity="0.9"/>
+  </g>
+</svg>
+</div>
+      <div class="brand-names">
+        <div class="title-row">
+          <span class="title">OmniCmd</span>
+          <span class="badge-tag">v0.1.0</span>
+        </div>
+        <span class="subtitle">The Keyboard-First AI Command Palette</span>
+      </div>
+    </div>
+
+    <div class="brand-meta">
+      <div class="meta-pill">
+        <span class="meta-shortcut">Super+Space</span>
+        <span>HUD Overlay</span>
+      </div>
+      <div class="meta-pill">
+        <span>Tauri v2 • Rust</span>
+      </div>
+      <div class="meta-pill">
+        <span class="meta-dot"></span>
+        <span>Multi-Provider LLM</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="window-container">
+    <iframe src="/index.html?view=hud" id="appFrame"></iframe>
+  </div>
+</body>
+</html>

@@ -4,6 +4,16 @@
 use std::env;
 
 fn main() {
+    #[cfg(target_os = "linux")]
+    {
+        // Fix for WebKitGTK on Wayland / Hyprland:
+        // The DMABUF renderer in WebKitGTK prevents alpha transparency from blending with Wayland compositors.
+        // Disabling it ensures proper RGBA alpha transparency and compositor blur.
+        if std::env::var("WEBKIT_DISABLE_DMABUF_RENDERER").is_err() {
+            std::env::set_var("WEBKIT_DISABLE_DMABUF_RENDERER", "1");
+        }
+    }
+
     let args: Vec<String> = env::args().collect();
     let is_toggle = args.iter().any(|a| a == "--toggle" || a == "-t" || a == "toggle");
 

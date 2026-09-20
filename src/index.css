@@ -1,50 +1,73 @@
 @import "tailwindcss";
 
-@layer base {
-  :root {
-    --hud-bg-opacity: 0.95;
-    --hud-blur: 20px;
-    --hud-font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-    --accent-color: #6366f1;
-    --accent-rgb: 99, 102, 241;
+@custom-variant dark (&:where(.dark, .dark *, [data-theme="dark"], [data-theme="dark"] *));
 
-    /* Dark Mode Defaults */
-    --hud-panel-bg: rgba(9, 9, 11, var(--hud-bg-opacity, 0.95));
-    --hud-panel-border: rgba(255, 255, 255, 0.10);
-    --hud-panel-ring: rgba(255, 255, 255, 0.05);
-    --hud-header-bg: rgba(24, 24, 27, 0.40);
-    --hud-header-border: rgba(255, 255, 255, 0.10);
-    --hud-text: #f4f4f5;
-    --hud-text-secondary: #a1a1aa;
-    --hud-text-muted: #71717a;
-    --hud-card-bg: rgba(24, 24, 27, 0.50);
-    --hud-card-border: rgba(255, 255, 255, 0.10);
-    --hud-input-bg: rgba(9, 9, 11, 0.85);
-    --hud-input-border: rgba(255, 255, 255, 0.12);
-    --hud-item-hover: rgba(39, 39, 42, 0.60);
-    --hud-status-bg: rgba(9, 9, 11, 0.90);
-    --hud-status-border: rgba(255, 255, 255, 0.10);
-    --hud-scrollbar-thumb: rgba(255, 255, 255, 0.15);
+@theme {
+  --color-hud-border: var(--hud-panel-border);
+  --color-hud-bg: var(--hud-panel-bg);
+  --color-hud-card: var(--hud-card-bg);
+  --color-hud-text: var(--hud-text);
+  --color-accent: var(--accent-color);
+}
+
+@layer base {
+  :root,
+  html.dark,
+  [data-theme="dark"] {
+    --hud-bg-opacity: 0.82;
+    --hud-blur: 24px;
+    --hud-font-family: "IBM Plex Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    --accent-color: #50a2e8;
+    --accent-rgb: 80, 162, 232;
+    --accent-text: #70b7f5;
+    --accent-text-color: #70b7f5;
+
+    /* Refined High-Craft Dark HUD Design System Tokens */
+    --hud-panel-bg: rgba(12, 13, 16, var(--hud-bg-opacity, 0.82));
+    --hud-panel-border: rgba(255, 255, 255, 0.08);
+    --hud-panel-ring: rgba(255, 255, 255, 0.03);
+    --hud-header-bg: rgba(18, 20, 24, 0.60);
+    --hud-header-border: rgba(255, 255, 255, 0.06);
+    --hud-text: #f8fafc;
+    --hud-text-secondary: #94a3b8;
+    --hud-text-muted: #64748b;
+    --hud-card-bg: rgba(20, 22, 27, 0.50);
+    --hud-card-border: rgba(255, 255, 255, 0.06);
+    --hud-input-bg: rgba(15, 16, 20, 0.65);
+    --hud-input-border: rgba(255, 255, 255, 0.10);
+    --hud-item-hover: rgba(255, 255, 255, 0.05);
+    --hud-status-bg: rgba(12, 13, 16, 0.65);
+    --hud-status-border: rgba(255, 255, 255, 0.06);
+    --hud-subtle-border: rgba(255, 255, 255, 0.04);
+    --hud-scrollbar-thumb: rgba(255, 255, 255, 0.16);
   }
 
-  html.light, [data-theme="light"] {
-    /* Light Mode */
-    --hud-panel-bg: rgba(255, 255, 255, var(--hud-bg-opacity, 0.95));
-    --hud-panel-border: rgba(0, 0, 0, 0.12);
-    --hud-panel-ring: rgba(0, 0, 0, 0.06);
-    --hud-header-bg: rgba(244, 244, 245, 0.75);
-    --hud-header-border: rgba(0, 0, 0, 0.08);
+  html.light,
+  [data-theme="light"] {
+    /* Refined Light HUD Design System Tokens */
+    --hud-bg-opacity: 0.82;
+    --hud-blur: 24px;
+    --hud-panel-bg: rgba(250, 250, 252, var(--hud-bg-opacity, 0.82));
+    --hud-panel-border: rgba(0, 0, 0, 0.09);
+    --hud-panel-ring: rgba(0, 0, 0, 0.04);
+    --hud-header-bg: rgba(243, 244, 246, 0.70);
+    --hud-header-border: rgba(0, 0, 0, 0.07);
     --hud-text: #09090b;
-    --hud-text-secondary: #52525b;
-    --hud-text-muted: #a1a1aa;
-    --hud-card-bg: rgba(244, 244, 245, 0.70);
-    --hud-card-border: rgba(0, 0, 0, 0.08);
-    --hud-input-bg: rgba(255, 255, 255, 0.90);
-    --hud-input-border: rgba(0, 0, 0, 0.15);
-    --hud-item-hover: rgba(244, 244, 245, 0.90);
-    --hud-status-bg: rgba(255, 255, 255, 0.90);
+    --hud-text-secondary: #475569;
+    --hud-text-muted: #64748b;
+    --hud-card-bg: rgba(241, 242, 245, 0.65);
+    --hud-card-border: rgba(0, 0, 0, 0.07);
+    --hud-input-bg: rgba(255, 255, 255, 0.75);
+    --hud-input-border: rgba(0, 0, 0, 0.14);
+    --hud-item-hover: rgba(0, 0, 0, 0.04);
+    --hud-status-bg: rgba(245, 246, 248, 0.70);
     --hud-status-border: rgba(0, 0, 0, 0.08);
+    --hud-subtle-border: rgba(0, 0, 0, 0.05);
     --hud-scrollbar-thumb: rgba(0, 0, 0, 0.18);
+    --accent-color: #0284c7;
+    --accent-rgb: 2, 132, 199;
+    --accent-text: #0284c7;
+    --accent-text-color: #0284c7;
   }
 
   * {
@@ -59,20 +82,21 @@
     height: 100%;
     background: transparent !important;
     color: var(--hud-text);
-    font-family: var(--hud-font-family, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif);
+    font-family: var(--hud-font-family, "IBM Plex Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif);
     overflow: hidden;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
-    transition: color 0.15s ease;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11", "tnum";
+    transition: background-color 0.15s ease, color 0.15s ease;
   }
 
   ::selection {
-    background: rgba(var(--accent-rgb, 99, 102, 241), 0.35);
+    background: rgba(var(--accent-rgb, 80, 162, 232), 0.25);
     color: #ffffff;
   }
 
-  /* Custom scrollbar for minimalist clean feel */
+  /* Custom scrollbar for minimalist clean HUD feel */
   ::-webkit-scrollbar {
     width: 5px;
     height: 5px;
@@ -85,10 +109,11 @@
     border-radius: 4px;
   }
   ::-webkit-scrollbar-thumb:hover {
-    background: rgba(var(--accent-rgb, 99, 102, 241), 0.5);
+    background: rgba(var(--accent-rgb, 80, 162, 232), 0.4);
   }
 }
 
+/* Surface styles */
 .hud-window {
   background-color: var(--hud-panel-bg);
   backdrop-filter: blur(var(--hud-blur, 20px)) saturate(180%);
@@ -113,9 +138,53 @@
   background-color: var(--hud-input-bg);
   border-color: var(--hud-input-border);
   color: var(--hud-text);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.hud-input:focus {
+  border-color: var(--accent-color) !important;
+  box-shadow: 0 0 0 1.5px rgba(var(--accent-rgb, 80, 162, 232), 0.25);
 }
 
 .hud-status {
   background-color: var(--hud-status-bg);
   border-color: var(--hud-status-border);
+}
+
+/* Specific border utilities to prevent fallback to currentColor */
+.border-hud {
+  border-color: var(--hud-panel-border) !important;
+}
+
+.border-hud-subtle {
+  border-color: var(--hud-subtle-border) !important;
+}
+
+.border-hud-card {
+  border-color: var(--hud-card-border) !important;
+}
+
+/* Accent utility classes */
+.text-accent {
+  color: var(--accent-text-color, var(--accent-text, var(--accent-color))) !important;
+}
+
+.bg-accent {
+  background-color: var(--accent-color) !important;
+}
+
+.bg-accent-subtle {
+  background-color: rgba(var(--accent-rgb, 80, 162, 232), 0.12) !important;
+}
+
+.border-accent {
+  border-color: var(--accent-color) !important;
+}
+
+.border-accent-subtle {
+  border-color: rgba(var(--accent-rgb, 80, 162, 232), 0.25) !important;
+}
+
+.ring-accent {
+  outline-color: var(--accent-color) !important;
 }

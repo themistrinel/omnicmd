@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="docs/assets/banner.svg" alt="OmniCmd Banner" width="100%" />
+<img src="docs/assets/banner.png" alt="OmniCmd Banner" width="100%" />
 
 # OmniCmd
 
@@ -116,28 +116,20 @@ We provide a turnkey multiplatform build helper:
 
 ## 💖 Support & Donations
 
-OmniCmd is a free, open-source project created and maintained by independent developers. If OmniCmd saves you time and boosts your day-to-day coding productivity, please consider supporting continued development!
+OmniCmd is a free, open-source project created and maintained by independent developers. If OmniCmd saves you time and boosts your day-to-day coding productivity, please consider supporting continued development via **Pix**!
 
 <p align="center">
-  <a href="https://www.buymeacoffee.com/omnicmd">
-    <img src="https://img.shields.io/badge/Buy%20Me%20A%20Coffee-FFDD00?style=for-the-badge&logo=buy-me-a-coffee&logoColor=black" alt="Buy Me A Coffee" />
-  </a>
-  &nbsp;&nbsp;
-  <a href="https://ko-fi.com/omnicmd">
-    <img src="https://img.shields.io/badge/Ko--fi-F16061?style=for-the-badge&logo=ko-fi&logoColor=white" alt="Ko-fi" />
-  </a>
-  &nbsp;&nbsp;
-  <a href="https://github.com/sponsors/omnicmd">
-    <img src="https://img.shields.io/badge/GitHub%20Sponsors-EA4AAA?style=for-the-badge&logo=github-sponsors&logoColor=white" alt="GitHub Sponsors" />
-  </a>
+  <img src="docs/assets/pix-qr.png" alt="Pix QR Code" width="220" />
 </p>
 
-### 🇧🇷 Apoie via Pix (Brasil)
-Se você utiliza o OmniCmd no Brasil e deseja apoiar diretamente via Pix:
-
+### 🔑 Chave Pix (Aleatória)
 ```text
-Chave Pix (E-mail / Aleatória): pix@omnicmd.dev
-Beneficiário: OmniCmd Open Source Project
+698b86a2-3f72-4be7-ab3e-f838522a41e2
+```
+
+### 📋 Pix Copia e Cola
+```text
+00020126580014br.gov.bcb.pix0136698b86a2-3f72-4be7-ab3e-f838522a41e25204000053039865802BR5907OmniCmd6009SAO PAULO62070503***63041D7E
 ```
 
 ---

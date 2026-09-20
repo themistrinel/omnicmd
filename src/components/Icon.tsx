@@ -48,6 +48,10 @@ import {
   Type,
   Layers,
   Droplets,
+  Plus,
+  RotateCcw,
+  Bot,
+  FileCode,
   LucideProps,
 } from 'lucide-react';
 
@@ -100,6 +104,10 @@ const iconMap: Record<string, React.FC<LucideProps>> = {
   Type,
   Layers,
   Droplets,
+  Plus,
+  RotateCcw,
+  Bot,
+  FileCode,
 };
 
 interface IconProps extends LucideProps {

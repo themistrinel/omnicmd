@@ -1,10 +1,15 @@
 import React from 'react';
-import { Profile, AIProviderId } from '@/types';
+import { AIProviderId } from '@/types';
 import { Icon } from './Icon';
 
+interface ContextBadge {
+  type: 'action' | 'agent';
+  label: string;
+  icon: string;
+}
+
 interface StatusBarProps {
-  activeProfile: Profile;
-  onToggleProfile: () => void;
+  contextBadge?: ContextBadge | null;
   activeProviderId?: AIProviderId;
   onCycleProvider?: () => void;
   model: string;
@@ -15,8 +20,7 @@ interface StatusBarProps {
 }
 
 export const StatusBar: React.FC<StatusBarProps> = ({
-  activeProfile,
-  onToggleProfile,
+  contextBadge,
   activeProviderId = '9router',
   onCycleProvider,
   model,
@@ -37,83 +41,114 @@ export const StatusBar: React.FC<StatusBarProps> = ({
   };
 
   return (
-    <div className="flex items-center justify-between px-4 py-2.5 border-t border-hud hud-status text-xs select-none shrink-0">
-      <div className="flex items-center gap-3">
-        <button
-          onClick={onToggleProfile}
-          className="flex items-center gap-2 px-2.5 py-1 rounded-lg bg-black/5 dark:bg-zinc-900 hover:bg-black/10 dark:hover:bg-zinc-800 text-inherit transition-colors border border-hud cursor-pointer"
-          title="Alternar Perfil (Tab)"
-        >
-          <Icon name={activeProfile.icon} className="w-3.5 h-3.5" style={{ color: 'var(--accent-color)' }} />
-          <span className="font-medium text-xs">{activeProfile.name}</span>
-          <span className="text-[10px] px-1.5 py-0.5 bg-black/10 dark:bg-zinc-800 font-mono rounded border border-hud">Tab</span>
-        </button>
+    <div className="flex items-center justify-between px-4 py-2 border-t border-hud text-xs select-none shrink-0">
+      <div className="flex items-center gap-2 shrink-0">
+        {/* Raycast Context Badge or Quick Hints */}
+        {contextBadge ? (
+          <div
+            className="flex items-center gap-1.5 px-2 py-0.5 rounded-md font-medium text-xs shrink-0"
+            style={
+              contextBadge.type === 'agent'
+                ? {
+                    backgroundColor: 'rgba(99, 102, 241, 0.16)',
+                    color: '#a5b4fc',
+                    border: '1px solid rgba(99, 102, 241, 0.3)',
+                  }
+                : {
+                    backgroundColor: 'rgba(var(--accent-rgb), 0.16)',
+                    color: 'var(--accent-text, var(--accent-color))',
+                    border: '1px solid rgba(var(--accent-rgb), 0.3)',
+                  }
+            }
+          >
+            <Icon name={contextBadge.icon} className="w-3.5 h-3.5" />
+            <span>{contextBadge.label}</span>
+          </div>
+        ) : (
+          <div className="flex items-center gap-2 text-slate-400 text-[11px] shrink-0">
+            <span className="flex items-center gap-1">
+              <kbd className="px-1 py-0.2 bg-[#1c1e24] border border-white/15 rounded text-slate-300 font-mono text-[10px]">
+                /
+              </kbd>
+              <span>Ações</span>
+            </span>
+            <span className="text-white/20">•</span>
+            <span className="flex items-center gap-1">
+              <kbd className="px-1 py-0.2 bg-[#1c1e24] border border-white/15 rounded text-slate-300 font-mono text-[10px]">
+                @
+              </kbd>
+              <span>Agentes</span>
+            </span>
+            <span className="text-white/20">•</span>
+            <span className="flex items-center gap-1">
+              <kbd className="px-1 py-0.2 bg-[#1c1e24] border border-white/15 rounded text-slate-300 font-mono text-[10px]">
+                Tab
+              </kbd>
+              <span>Completar</span>
+            </span>
+          </div>
+        )}
 
         {onCycleProvider && (
           <button
             onClick={onCycleProvider}
-            className="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-black/5 dark:bg-zinc-900/80 hover:bg-black/10 dark:hover:bg-zinc-800 text-inherit transition-colors border border-hud cursor-pointer font-mono text-[11px]"
+            className="flex items-center gap-1.5 px-2 py-1 rounded-md hover:bg-white/[0.08] text-inherit transition-colors cursor-pointer font-mono text-[11px] shrink-0 ml-1"
             title="Alternar Provedor de IA (Clique ou /provider)"
           >
-            <Icon name={currentProviderInfo.icon} className="w-3 h-3" style={{ color: 'var(--accent-color)' }} />
-            <span className="font-semibold">{currentProviderInfo.label}:</span>
-            <span className="truncate max-w-[120px] text-zinc-400" title={model}>
+            <Icon name={currentProviderInfo.icon} className="w-3 h-3 shrink-0" style={{ color: 'var(--accent-text, var(--accent-color))' }} />
+            <span className="font-semibold shrink-0">{currentProviderInfo.label}:</span>
+            <span className="text-slate-300 shrink-0" title={model}>
               {model}
             </span>
           </button>
         )}
 
         {!onCycleProvider && (
-          <div className="flex items-center gap-1.5 text-zinc-400 font-mono text-xs">
-            <Icon name="Cpu" className="w-3.5 h-3.5 text-zinc-400" />
-            <span className="truncate max-w-[140px]" title={model}>{model}</span>
+          <div className="flex items-center gap-1.5 text-slate-300 font-mono text-xs shrink-0">
+            <Icon name="Cpu" className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+            <span title={model}>{model}</span>
           </div>
         )}
 
         {hasClipboardText && (
-          <div className="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-300 text-xs bg-emerald-500/10 px-2 py-0.5 rounded-md border border-emerald-500/30">
-            <Icon name="Clipboard" className="w-3.5 h-3.5 text-emerald-500 dark:text-emerald-400" />
+          <div className="flex items-center gap-1.5 text-emerald-400 text-xs shrink-0 font-medium">
+            <Icon name="Clipboard" className="w-3.5 h-3.5 text-emerald-400" />
             <span>Área de transferência</span>
           </div>
         )}
       </div>
 
-      <div className="flex items-center gap-3.5">
+      <div className="flex items-center gap-2.5 shrink-0">
         <button
           onClick={onOpenHistory}
-          className="flex items-center gap-1.5 text-zinc-400 hover:text-inherit transition-colors cursor-pointer text-xs"
+          className="flex items-center gap-1.5 px-2 py-1 rounded-md hover:bg-white/[0.08] text-slate-300 hover:text-white transition-colors cursor-pointer text-xs"
           title="Abrir Histórico (Ctrl+H)"
         >
-          <Icon name="History" className="w-3.5 h-3.5" />
+          <Icon name="History" className="w-3.5 h-3.5 text-slate-400" />
           <span>Histórico</span>
-          <kbd className="text-[10px] bg-black/10 dark:bg-zinc-900 border border-hud px-1.5 py-0.5 rounded font-mono">Ctrl+H</kbd>
+          <kbd className="text-[11px] bg-[#1c1e24] border border-white/15 px-1.5 py-0.5 rounded font-mono font-medium text-slate-200">Ctrl+H</kbd>
         </button>
 
         <button
           onClick={onOpenSettings}
-          className="flex items-center gap-1.5 text-zinc-400 hover:text-inherit transition-colors cursor-pointer text-xs"
+          className="flex items-center gap-1.5 px-2 py-1 rounded-md hover:bg-white/[0.08] text-slate-300 hover:text-white transition-colors cursor-pointer text-xs"
           title="Configurações (Ctrl+,)"
         >
-          <Icon name="Settings" className="w-3.5 h-3.5" />
+          <Icon name="Settings" className="w-3.5 h-3.5 text-slate-400" />
           <span>Configurações</span>
-          <kbd className="text-[10px] bg-black/10 dark:bg-zinc-900 border border-hud px-1.5 py-0.5 rounded font-mono">Ctrl+,</kbd>
+          <kbd className="text-[11px] bg-[#1c1e24] border border-white/15 px-1.5 py-0.5 rounded font-mono font-medium text-slate-200">Ctrl+,</kbd>
         </button>
 
         {onOpenCheatsheet && (
           <button
             onClick={onOpenCheatsheet}
-            className="flex items-center gap-1 text-zinc-400 hover:text-inherit transition-colors cursor-pointer text-xs"
+            className="flex items-center gap-1 px-1.5 py-1 rounded-md hover:bg-white/[0.08] text-slate-300 hover:text-white transition-colors cursor-pointer text-xs"
             title="Mapa de Atalhos (?)"
           >
-            <Icon name="HelpCircle" className="w-3.5 h-3.5" />
-            <kbd className="text-[10px] bg-black/10 dark:bg-zinc-900 border border-hud px-1.5 py-0.5 rounded font-mono">?</kbd>
+            <Icon name="HelpCircle" className="w-3.5 h-3.5 text-slate-400" />
+            <kbd className="text-[11px] bg-[#1c1e24] border border-white/15 px-1.5 py-0.5 rounded font-mono font-medium text-slate-200">?</kbd>
           </button>
         )}
-
-        <div className="flex items-center gap-1.5 text-zinc-400 text-xs">
-          <span>Sair</span>
-          <kbd className="text-[10px] bg-black/10 dark:bg-zinc-900 border border-hud px-1.5 py-0.5 rounded font-mono">Esc</kbd>
-        </div>
       </div>
     </div>
   );

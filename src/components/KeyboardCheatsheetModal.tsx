@@ -23,9 +23,11 @@ export const KeyboardCheatsheetModal: React.FC<KeyboardCheatsheetModalProps> = (
 
   const sections = [
     {
-      title: 'Geral & Navegação de HUD',
+      title: 'Geral & Navegação de HUD (Raycast-Style)',
       shortcuts: [
-        { keys: ['Tab'], desc: 'Alternar perfil de IA (Geral / Dev / Tradutor...)' },
+        { keys: ['Tab'], desc: 'Autocompletar comando (/ação) ou agente (@agente)' },
+        { keys: ['/'], desc: 'Filtrar ações específicas (ex: /traduzir, /corrigir)' },
+        { keys: ['@'], desc: 'Invocar agente contextual (ex: @dev, @prompt, @writer)' },
         { keys: ['/provider'], desc: 'Alternar provedor ativo (9router ↔ Omni ↔ Custom)' },
         { keys: ['Ctrl', 'H'], desc: 'Abrir / Fechar Histórico de prompts' },
         { keys: ['Ctrl', ','], desc: 'Abrir Configurações do app' },
@@ -34,13 +36,14 @@ export const KeyboardCheatsheetModal: React.FC<KeyboardCheatsheetModalProps> = (
       ],
     },
     {
-      title: 'Busca & Lista de Ações (Zero-Mouse)',
+      title: 'Busca & Execução Rápida',
       shortcuts: [
-        { keys: ['↓', '/', 'Ctrl+N', 'Ctrl+J'], desc: 'Descer na lista de comandos (Readline / Vim)' },
-        { keys: ['↑', '/', 'Ctrl+P', 'Ctrl+K'], desc: 'Subir na lista de comandos (Readline / Vim)' },
-        { keys: ['Enter'], desc: 'Executar ação com texto digitado ou da área de transferência' },
+        { keys: ['↓', '/', 'Ctrl+N', 'Ctrl+J'], desc: 'Descer na lista de sugestões (Readline / Vim)' },
+        { keys: ['↑', '/', 'Ctrl+P', 'Ctrl+K'], desc: 'Subir na lista de sugestões (Readline / Vim)' },
+        { keys: ['Enter'], desc: 'Executar ação ou enviar pergunta ao agente' },
         { keys: ['Alt', '1..9, 0'], desc: 'Disparo direto instantâneo de ações (Alt+9 visão, Alt+0 UI)' },
-        { keys: ['/comando'], desc: 'Slash commands diretos (ex: /analisar, /analisar-ui, /traduzir)' },
+        { keys: ['@agente texto'], desc: 'Executa diretamente no contexto do agente especialista' },
+        { keys: ['/ação texto'], desc: 'Executa ação soberana sem contaminação' },
       ],
     },
     {
@@ -92,7 +95,7 @@ export const KeyboardCheatsheetModal: React.FC<KeyboardCheatsheetModalProps> = (
         <div className="flex-1 overflow-y-auto p-5 space-y-4">
           {sections.map((sec) => (
             <div key={sec.title} className="space-y-2">
-              <h3 className="text-xs font-semibold uppercase tracking-wider text-indigo-400/90">
+              <h3 className="text-xs font-semibold uppercase tracking-wider" style={{ color: 'var(--accent-text, var(--accent-color))' }}>
                 {sec.title}
               </h3>
               <div className="grid grid-cols-1 gap-1.5 bg-zinc-900/40 p-2.5 rounded-xl border border-white/5">

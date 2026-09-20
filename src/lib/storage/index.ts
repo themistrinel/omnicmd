@@ -1,13 +1,33 @@
 import { invoke } from '@tauri-apps/api/core';
-import { AppSettings, HistoryEntry, AppearanceSettings } from '@/types';
+import { AppSettings, HistoryEntry, AppearanceSettings, PromptAction } from '@/types';
+import { PROMPT_ACTIONS } from '@/lib/actions';
+import { AGENTS } from '@/lib/agents';
 
 export const DEFAULT_APPEARANCE: AppearanceSettings = {
   themeMode: 'system',
-  hudOpacity: 95,
-  hudBlur: 20,
-  fontFamily: 'system',
-  accentColor: 'indigo',
+  hudOpacity: 82,
+  hudBlur: 24,
+  fontFamily: 'ibm_plex',
+  accentColor: 'sky',
 };
+
+function hydrateActions(savedActions: PromptAction[]): PromptAction[] {
+  return savedActions.map((saved) => {
+    const defaultAction = PROMPT_ACTIONS.find((a) => a.id === saved.id);
+    let userPromptTemplate = defaultAction?.userPromptTemplate;
+    if (saved.userPromptTemplateString) {
+      userPromptTemplate = (input: string) =>
+        saved.userPromptTemplateString!.includes('{input}')
+          ? saved.userPromptTemplateString!.replace('{input}', input)
+          : `${saved.userPromptTemplateString}\n\n${input}`;
+    }
+    return {
+      ...defaultAction,
+      ...saved,
+      userPromptTemplate: userPromptTemplate || defaultAction?.userPromptTemplate,
+    };
+  });
+}
 
 export const DEFAULT_SETTINGS: AppSettings = {
   activeProviderId: '9router',
@@ -38,6 +58,8 @@ export const DEFAULT_SETTINGS: AppSettings = {
   keyboardNavMode: 'hybrid',
   enableVimMnemonicShortcuts: true,
   appearance: DEFAULT_APPEARANCE,
+  agents: AGENTS,
+  actions: PROMPT_ACTIONS,
 };
 
 function isTauriEnvironment(): boolean {
@@ -59,10 +81,17 @@ export class StorageService {
           } catch (_) {}
         }
 
-        let parsedAppearance = DEFAULT_SETTINGS.appearance;
+        let parsedAppearance: AppearanceSettings = DEFAULT_APPEARANCE;
         if (rawMap.appearance_json) {
           try {
-            parsedAppearance = { ...DEFAULT_SETTINGS.appearance, ...JSON.parse(rawMap.appearance_json) };
+            const decoded = JSON.parse(rawMap.appearance_json);
+            parsedAppearance = { ...DEFAULT_APPEARANCE, ...decoded };
+            if ((parsedAppearance.accentColor as string) === 'amber') {
+              parsedAppearance.accentColor = 'sky';
+            }
+            if (parsedAppearance.hudOpacity === 95 || !parsedAppearance.hudOpacity) {
+              parsedAppearance.hudOpacity = 82;
+            }
           } catch (_) {}
         }
 
@@ -72,6 +101,20 @@ export class StorageService {
         const endpoint = rawMap.endpoint || currentActiveConfig.endpoint;
         const apiKey = rawMap.apiKey || currentActiveConfig.apiKey;
         const model = rawMap.model || currentActiveConfig.model;
+
+        let parsedAgents = AGENTS;
+        if (rawMap.agents_json) {
+          try {
+            parsedAgents = JSON.parse(rawMap.agents_json);
+          } catch (_) {}
+        }
+
+        let parsedActions = PROMPT_ACTIONS;
+        if (rawMap.actions_json) {
+          try {
+            parsedActions = hydrateActions(JSON.parse(rawMap.actions_json));
+          } catch (_) {}
+        }
 
         return {
           activeProviderId,
@@ -92,6 +135,8 @@ export class StorageService {
           appearance: parsedAppearance,
           customVisionPrompt: rawMap.customVisionPrompt || undefined,
           customUiPrompt: rawMap.customUiPrompt || undefined,
+          agents: parsedAgents,
+          actions: parsedActions,
         };
       } catch (err) {
         console.warn('Failed to load settings from SQLite, using defaults:', err);
@@ -101,6 +146,16 @@ export class StorageService {
       if (stored) {
         try {
           const parsed = JSON.parse(stored);
+          const rawApp = {
+            ...DEFAULT_APPEARANCE,
+            ...(parsed.appearance || {}),
+          };
+          if ((rawApp.accentColor as string) === 'amber') {
+            rawApp.accentColor = 'sky';
+          }
+          if (rawApp.hudOpacity === 95 || !rawApp.hudOpacity) {
+            rawApp.hudOpacity = 82;
+          }
           return {
             ...DEFAULT_SETTINGS,
             ...parsed,
@@ -108,10 +163,9 @@ export class StorageService {
               ...DEFAULT_SETTINGS.providers,
               ...(parsed.providers || {}),
             },
-            appearance: {
-              ...DEFAULT_SETTINGS.appearance,
-              ...(parsed.appearance || {}),
-            },
+            appearance: rawApp,
+            agents: parsed.agents || AGENTS,
+            actions: parsed.actions ? hydrateActions(parsed.actions) : PROMPT_ACTIONS,
           };
         } catch (_) {}
       }
@@ -124,7 +178,16 @@ export class StorageService {
     value: string | boolean | number | Record<string, any>
   ): Promise<void> {
     const stringVal = typeof value === 'object' ? JSON.stringify(value) : String(value);
-    const dbKey = key === 'providers' ? 'providers_json' : key === 'appearance' ? 'appearance_json' : (key as string);
+    const dbKey =
+      key === 'providers'
+        ? 'providers_json'
+        : key === 'appearance'
+        ? 'appearance_json'
+        : key === 'agents'
+        ? 'agents_json'
+        : key === 'actions'
+        ? 'actions_json'
+        : (key as string);
 
     if (isTauriEnvironment()) {
       try {
