@@ -79,6 +79,8 @@ pub fn run() {
             commands::toggle_window,
             commands::hide_window,
             commands::show_window,
+            commands::copy_to_clipboard,
+            commands::read_from_clipboard,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

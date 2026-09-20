@@ -72,3 +72,91 @@ pub fn show_window(app: AppHandle) -> Result<(), String> {
     }
     Ok(())
 }
+
+#[tauri::command]
+pub fn copy_to_clipboard(app: AppHandle, text: String) -> Result<(), String> {
+    #[cfg(target_os = "linux")]
+    {
+        use std::io::Write;
+        use std::process::{Command, Stdio};
+
+        // 1. Wayland nativo: wl-copy garante persistência mesmo após a janela perder foco ou fechar no Hyprland
+        if let Ok(mut child) = Command::new("wl-copy")
+            .stdin(Stdio::piped())
+            .stdout(Stdio::null())
+            .stderr(Stdio::null())
+            .spawn()
+        {
+            if let Some(mut stdin) = child.stdin.take() {
+                let _ = stdin.write_all(text.as_bytes());
+            }
+            if let Ok(status) = child.wait() {
+                if status.success() {
+                    return Ok(());
+                }
+            }
+        }
+
+        // 2. Fallback X11: xclip se disponível
+        if let Ok(mut child) = Command::new("xclip")
+            .args(["-selection", "clipboard"])
+            .stdin(Stdio::piped())
+            .stdout(Stdio::null())
+            .stderr(Stdio::null())
+            .spawn()
+        {
+            if let Some(mut stdin) = child.stdin.take() {
+                let _ = stdin.write_all(text.as_bytes());
+            }
+            if let Ok(status) = child.wait() {
+                if status.success() {
+                    return Ok(());
+                }
+            }
+        }
+    }
+
+    // 3. Plugin padrão do Tauri (macOS, Windows ou fallback Linux)
+    use tauri_plugin_clipboard_manager::ClipboardExt;
+    app.clipboard()
+        .write_text(text)
+        .map_err(|e| format!("Failed to write to clipboard: {}", e))
+}
+
+#[tauri::command]
+pub fn read_from_clipboard(app: AppHandle) -> Result<String, String> {
+    #[cfg(target_os = "linux")]
+    {
+        use std::process::Command;
+
+        // 1. Wayland nativo: wl-paste
+        if let Ok(output) = Command::new("wl-paste")
+            .arg("--no-newline")
+            .output()
+        {
+            if output.status.success() {
+                if let Ok(s) = String::from_utf8(output.stdout) {
+                    return Ok(s);
+                }
+            }
+        }
+
+        // 2. Fallback X11: xclip
+        if let Ok(output) = Command::new("xclip")
+            .args(["-selection", "clipboard", "-o"])
+            .output()
+        {
+            if output.status.success() {
+                if let Ok(s) = String::from_utf8(output.stdout) {
+                    return Ok(s);
+                }
+            }
+        }
+    }
+
+    // 3. Plugin padrão do Tauri
+    use tauri_plugin_clipboard_manager::ClipboardExt;
+    app.clipboard()
+        .read_text()
+        .map_err(|e| format!("Failed to read clipboard: {}", e))
+}
