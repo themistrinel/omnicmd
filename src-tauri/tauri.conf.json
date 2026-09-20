@@ -41,7 +41,7 @@
   },
   "bundle": {
     "active": true,
-    "createUpdaterArtifacts": true,
+    "createUpdaterArtifacts": false,
     "targets": "all",
     "icon": [
       "icons/32x32.png",
@@ -53,8 +53,9 @@
   },
   "plugins": {
     "updater": {
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDk4NEUxQzdDNEFGMEY5RUUKUldUdStmQktmQnhPbUFycTJLOVREYmt2UWhETXovZElsclJXQzVWeVlyckZHVGRzMUdTbUdmZDAK",
       "endpoints": [
-        "https://github.com/omnicmd/omnicmd/releases/latest/download/latest.json"
+        "https://github.com/themistrinel/omnicmd/releases/latest/download/latest.json"
       ]
     }
   }

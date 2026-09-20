@@ -129,6 +129,17 @@ export const PROMPT_ACTIONS: PromptAction[] = [
         ? `Inspecione detalhadamente esta UI para implementação frontend, considerando este contexto adicional do usuário: "${input}".`
         : 'Inspecione detalhadamente esta interface/UI para implementação técnica no frontend com Tailwind CSS e React.',
   },
+  {
+    id: 'check_update',
+    title: 'Verificar atualizações',
+    description: 'Verifica novas versões do OmniCmd no GitHub Releases e instala se disponível',
+    icon: 'Sparkles',
+    command: '/update',
+    aliases: ['/atualizar', '/versao', '/upgrade'],
+    systemPrompt:
+      'Você é o assistente de atualizações do OmniCmd.',
+    userPromptTemplate: () => '',
+  },
 ];
 
 export function getActionById(id: string): PromptAction {

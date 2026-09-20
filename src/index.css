@@ -124,6 +124,13 @@
   font-family: var(--hud-font-family, inherit);
 }
 
+/* Native compositor borders (Hyprland / Wayland) */
+.native-window-borders .hud-window {
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+
 .hud-header {
   background-color: var(--hud-header-bg);
   border-color: var(--hud-header-border);

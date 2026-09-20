@@ -727,6 +727,36 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ onBack, onSaved }) =
                   })}
                 </div>
               </div>
+
+              {/* Native Window Borders for Hyprland / Wayland */}
+              <div className="pt-3 border-t border-hud">
+                <div className="flex items-center justify-between">
+                  <div className="space-y-0.5 pr-4">
+                    <label className="text-xs font-semibold block text-slate-200">
+                      Bordas Nativas do Sistema (Hyprland / Compositor)
+                    </label>
+                    <p className="text-[11px] text-slate-400 leading-relaxed">
+                      Remove a borda interna e cantos arredondados fixos do app, delegando o contorno ativo (<code className="text-accent text-[10px]">col.active_border</code>), sombras e raio (<code className="text-accent text-[10px]">rounding</code>) diretamente ao seu compositor Hyprland.
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    role="switch"
+                    aria-checked={appearance.nativeBorders ?? false}
+                    onClick={() => handleUpdateAppearance('nativeBorders', !(appearance.nativeBorders ?? false))}
+                    className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
+                      appearance.nativeBorders ? 'bg-accent' : 'bg-slate-700'
+                    }`}
+                  >
+                    <span
+                      aria-hidden="true"
+                      className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow-lg ring-0 transition duration-200 ease-in-out ${
+                        appearance.nativeBorders ? 'translate-x-4' : 'translate-x-0'
+                      }`}
+                    />
+                  </button>
+                </div>
+              </div>
             </div>
           )}
 

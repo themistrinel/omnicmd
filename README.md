@@ -7,10 +7,10 @@
 ### The Keyboard-First AI Command Palette for Power Users & Developers
 
 <p align="center">
-  <a href="https://github.com/omnicmd/omnicmd/releases">
-    <img src="https://img.shields.io/github/v/release/omnicmd/omnicmd?style=for-the-badge&color=6366f1" alt="Release" />
+  <a href="https://github.com/themistrinel/omnicmd/releases">
+    <img src="https://img.shields.io/github/v/release/themistrinel/omnicmd?style=for-the-badge&color=6366f1" alt="Release" />
   </a>
-  <a href="https://github.com/omnicmd/omnicmd/blob/main/LICENSE">
+  <a href="https://github.com/themistrinel/omnicmd/blob/main/LICENSE">
     <img src="https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge" alt="License" />
   </a>
   <img src="https://img.shields.io/badge/Platform-Linux%20%7C%20Windows%20%7C%20macOS-334155?style=for-the-badge" alt="Platforms" />
@@ -70,13 +70,45 @@ Built with **Tauri v2**, **Rust**, and **React 19**, OmniCmd consumes a fraction
 
 ## 📦 Downloads & Releases
 
-Pre-compiled binary packages are automatically built on every release tag for all major desktop platforms:
+Pre-compiled binary packages are automatically built on every push to `main` and release tags for all major desktop platforms:
 
 | OS | Architecture | Package Format | Download Link |
 | :--- | :--- | :--- | :--- |
-| **Linux** | `x86_64` | `.deb`, `.AppImage` | [GitHub Releases](https://github.com/omnicmd/omnicmd/releases) |
-| **Windows** | `x64` | `.msi`, `.exe` installer | [GitHub Releases](https://github.com/omnicmd/omnicmd/releases) |
-| **macOS** | Universal (`arm64` & `x86_64`) | `.dmg` | [GitHub Releases](https://github.com/omnicmd/omnicmd/releases) |
+| **Linux (Arch / Hyprland)** | `x86_64` | Native bin, `.AppImage`, `.deb` | [Quick Install](#-arch-linux--hyprland-setup) / [Releases](https://github.com/themistrinel/omnicmd/releases) |
+| **Windows** | `x64` | `.msi`, `.exe` installer | [GitHub Releases](https://github.com/themistrinel/omnicmd/releases) |
+| **macOS** | Universal (`arm64` & `x86_64`) | `.dmg` | [GitHub Releases](https://github.com/themistrinel/omnicmd/releases) |
+
+---
+
+## 🐧 Arch Linux & Hyprland Setup
+
+O OmniCmd possui instalador oficial dedicado para **Arch Linux** e o compositor Wayland **Hyprland**, garantindo adaptação nativa para que a janela se comporte como uma paleta Raycast/Spotlight (flutuante, sem bordas tiling indesejadas, foco instantâneo e atalhos customizáveis).
+
+### ⚡ 1-Liner Quick Install (Sem clonar repositório)
+Execute diretamente em qualquer terminal sem precisar clonar ou instalar o git:
+```bash
+curl -fsSL https://raw.githubusercontent.com/themistrinel/omnicmd/main/install.sh | bash
+```
+*(ou se já clonou o repositório localmente: `./install.sh` ou `./scripts/install-arch-hyprland.sh`)*
+
+### O que o instalador faz automaticamente:
+1. **Sem Git Clone**: Baixa os arquivos necessários e o binário oficial otimizado direto do GitHub Releases.
+2. **Dependências do Arch**: Instala via pacman `webkit2gtk-4.1`, `libayatana-appindicator`, `openssl`, `wl-clipboard` (área de transferência nativa Wayland), `librsvg`, `jq` e `curl`.
+3. **Binários e Atalhos de Sistema**: Instala `omnicmd`, `omnicmd-toggle` e `omnicmd-update` em `~/.local/bin/` e registra o lançador desktop `.desktop` com ícone oficial.
+4. **Regras de Janela no Hyprland (`~/.config/hypr/omnicmd.conf`)**:
+   - Flutuação (`float`), centralização (`center`), tamanho fixo `800x560`
+   - Remoção de bordas e decoração tiling (`noborder`)
+   - Manutenção de foco e fixação sobre qualquer workspace (`stayfocused`, `pin`)
+   - Animação rápida fluida popin 95%
+5. **Atalhos / Shortcuts no Hyprland**:
+   - `SUPER + SPACE`: Alterna visibilidade da paleta instantaneamente via `omnicmd-toggle`
+   - `SUPER + SHIFT + SPACE`: Abre/recarrega nova sessão
+6. **Atualizações Contínuas com 1 Comando**:
+   - Cria o utilitário `omnicmd-update` no terminal para você atualizar o OmniCmd direto das novas releases do GitHub sempre que quiser:
+   ```bash
+   omnicmd-update
+   ```
+   - O OmniCmd também verifica silenciosamente se há novas versões e oferece atualização automática in-app.
 
 ---
 
@@ -92,7 +124,7 @@ Pre-compiled binary packages are automatically built on every release tag for al
 
 ### 2. Clone & Run Development Server
 ```bash
-git clone https://github.com/omnicmd/omnicmd.git
+git clone https://github.com/themistrinel/omnicmd.git
 cd omnicmd
 
 # Install dependencies

@@ -193,6 +193,15 @@ export function applyAppearanceSettings(appearance: AppearanceSettings): void {
   root.setAttribute('data-font', appearance.fontFamily);
   root.setAttribute('data-accent', appearance.accentColor);
 
+  // Native window borders for compositors like Hyprland / Sway
+  if (appearance.nativeBorders) {
+    root.classList.add('native-window-borders');
+    root.setAttribute('data-native-borders', 'true');
+  } else {
+    root.classList.remove('native-window-borders');
+    root.removeAttribute('data-native-borders');
+  }
+
   // CSS variables for HUD background & blur
   const opacity = Math.min(100, Math.max(50, appearance.hudOpacity ?? 95)) / 100;
   const blurPx = Math.min(32, Math.max(0, appearance.hudBlur ?? 20));

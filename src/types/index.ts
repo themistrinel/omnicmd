@@ -100,6 +100,7 @@ export interface AppearanceSettings {
   hudBlur: number; // 0 - 32 (px)
   fontFamily: FontFamily;
   accentColor: AccentColor;
+  nativeBorders?: boolean; // Delega bordas, rounding e sombras ao Hyprland/Compositor
 }
 
 export type AIProviderId = '9router' | 'omni' | 'custom';

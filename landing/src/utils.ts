@@ -21,7 +21,7 @@ export function getDownloadInfo(os: OSPlatform): DownloadInfo {
         osName: 'macOS',
         icon: React.createElement(Apple, { className: 'w-5 h-5' }),
         format: 'Universal .dmg (Apple Silicon & Intel)',
-        url: 'https://github.com/omnicmd/omnicmd/releases/latest/download/OmniCmd_macOS_universal.dmg',
+        url: 'https://github.com/themistrinel/omnicmd/releases/latest/download/OmniCmd_macOS_universal.dmg',
         releaseNote: 'Requires macOS 11+ (Big Sur, Monterey, Ventura, Sonoma, Sequoia)',
       };
     case 'windows':
@@ -29,7 +29,7 @@ export function getDownloadInfo(os: OSPlatform): DownloadInfo {
         osName: 'Windows',
         icon: React.createElement(Monitor, { className: 'w-5 h-5' }),
         format: 'Installer (.msi) & Portable (.exe)',
-        url: 'https://github.com/omnicmd/omnicmd/releases/latest/download/OmniCmd_x64_en-US.msi',
+        url: 'https://github.com/themistrinel/omnicmd/releases/latest/download/OmniCmd_x64_en-US.msi',
         releaseNote: 'Requires Windows 10/11 64-bit with WebView2 runtime',
       };
     case 'linux':
@@ -38,7 +38,7 @@ export function getDownloadInfo(os: OSPlatform): DownloadInfo {
         osName: 'Linux',
         icon: React.createElement(Terminal, { className: 'w-5 h-5' }),
         format: 'Debian/Ubuntu (.deb) & Universal (.AppImage)',
-        url: 'https://github.com/omnicmd/omnicmd/releases/latest/download/omnicmd_amd64.deb',
+        url: 'https://github.com/themistrinel/omnicmd/releases/latest/download/omnicmd_amd64.deb',
         releaseNote: 'Requires GTK 3/4 & WebKit2GTK on modern Linux distributions',
       };
   }
