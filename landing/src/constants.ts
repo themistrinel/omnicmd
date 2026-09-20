@@ -53,9 +53,10 @@ export const SHORTCUT_ITEMS: ShortcutItem[] = [
     separator: '+',
   },
   {
-    title: 'Direct Action Trigger',
-    description: 'Immediately executes action #1 through #9',
-    keys: ['#1 .. #9'],
+    title: 'Disparo de Ação Rápida',
+    description: 'Executa diretamente as ações 1 a 8',
+    keys: ['Alt', '1 .. 8'],
+    separator: '+',
   },
   {
     title: 'Vim & List Navigation',

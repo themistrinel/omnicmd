@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Download, Menu, X, ArrowUpRight } from 'lucide-react';
+import { Download, Menu, X, ArrowUpRight, Sparkles } from 'lucide-react';
 import { GithubIcon } from './GithubIcon';
 import { GITHUB_URL } from '../constants';
 import { OSPlatform } from '../types';
@@ -12,10 +12,9 @@ interface NavItem {
 
 const NAV_LINKS: NavItem[] = [
   { label: 'Cockpit', href: '#cockpit' },
-  { label: 'Cadence', href: '#cadence' },
-  { label: 'Profiler', href: '#architecture' },
+  { label: 'Features', href: '#features' },
+  { label: 'Benchmarks', href: '#architecture' },
   { label: 'Commands', href: '#commands' },
-  { label: 'Artifacts', href: '#downloads' },
   { label: 'Changelog', href: '#devlog' },
 ];
 
@@ -70,40 +69,43 @@ export const Navbar: React.FC = () => {
   return (
     <>
       <header
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-150 font-mono ${
+        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-200 font-sans ${
           scrolled
-            ? 'bg-[#050608]/95 backdrop-blur-md border-b border-white/[0.1]'
-            : 'bg-transparent border-b border-white/[0.04]'
+            ? 'bg-[#030712]/85 backdrop-blur-xl border-b border-sky-500/20 shadow-[0_4px_30px_rgba(0,0,0,0.5)]'
+            : 'bg-transparent border-b border-sky-500/10'
         }`}
       >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 h-13 flex items-center justify-between">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
           {/* Logo & Platform Tag */}
           <div className="flex items-center gap-3">
             <a
               href="#"
-              className="flex items-center gap-2 text-white font-bold tracking-tight text-sm focus:outline-none"
+              className="flex items-center gap-2.5 text-white font-bold tracking-tight text-sm focus:outline-none group"
             >
-              <div className="w-5 h-5 rounded bg-[#38bdf8] text-black flex items-center justify-center font-mono font-bold text-xs">
+              <div className="w-6 h-6 rounded-lg bg-gradient-to-tr from-sky-500 via-cyan-400 to-blue-600 text-white flex items-center justify-center font-mono font-bold text-xs shadow-[0_0_15px_rgba(56,189,248,0.5)] group-hover:scale-105 transition-transform">
                 &gt;_
               </div>
-              <span className="font-display font-extrabold tracking-tight">OMNICMD</span>
+              <span className="font-display font-extrabold tracking-tight text-base bg-clip-text text-transparent bg-gradient-to-r from-white via-sky-100 to-sky-300">
+                OMNICMD
+              </span>
             </a>
 
             <a
               href="#devlog"
-              className="hidden sm:inline-flex items-center px-1.5 py-0.2 rounded text-[10px] font-mono text-zinc-400 hover:text-white bg-[#10131b] border border-white/[0.08]"
+              className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-sans font-medium text-sky-300 hover:text-white bg-sky-950/40 border border-sky-500/30 transition-colors"
             >
-              v0.1.0
+              <Sparkles className="w-2.5 h-2.5 text-cyan-400" />
+              <span className="font-mono text-[11px]">v0.1.0</span>
             </a>
           </div>
 
           {/* Navigation Items (Desktop) */}
-          <nav className="hidden md:flex items-center gap-6 text-xs font-mono text-zinc-400">
+          <nav className="hidden md:flex items-center gap-8 text-sm font-medium text-sky-200/75 font-sans">
             {NAV_LINKS.map((link) => (
               <a
                 key={link.label}
                 href={link.href}
-                className="hover:text-[#38bdf8] transition-colors"
+                className="hover:text-white hover:drop-shadow-[0_0_8px_rgba(56,189,248,0.8)] transition-all"
               >
                 {link.label}
               </a>
@@ -117,19 +119,20 @@ export const Navbar: React.FC = () => {
               target="_blank"
               rel="noreferrer"
               aria-label="View OmniCmd on GitHub"
-              className="hidden xs:inline-flex items-center gap-1.5 px-3 py-1.5 rounded text-xs font-mono text-zinc-300 hover:text-white bg-[#0e1118] hover:bg-[#161a24] border border-white/[0.08] transition-all"
+              className="hidden xs:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium font-sans text-sky-200 hover:text-white bg-[#081430] hover:bg-[#0c1f4d] border border-sky-500/30 transition-all"
             >
-              <GithubIcon className="w-3.5 h-3.5" />
-              <span>GH</span>
-              <ArrowUpRight className="w-3 h-3 text-zinc-500" />
+              <GithubIcon className="w-3.5 h-3.5 text-sky-300" />
+              <span>GitHub</span>
+              <ArrowUpRight className="w-3 h-3 text-sky-400" />
             </a>
 
+            {/* Pill Arredondado com Glow Sky/Cyan (Image 1 style) */}
             <a
               href={downloadInfo.url}
-              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded text-xs font-mono font-bold bg-[#38bdf8] text-black hover:bg-[#0ea5e9] transition-all shadow-[0_0_15px_rgba(56,189,248,0.25)]"
+              className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-semibold font-sans bg-gradient-to-r from-sky-500 via-cyan-400 to-blue-600 hover:from-sky-400 hover:to-blue-500 text-white shadow-[0_0_20px_rgba(56,189,248,0.4)] hover:shadow-[0_0_30px_rgba(56,189,248,0.6)] border border-sky-400/40 transition-all cursor-pointer"
             >
-              <Download className="w-3.5 h-3.5 text-black" />
-              <span>{downloadInfo.osName.toUpperCase()}</span>
+              <Download className="w-3.5 h-3.5 text-white" />
+              <span>Download v0.1.0</span>
             </a>
 
             {/* Mobile Hamburger Button */}
@@ -140,7 +143,7 @@ export const Navbar: React.FC = () => {
               aria-expanded={isMobileMenuOpen}
               aria-controls="mobile-drawer"
               aria-label={isMobileMenuOpen ? 'Close navigation menu' : 'Open navigation menu'}
-              className="md:hidden p-1.5 rounded text-zinc-400 hover:text-white bg-[#10131b] border border-white/[0.08] transition-colors cursor-pointer"
+              className="md:hidden p-1.5 rounded-full text-sky-300 hover:text-white bg-[#081430] border border-sky-500/30 transition-colors cursor-pointer"
             >
               {isMobileMenuOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
             </button>
@@ -156,10 +159,10 @@ export const Navbar: React.FC = () => {
           role="dialog"
           aria-modal="true"
           aria-label="Mobile Navigation Menu"
-          className="fixed inset-0 z-40 bg-[#050608]/98 backdrop-blur-2xl md:hidden pt-20 px-6 flex flex-col justify-between pb-8 font-mono"
+          className="fixed inset-0 z-40 bg-[#030712]/98 backdrop-blur-2xl md:hidden pt-20 px-6 flex flex-col justify-between pb-8 font-sans"
         >
           <div className="flex flex-col gap-2">
-            <div className="text-[10px] uppercase tracking-wider text-zinc-500 mb-2">
+            <div className="text-[10px] uppercase tracking-wider font-semibold text-sky-400/60 mb-2">
               SYSTEM DIRECTORY
             </div>
             {NAV_LINKS.map((link) => (
@@ -167,21 +170,21 @@ export const Navbar: React.FC = () => {
                 key={link.label}
                 href={link.href}
                 onClick={closeMobileMenu}
-                className="py-3 text-base font-bold text-zinc-200 hover:text-[#38bdf8] border-b border-white/[0.06] transition-colors"
+                className="py-3 text-base font-semibold text-sky-100 hover:text-white border-b border-sky-500/15 transition-colors"
               >
                 {link.label}
               </a>
             ))}
           </div>
 
-          <div className="flex flex-col gap-3 pt-6 border-t border-white/[0.08]">
+          <div className="flex flex-col gap-3 pt-6 border-t border-sky-500/20">
             <a
               href={downloadInfo.url}
               onClick={closeMobileMenu}
-              className="flex items-center justify-center gap-2 w-full py-3 rounded bg-[#38bdf8] text-black font-bold text-xs"
+              className="flex items-center justify-center gap-2 w-full py-3 rounded-full bg-gradient-to-r from-sky-500 to-blue-600 text-white font-semibold text-sm shadow-[0_0_20px_rgba(56,189,248,0.4)]"
             >
               <Download className="w-4 h-4" />
-              <span>DOWNLOAD FOR {downloadInfo.osName.toUpperCase()}</span>
+              <span>Download for {downloadInfo.osName}</span>
             </a>
 
             <a
@@ -189,11 +192,11 @@ export const Navbar: React.FC = () => {
               target="_blank"
               rel="noreferrer"
               onClick={closeMobileMenu}
-              className="flex items-center justify-center gap-2 w-full py-2.5 rounded bg-[#10131b] text-zinc-300 border border-white/[0.08] text-xs font-mono"
+              className="flex items-center justify-center gap-2 w-full py-2.5 rounded-full bg-[#081430] text-sky-200 border border-sky-500/30 text-sm font-medium"
             >
               <GithubIcon className="w-4 h-4" />
               <span>themistrinel/omnicmd</span>
-              <ArrowUpRight className="w-3.5 h-3.5 text-zinc-500" />
+              <ArrowUpRight className="w-3.5 h-3.5 text-sky-400" />
             </a>
           </div>
         </div>
