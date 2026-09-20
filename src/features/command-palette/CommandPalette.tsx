@@ -27,6 +27,8 @@ import { HistoryView } from '@/features/history/HistoryView';
 import { SettingsView } from '@/features/settings/SettingsView';
 import { VoiceInputModal } from '@/features/voice/VoiceInputModal';
 import { KeyboardCheatsheetModal } from '@/components/KeyboardCheatsheetModal';
+import { UpdateNotificationModal } from '@/components/UpdateNotificationModal';
+import { UpdaterService, UpdateCheckResult } from '@/lib/updater';
 import { StatusBar } from '@/components/StatusBar';
 import { Icon } from '@/components/Icon';
 
@@ -52,8 +54,27 @@ export const CommandPalette: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isVoiceOpen, setIsVoiceOpen] = useState(false);
   const [isCheatsheetOpen, setIsCheatsheetOpen] = useState(false);
+  const [pendingUpdate, setPendingUpdate] = useState<UpdateCheckResult | null>(null);
+  const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
+  const [updateBannerDismissed, setUpdateBannerDismissed] = useState(false);
 
   const searchInputRef = useRef<HTMLInputElement>(null);
+
+  // Proactive background update check for older versions
+  useEffect(() => {
+    const timer = setTimeout(async () => {
+      try {
+        const res = await UpdaterService.checkForUpdates();
+        if (res.available) {
+          setPendingUpdate(res);
+        }
+      } catch (err) {
+        console.debug('Background update check silently ignored:', err);
+      }
+    }, 2500);
+
+    return () => clearTimeout(timer);
+  }, []);
 
   // Load settings and listeners
   useEffect(() => {
@@ -293,6 +314,25 @@ export const CommandPalette: React.FC = () => {
         return;
       }
 
+      // Check if user requested update check
+      if (
+        action.id === 'check_update' ||
+        query === '/update' ||
+        query === '/atualizar' ||
+        query === '/upgrade'
+      ) {
+        setSearchQuery('');
+        if (pendingUpdate?.available) {
+          setIsUpdateModalOpen(true);
+        } else {
+          UpdaterService.checkForUpdates().then((res) => {
+            setPendingUpdate(res);
+            setIsUpdateModalOpen(true);
+          });
+        }
+        return;
+      }
+
       // Check for user-provided argument in search input
       let textToUse = '';
       if (query.startsWith('/')) {
@@ -499,6 +539,38 @@ export const CommandPalette: React.FC = () => {
         </div>
       )}
 
+      {/* Proactive Update Alert Banner for Older Versions */}
+      {pendingUpdate?.available && !updateBannerDismissed && (
+        <div className="flex items-center justify-between px-4 py-1.5 bg-emerald-500/15 border-b border-emerald-500/30 text-emerald-300 text-xs shrink-0 select-none animate-in fade-in">
+          <div className="flex items-center gap-2">
+            <span className="flex h-2 w-2 relative">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+            </span>
+            <span>
+              Nova versão <strong>v{pendingUpdate.version}</strong> disponível!
+            </span>
+          </div>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setIsUpdateModalOpen(true)}
+              className="px-2.5 py-0.5 rounded-md bg-emerald-500/25 hover:bg-emerald-500/40 text-white font-semibold cursor-pointer text-[11px] transition-colors border border-emerald-500/40 shadow-xs"
+            >
+              Atualizar Agora
+            </button>
+            <button
+              type="button"
+              onClick={() => setUpdateBannerDismissed(true)}
+              className="p-1 text-emerald-400/70 hover:text-emerald-200 cursor-pointer"
+              title="Ocultar aviso"
+            >
+              <Icon name="X" className="w-3 h-3" />
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Dynamic Center Views */}
       <div className="flex-1 min-h-0 flex flex-col overflow-hidden">
         {viewMode === 'SEARCH' && (
@@ -620,6 +692,15 @@ export const CommandPalette: React.FC = () => {
         onOpenHistory={() => setViewMode('HISTORY')}
         onOpenSettings={() => setViewMode('SETTINGS')}
         onOpenCheatsheet={() => setIsCheatsheetOpen(true)}
+        availableUpdate={pendingUpdate}
+        onOpenUpdateModal={() => setIsUpdateModalOpen(true)}
+      />
+
+      {/* Update Notification Modal */}
+      <UpdateNotificationModal
+        isOpen={isUpdateModalOpen}
+        update={pendingUpdate}
+        onClose={() => setIsUpdateModalOpen(false)}
       />
 
       {/* Voice Input Modal */}

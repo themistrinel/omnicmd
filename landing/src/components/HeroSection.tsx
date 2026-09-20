@@ -3,10 +3,6 @@ import {
   ArrowUpRight,
   Check,
   Copy,
-  Zap,
-  Shield,
-  Cpu,
-  Layers,
 } from 'lucide-react';
 import { GithubIcon } from './GithubIcon';
 import { DownloadInfo, OSPlatform } from '../types';
@@ -56,7 +52,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ downloadInfo }) => {
 
         {/* Subtitle */}
         <p className="text-base sm:text-lg text-slate-400 leading-relaxed max-w-2xl font-normal">
-          Keep your focus in your editor instead of switching between browser tabs and heavy desktop apps. Press{' '}
+          Process clipboard context in 18ms with{' '}
           <kbd className="keycap-3d inline-block px-2 py-0.5 rounded-md bg-[#161a23] text-white font-mono text-xs font-semibold mx-1">
             Super
           </kbd>
@@ -64,7 +60,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ downloadInfo }) => {
           <kbd className="keycap-3d inline-block px-2.5 py-0.5 rounded-md bg-[#161a23] text-white font-mono text-xs font-semibold mx-1">
             Space
           </kbd>{' '}
-          over any code editor or terminal to process clipboard context in 18ms.
+          over any active editor or terminal. No window switches, no browser tabs.
         </p>
 
         {/* Primary Action Buttons */}
@@ -118,46 +114,26 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ downloadInfo }) => {
           </button>
         </div>
 
-        {/* Proof Ledger / Micro-telemetry */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-6 pt-6 w-full max-w-3xl border-t border-white/[0.06] text-left">
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-white/[0.03] border border-white/[0.06] flex items-center justify-center text-sky-400 shrink-0">
-              <Zap className="w-4 h-4" />
-            </div>
-            <div>
-              <div className="font-mono text-xs font-semibold text-white tabular-nums">18 ms</div>
-              <div className="text-[11px] text-slate-500">Wake Latency</div>
-            </div>
+        {/* Specification Ledger */}
+        <div className="flex flex-wrap items-center justify-center gap-x-6 sm:gap-x-8 gap-y-2.5 pt-6 border-t border-white/[0.06] text-xs text-slate-400 font-mono">
+          <div className="flex items-center gap-2">
+            <span className="text-white font-semibold tabular-nums">18ms</span>
+            <span className="text-slate-500">wake latency</span>
           </div>
-
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-white/[0.03] border border-white/[0.06] flex items-center justify-center text-emerald-400 shrink-0">
-              <Cpu className="w-4 h-4" />
-            </div>
-            <div>
-              <div className="font-mono text-xs font-semibold text-white tabular-nums">24 MB RAM</div>
-              <div className="text-[11px] text-slate-500">Idle Footprint</div>
-            </div>
+          <span className="text-slate-700 hidden sm:inline">•</span>
+          <div className="flex items-center gap-2">
+            <span className="text-white font-semibold tabular-nums">24MB</span>
+            <span className="text-slate-500">memory footprint</span>
           </div>
-
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-white/[0.03] border border-white/[0.06] flex items-center justify-center text-indigo-400 shrink-0">
-              <Shield className="w-4 h-4" />
-            </div>
-            <div>
-              <div className="font-mono text-xs font-semibold text-white">Zero Telemetry</div>
-              <div className="text-[11px] text-slate-500">Local SQLite Vault</div>
-            </div>
+          <span className="text-slate-700 hidden sm:inline">•</span>
+          <div className="flex items-center gap-2">
+            <span className="text-white font-semibold">Zero telemetry</span>
+            <span className="text-slate-500">local SQLite</span>
           </div>
-
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-white/[0.03] border border-white/[0.06] flex items-center justify-center text-cyan-400 shrink-0">
-              <Layers className="w-4 h-4" />
-            </div>
-            <div>
-              <div className="font-mono text-xs font-semibold text-white">0 Window Switches</div>
-              <div className="text-[11px] text-slate-500">Translucent Overlay</div>
-            </div>
+          <span className="text-slate-700 hidden sm:inline">•</span>
+          <div className="flex items-center gap-2">
+            <span className="text-white font-semibold">Native overlay</span>
+            <span className="text-slate-500">0 window switches</span>
           </div>
         </div>
       </div>

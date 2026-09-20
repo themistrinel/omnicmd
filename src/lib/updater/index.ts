@@ -11,50 +11,65 @@ export class UpdaterService {
     return typeof window !== 'undefined' && '__TAURI_INTERNALS__' in window;
   }
 
-  static async checkForUpdates(): Promise<UpdateCheckResult> {
-    const currentVersion = '0.1.0';
-
-    if (!this.isTauriEnvironment()) {
-      // Fallback in web / dev browser environment using GitHub Releases API
+  static async getCurrentVersion(): Promise<string> {
+    const fallbackVersion = '0.1.0';
+    if (this.isTauriEnvironment()) {
       try {
-        const response = await fetch('https://api.github.com/repos/omnicmd/omnicmd/releases/latest', {
-          headers: { Accept: 'application/vnd.github.v3+json' },
-        });
-        if (!response.ok) {
-          return { available: false, currentVersion };
-        }
-        const data = await response.json();
-        const latestTag = data.tag_name ? data.tag_name.replace(/^v/, '') : currentVersion;
-        const isNewer = this.compareSemver(latestTag, currentVersion) > 0;
+        const { getVersion } = await import('@tauri-apps/api/app');
+        const v = await getVersion();
+        if (v) return v;
+      } catch {
+        // Fallback
+      }
+    }
+    return fallbackVersion;
+  }
 
-        return {
-          available: isNewer,
-          currentVersion,
-          version: latestTag,
-          date: data.published_at,
-          body: data.body,
-        };
+  static async checkForUpdates(): Promise<UpdateCheckResult> {
+    const currentVersion = await this.getCurrentVersion();
+
+    if (this.isTauriEnvironment()) {
+      try {
+        const { check } = await import('@tauri-apps/plugin-updater');
+        const update = await check();
+        if (update) {
+          return {
+            available: true,
+            currentVersion: update.currentVersion || currentVersion,
+            version: update.version,
+            date: update.date,
+            body: update.body,
+          };
+        }
       } catch (err) {
-        console.warn('Failed to query GitHub releases for updates:', err);
-        return { available: false, currentVersion };
+        console.warn('Tauri updater check failed, trying GitHub API fallback:', err);
       }
     }
 
+    // Fallback: GitHub Releases API
     try {
-      const { check } = await import('@tauri-apps/plugin-updater');
-      const update = await check();
-      if (update) {
-        return {
-          available: true,
-          currentVersion: update.currentVersion,
-          version: update.version,
-          date: update.date,
-          body: update.body,
-        };
+      const response = await fetch(
+        'https://api.github.com/repos/themistrinel/omnicmd/releases/latest',
+        {
+          headers: { Accept: 'application/vnd.github.v3+json' },
+        }
+      );
+      if (!response.ok) {
+        return { available: false, currentVersion };
       }
-      return { available: false, currentVersion };
+      const data = await response.json();
+      const latestTag = data.tag_name ? data.tag_name.replace(/^v/, '') : currentVersion;
+      const isNewer = this.compareSemver(latestTag, currentVersion) > 0;
+
+      return {
+        available: isNewer,
+        currentVersion,
+        version: latestTag,
+        date: data.published_at,
+        body: data.body,
+      };
     } catch (err) {
-      console.warn('Tauri updater check error:', err);
+      console.warn('Failed to query GitHub releases for updates:', err);
       return { available: false, currentVersion };
     }
   }
@@ -63,14 +78,18 @@ export class UpdaterService {
     onProgress?: (progress: { downloaded: number; total?: number }) => void
   ): Promise<boolean> {
     if (!this.isTauriEnvironment()) {
-      window.open('https://github.com/omnicmd/omnicmd/releases/latest', '_blank');
+      window.open('https://github.com/themistrinel/omnicmd/releases/latest', '_blank');
       return true;
     }
 
     try {
       const { check } = await import('@tauri-apps/plugin-updater');
       const update = await check();
-      if (!update) return false;
+      if (!update) {
+        // Fallback: abre a página de download do GitHub se o updater interno não tiver o pacote assinado
+        window.open('https://github.com/themistrinel/omnicmd/releases/latest', '_blank');
+        return true;
+      }
 
       let downloaded = 0;
       let total: number | undefined;
@@ -89,27 +108,21 @@ export class UpdaterService {
 
       return true;
     } catch (err) {
-      console.error('Failed to download & install update:', err);
-      throw err;
+      console.error('Failed to download & install update via internal updater, opening GitHub:', err);
+      window.open('https://github.com/themistrinel/omnicmd/releases/latest', '_blank');
+      return true;
     }
   }
 
   static async relaunchApp(): Promise<void> {
-    if (!this.isTauriEnvironment()) {
-      window.location.reload();
-      return;
-    }
-    try {
-      // In Tauri v2 core, window.location.reload or core process invocation can trigger reload
-      window.location.reload();
-    } catch {
-      window.location.reload();
-    }
+    window.location.reload();
   }
 
   private static compareSemver(v1: string, v2: string): number {
-    const parts1 = v1.split('.').map((p) => parseInt(p, 10) || 0);
-    const parts2 = v2.split('.').map((p) => parseInt(p, 10) || 0);
+    const cleanV1 = v1.replace(/^v/, '').split('-')[0];
+    const cleanV2 = v2.replace(/^v/, '').split('-')[0];
+    const parts1 = cleanV1.split('.').map((p) => parseInt(p, 10) || 0);
+    const parts2 = cleanV2.split('.').map((p) => parseInt(p, 10) || 0);
     for (let i = 0; i < Math.max(parts1.length, parts2.length); i++) {
       const num1 = parts1[i] || 0;
       const num2 = parts2[i] || 0;

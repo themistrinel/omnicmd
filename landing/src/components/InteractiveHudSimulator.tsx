@@ -402,9 +402,9 @@ export const InteractiveHudSimulator: React.FC = () => {
     >
       {/* Context Selector Bar */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-4">
-        <div className="flex items-center gap-2 overflow-x-auto w-full sm:w-auto pb-1 sm:pb-0">
-          <span className="text-xs font-mono text-slate-500 uppercase tracking-wider shrink-0">
-            Simulate Context:
+        <div className="flex items-center gap-1.5 overflow-x-auto w-full sm:w-auto pb-1 sm:pb-0">
+          <span className="text-xs font-mono text-slate-500 mr-1 shrink-0">
+            Buffer:
           </span>
           {CONTEXT_SAMPLES.map((sample, idx) => (
             <button
@@ -415,14 +415,13 @@ export const InteractiveHudSimulator: React.FC = () => {
                 setViewMode('SEARCH');
                 setDisplayedOutput('');
               }}
-              className={`px-3 py-1.5 rounded-lg text-xs font-mono transition-all cursor-pointer border shrink-0 flex items-center gap-1.5 ${
+              className={`px-2.5 py-1 rounded-lg text-xs font-mono transition-all cursor-pointer border shrink-0 ${
                 activeSampleIndex === idx
-                  ? 'bg-white/[0.08] text-white border-white/20 shadow-sm font-semibold'
-                  : 'bg-white/[0.02] text-slate-400 border-white/[0.06] hover:bg-white/[0.05] hover:text-slate-200'
+                  ? 'bg-white/[0.08] text-white border-white/20 font-medium'
+                  : 'bg-white/[0.02] text-slate-400 border-white/[0.04] hover:bg-white/[0.05] hover:text-slate-200'
               }`}
             >
-              <FileCode className="w-3.5 h-3.5 text-sky-400" />
-              <span>{sample.label}</span>
+              {sample.label}
             </button>
           ))}
         </div>
@@ -432,20 +431,18 @@ export const InteractiveHudSimulator: React.FC = () => {
             type="button"
             onClick={() => setIsHudVisible((prev) => !prev)}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-mono bg-white/[0.04] hover:bg-white/[0.08] text-slate-300 border border-white/[0.08] transition-all cursor-pointer"
-            title="Toggle overlay window"
           >
             <Eye className="w-3.5 h-3.5 text-slate-400" />
-            <span>{isHudVisible ? 'Hide HUD' : 'Summon HUD'}</span>
-            <kbd className="keycap-3d px-1 rounded bg-black/40 text-[10px] text-slate-300">Ctrl+Space</kbd>
+            <span>{isHudVisible ? 'Hide HUD' : 'Show HUD'}</span>
           </button>
 
           <button
             type="button"
             onClick={runDemoWalkthrough}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-white text-slate-950 hover:bg-slate-200 transition-all cursor-pointer shadow-sm"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-white text-slate-950 hover:bg-slate-200 transition-all cursor-pointer"
           >
             <Play className="w-3 h-3 fill-current" />
-            <span>Run Demo</span>
+            <span>Simulate Keystroke</span>
           </button>
         </div>
       </div>

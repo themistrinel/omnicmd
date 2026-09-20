@@ -2,6 +2,8 @@ name: Release OmniCmd
 
 on:
   push:
+    branches:
+      - main
     tags:
       - 'v*'
   workflow_dispatch:
@@ -48,7 +50,7 @@ jobs:
         with:
           workspaces: './src-tauri -> target'
 
-      - name: Install system dependencies (Ubuntu)
+      - name: Install system dependencies (Ubuntu / Linux)
         if: matrix.platform == 'ubuntu-22.04'
         run: |
           sudo apt-get update
@@ -66,28 +68,52 @@ jobs:
       - name: Install frontend dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Determine Release Tag
+        id: tag_info
+        shell: bash
+        run: |
+          if [[ "${{ github.ref }}" == refs/tags/* ]]; then
+            TAG="${{ github.ref_name }}"
+          else
+            VERSION=$(node -p "require('./package.json').version")
+            TAG="v${VERSION}"
+          fi
+          echo "tag=${TAG}" >> "$GITHUB_OUTPUT"
+          echo "Release tag will be: ${TAG}"
+
       - name: Build OmniCmd & Create Release
         uses: tauri-apps/tauri-action@v0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
         with:
-          tagName: ${{ github.ref_name }}
-          releaseName: 'OmniCmd ${{ github.ref_name }}'
+          tagName: ${{ steps.tag_info.outputs.tag }}
+          releaseName: 'OmniCmd ${{ steps.tag_info.outputs.tag }}'
           releaseBody: |
-            ## ✨ OmniCmd ${{ github.ref_name }}
+            ## ✨ OmniCmd ${{ steps.tag_info.outputs.tag }}
             
-            Welcome to the latest release of **OmniCmd** — The Keyboard-First AI Command Palette for Power Users and Developers!
+            Welcome to the latest release of **OmniCmd** — The Keyboard-First AI Command Palette for Power Users, Developers, and Linux/Hyprland enthusiasts!
+            
+            ### 🚀 Quick Install on Arch Linux / Hyprland
+            ```bash
+            curl -fsSL https://raw.githubusercontent.com/themistrinel/omnicmd/main/scripts/install-arch-hyprland.sh | bash
+            ```
             
             ### 📦 Binaries & Installers
-            - **Linux**: `.deb`, `.AppImage`
+            - **Linux (Arch, Ubuntu, Debian, Fedora)**: `.deb`, `.AppImage`, tarball
             - **Windows**: `.msi`, `setup.exe`
             - **macOS**: `.dmg` (Universal binary for Intel & Apple Silicon)
             
+            ### ⚡ Hyprland & Shortcuts
+            - Default toggle shortcut: `SUPER + SPACE` (configured via `omnicmd-toggle`)
+            - Built-in update checker: runs automatically or run `omnicmd-update` from your terminal.
+            
             ### 🔑 Configuration
-            Remember to configure your API key or custom endpoint (OpenAI, 9router, Ollama, Local AI) directly in the Settings menu (`/settings` or via the system tray icon).
+            Configure your AI keys directly in the settings menu (`/settings` or via `Ctrl+,`).
             
             ---
-            *Built with Tauri v2, Rust and React.*
+            *Automated release build by GitHub Actions.*
           releaseDraft: false
           prerelease: false
           args: ${{ matrix.args }}

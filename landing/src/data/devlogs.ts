@@ -6,7 +6,7 @@ export const FALLBACK_DEVLOGS: DevlogRelease[] = [
     tag_name: 'v0.1.0',
     name: 'v0.1.0 — Initial Release: Translucent HUD & Instant AI Shortcuts',
     published_at: '2025-02-28T18:00:00Z',
-    html_url: 'https://github.com/omnicmd/omnicmd/releases/tag/v0.1.0',
+    html_url: 'https://github.com/themistrinel/omnicmd/releases/tag/v0.1.0',
     author: {
       login: 'omnicmd-team',
       avatar_url: 'https://avatars.githubusercontent.com/u/1024025?v=4',
@@ -25,7 +25,7 @@ export const FALLBACK_DEVLOGS: DevlogRelease[] = [
     tag_name: 'v0.0.9-alpha',
     name: 'v0.0.9-alpha — IPC Throughput Optimization & Local SQLite Vault',
     published_at: '2025-02-15T14:30:00Z',
-    html_url: 'https://github.com/omnicmd/omnicmd/releases/tag/v0.0.9-alpha',
+    html_url: 'https://github.com/themistrinel/omnicmd/releases/tag/v0.0.9-alpha',
     author: {
       login: 'core-architect',
       avatar_url: 'https://avatars.githubusercontent.com/u/1024025?v=4',

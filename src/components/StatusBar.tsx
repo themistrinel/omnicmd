@@ -1,6 +1,7 @@
 import React from 'react';
 import { AIProviderId } from '@/types';
 import { Icon } from './Icon';
+import { UpdateCheckResult } from '@/lib/updater';
 
 interface ContextBadge {
   type: 'action' | 'agent';
@@ -17,6 +18,8 @@ interface StatusBarProps {
   onOpenHistory: () => void;
   onOpenSettings: () => void;
   onOpenCheatsheet?: () => void;
+  availableUpdate?: UpdateCheckResult | null;
+  onOpenUpdateModal?: () => void;
 }
 
 export const StatusBar: React.FC<StatusBarProps> = ({
@@ -28,6 +31,8 @@ export const StatusBar: React.FC<StatusBarProps> = ({
   onOpenHistory,
   onOpenSettings,
   onOpenCheatsheet,
+  availableUpdate,
+  onOpenUpdateModal,
 }) => {
   const providerLabels: Record<AIProviderId, { label: string; icon: string }> = {
     '9router': { label: '9router', icon: 'Zap' },
@@ -119,6 +124,22 @@ export const StatusBar: React.FC<StatusBarProps> = ({
       </div>
 
       <div className="flex items-center gap-2.5 shrink-0">
+        {availableUpdate?.available && onOpenUpdateModal && (
+          <button
+            onClick={onOpenUpdateModal}
+            className="flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-semibold cursor-pointer transition-all hover:brightness-110 animate-pulse border shadow-xs"
+            style={{
+              backgroundColor: 'rgba(16, 185, 129, 0.18)',
+              color: '#34d399',
+              borderColor: 'rgba(16, 185, 129, 0.45)',
+            }}
+            title={`Nova versão v${availableUpdate.version} disponível! Clique para atualizar.`}
+          >
+            <Icon name="Sparkles" className="w-3.5 h-3.5 text-emerald-400" />
+            <span>Update v{availableUpdate.version}</span>
+          </button>
+        )}
+
         <button
           onClick={onOpenHistory}
           className="flex items-center gap-1.5 px-2 py-1 rounded-md hover:bg-white/[0.08] text-slate-300 hover:text-white transition-colors cursor-pointer text-xs"

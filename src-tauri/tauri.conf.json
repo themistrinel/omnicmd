@@ -54,7 +54,7 @@
   "plugins": {
     "updater": {
       "endpoints": [
-        "https://github.com/omnicmd/omnicmd/releases/latest/download/latest.json"
+        "https://github.com/themistrinel/omnicmd/releases/latest/download/latest.json"
       ]
     }
   }

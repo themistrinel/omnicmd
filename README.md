@@ -7,10 +7,10 @@
 ### The Keyboard-First AI Command Palette for Power Users & Developers
 
 <p align="center">
-  <a href="https://github.com/omnicmd/omnicmd/releases">
-    <img src="https://img.shields.io/github/v/release/omnicmd/omnicmd?style=for-the-badge&color=6366f1" alt="Release" />
+  <a href="https://github.com/themistrinel/omnicmd/releases">
+    <img src="https://img.shields.io/github/v/release/themistrinel/omnicmd?style=for-the-badge&color=6366f1" alt="Release" />
   </a>
-  <a href="https://github.com/omnicmd/omnicmd/blob/main/LICENSE">
+  <a href="https://github.com/themistrinel/omnicmd/blob/main/LICENSE">
     <img src="https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge" alt="License" />
   </a>
   <img src="https://img.shields.io/badge/Platform-Linux%20%7C%20Windows%20%7C%20macOS-334155?style=for-the-badge" alt="Platforms" />
@@ -74,9 +74,9 @@ Pre-compiled binary packages are automatically built on every release tag for al
 
 | OS | Architecture | Package Format | Download Link |
 | :--- | :--- | :--- | :--- |
-| **Linux** | `x86_64` | `.deb`, `.AppImage` | [GitHub Releases](https://github.com/omnicmd/omnicmd/releases) |
-| **Windows** | `x64` | `.msi`, `.exe` installer | [GitHub Releases](https://github.com/omnicmd/omnicmd/releases) |
-| **macOS** | Universal (`arm64` & `x86_64`) | `.dmg` | [GitHub Releases](https://github.com/omnicmd/omnicmd/releases) |
+| **Linux** | `x86_64` | `.deb`, `.AppImage` | [GitHub Releases](https://github.com/themistrinel/omnicmd/releases) |
+| **Windows** | `x64` | `.msi`, `.exe` installer | [GitHub Releases](https://github.com/themistrinel/omnicmd/releases) |
+| **macOS** | Universal (`arm64` & `x86_64`) | `.dmg` | [GitHub Releases](https://github.com/themistrinel/omnicmd/releases) |
 
 ---
 
@@ -92,7 +92,7 @@ Pre-compiled binary packages are automatically built on every release tag for al
 
 ### 2. Clone & Run Development Server
 ```bash
-git clone https://github.com/omnicmd/omnicmd.git
+git clone https://github.com/themistrinel/omnicmd.git
 cd omnicmd
 
 # Install dependencies
