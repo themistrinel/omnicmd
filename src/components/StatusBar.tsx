@@ -55,9 +55,9 @@ export const StatusBar: React.FC<StatusBarProps> = ({
             style={
               contextBadge.type === 'agent'
                 ? {
-                    backgroundColor: 'rgba(99, 102, 241, 0.16)',
-                    color: '#a5b4fc',
-                    border: '1px solid rgba(99, 102, 241, 0.3)',
+                    backgroundColor: 'rgba(56, 189, 248, 0.16)',
+                    color: '#38bdf8',
+                    border: '1px solid rgba(56, 189, 248, 0.35)',
                   }
                 : {
                     backgroundColor: 'rgba(var(--accent-rgb), 0.16)',

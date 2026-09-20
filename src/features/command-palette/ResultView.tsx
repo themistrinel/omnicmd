@@ -225,7 +225,7 @@ export const ResultView: React.FC<ResultViewProps> = ({
               className="h-16 max-w-[200px] rounded-lg object-contain border border-white/15 bg-zinc-900 shadow-sm"
             />
             <div className="flex flex-col text-xs pr-2">
-              <span className="font-semibold text-indigo-300 flex items-center gap-1.5">
+              <span className="font-semibold text-sky-300 flex items-center gap-1.5">
                 <Icon name="ImageIcon" className="w-3.5 h-3.5" />
                 Imagem Analisada
               </span>
@@ -236,7 +236,7 @@ export const ResultView: React.FC<ResultViewProps> = ({
 
         {isLoading ? (
           <div className="flex flex-col items-center justify-center h-full py-16 text-zinc-400 space-y-3">
-            <Icon name="Loader2" className="w-7 h-7 animate-spin text-indigo-400" />
+            <Icon name="Loader2" className="w-7 h-7 animate-spin text-sky-400" />
             <p className="text-sm font-medium text-zinc-200">Processando resposta com {model}...</p>
           </div>
         ) : errorMessage ? (
@@ -261,7 +261,7 @@ export const ResultView: React.FC<ResultViewProps> = ({
                   onClick={onOpenSettings}
                   className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg bg-zinc-900 hover:bg-zinc-800 text-zinc-300 hover:text-white border border-white/10 transition-colors cursor-pointer"
                 >
-                  <Icon name="Settings" className="w-3.5 h-3.5 text-indigo-400" />
+                  <Icon name="Settings" className="w-3.5 h-3.5 text-sky-400" />
                   <span>Ajustar Configurações (Ctrl+,)</span>
                 </button>
               )}

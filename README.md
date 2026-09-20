@@ -8,7 +8,7 @@
 
 <p align="center">
   <a href="https://github.com/themistrinel/omnicmd/releases">
-    <img src="https://img.shields.io/github/v/release/themistrinel/omnicmd?style=for-the-badge&color=6366f1" alt="Release" />
+    <img src="https://img.shields.io/github/v/release/themistrinel/omnicmd?style=for-the-badge&color=38bdf8" alt="Release" />
   </a>
   <a href="https://github.com/themistrinel/omnicmd/blob/main/LICENSE">
     <img src="https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge" alt="License" />

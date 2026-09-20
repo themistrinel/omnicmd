@@ -75,7 +75,7 @@ export const KeyboardCheatsheetModal: React.FC<KeyboardCheatsheetModalProps> = (
         {/* Header */}
         <div className="flex items-center justify-between px-5 py-3.5 border-b border-white/10 bg-zinc-900/60">
           <div className="flex items-center gap-2.5">
-            <div className="w-7 h-7 rounded-lg bg-indigo-500/20 text-indigo-400 border border-indigo-500/30 flex items-center justify-center">
+            <div className="w-7 h-7 rounded-lg bg-sky-500/20 text-sky-400 border border-sky-500/30 flex items-center justify-center">
               <Icon name="Terminal" className="w-4 h-4" />
             </div>
             <div>

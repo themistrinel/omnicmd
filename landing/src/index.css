@@ -1,17 +1,44 @@
 @import "tailwindcss";
 
 @theme {
-  --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  --font-mono: "JetBrains Mono", "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  --font-sans: "Geist", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-mono: "Geist Mono", "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  --font-display: "Space Grotesk", "Geist", sans-serif;
 }
 
 :root {
   color-scheme: dark;
   --canvas: #050608;
-  --card-bg: #090b10;
-  --card-elevated: #0e1118;
+  --panel: #0a0c10;
+  --panel-elevated: #0f1218;
   --border-subtle: rgba(255, 255, 255, 0.07);
-  --border-highlight: rgba(255, 255, 255, 0.14);
+  --border-strong: rgba(255, 255, 255, 0.14);
+  --phosphor: #38bdf8; /* Omni Sky Blue */
+  --phosphor-dim: rgba(56, 189, 248, 0.15);
+  --emerald-signal: #38bdf8;
+}
+
+html {
+  background-color: #050608;
+  color: #ededed;
+  font-family: var(--font-sans);
+  scroll-behavior: smooth;
+  letter-spacing: -0.015em;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background-color: #050608;
+  color: #ededed;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+::selection {
+  background: #38bdf8;
+  color: #050608;
 }
 
 :focus-visible {
@@ -34,79 +61,103 @@
   }
 }
 
-html {
-  background-color: #050608;
-  scroll-behavior: smooth;
+/* Technical Blueprint Grid Pattern */
+.blueprint-grid {
+  background-image: 
+    radial-gradient(circle at 1px 1px, rgba(255, 255, 255, 0.07) 1px, transparent 0);
+  background-size: 24px 24px;
 }
 
-body {
-  margin: 0;
-  padding: 0;
-  background-color: #050608;
-  color: #f1f5f9;
-  font-family: var(--font-sans);
-  overflow-x: hidden;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  letter-spacing: -0.011em;
+/* Industrial Corner Cut / Crosshairs */
+.crosshair-corner {
+  position: relative;
+}
+.crosshair-corner::before {
+  content: "+";
+  position: absolute;
+  top: -8px;
+  left: -6px;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.25);
+  line-height: 1;
+  pointer-events: none;
+}
+.crosshair-corner::after {
+  content: "+";
+  position: absolute;
+  bottom: -8px;
+  right: -6px;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.25);
+  line-height: 1;
+  pointer-events: none;
 }
 
-::selection {
-  background: rgba(56, 189, 248, 0.25);
-  color: #ffffff;
-}
-
-/* Keycap physical tactile shadow */
-.keycap-3d {
+/* PBT Mechanical Keycap */
+.pbt-keycap {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3px 8px;
+  border-radius: 4px;
+  background: linear-gradient(180deg, #181b22 0%, #0e1015 100%);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-bottom: 2px solid rgba(0, 0, 0, 0.85);
   box-shadow: 
-    0 2px 0 0 rgba(0, 0, 0, 0.8),
-    0 3px 6px 0 rgba(0, 0, 0, 0.4),
-    inset 0 1px 0 0 rgba(255, 255, 255, 0.18),
-    inset 0 -1px 0 0 rgba(0, 0, 0, 0.5);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  transition: all 0.12s ease;
+    0 2px 0 0 #000000,
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.22);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  color: #f4f4f5;
+  user-select: none;
+  transition: transform 0.05s ease, box-shadow 0.05s ease, border-color 0.1s ease;
 }
 
-.keycap-3d:active {
+.pbt-keycap.phosphor-active {
+  border-color: rgba(56, 189, 248, 0.4);
+  color: #38bdf8;
+  box-shadow: 
+    0 2px 0 0 #000000,
+    inset 0 1px 0 0 rgba(56, 189, 248, 0.4),
+    0 0 12px rgba(56, 189, 248, 0.25);
+}
+
+.pbt-keycap:active {
   transform: translateY(2px);
-  box-shadow: 
-    0 0 0 0 rgba(0, 0, 0, 0.8),
-    inset 0 1px 1px 0 rgba(0, 0, 0, 0.6);
+  border-bottom-width: 1px;
+  box-shadow: 0 0 0 0 #000000;
 }
 
-/* Raycast-style card elevation with specular inner rim */
-.glass-panel {
-  background: rgba(10, 12, 18, 0.72);
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
+/* Technical Telemetry Monolith */
+.monolith-card {
+  background: #090a0f;
   border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: 
-    inset 0 1px 0 0 rgba(255, 255, 255, 0.1),
-    0 16px 40px -12px rgba(0, 0, 0, 0.7);
+  box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.06);
 }
 
-.glass-panel-elevated {
-  background: rgba(15, 18, 26, 0.85);
-  backdrop-filter: blur(32px);
-  -webkit-backdrop-filter: blur(32px);
-  border: 1px solid rgba(255, 255, 255, 0.12);
+.monolith-card-active {
+  background: #0d0f15;
+  border: 1px solid rgba(56, 189, 248, 0.35);
   box-shadow: 
-    inset 0 1px 0 0 rgba(255, 255, 255, 0.16),
-    0 25px 60px -15px rgba(0, 0, 0, 0.85);
+    inset 0 1px 0 0 rgba(56, 189, 248, 0.2),
+    0 8px 30px -10px rgba(0, 0, 0, 0.8);
 }
 
 /* Minimalist scrollbar */
 ::-webkit-scrollbar {
-  width: 5px;
-  height: 5px;
+  width: 4px;
+  height: 4px;
 }
 ::-webkit-scrollbar-track {
   background: #050608;
 }
 ::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.12);
-  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 2px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.25);
+  background: #38bdf8;
 }

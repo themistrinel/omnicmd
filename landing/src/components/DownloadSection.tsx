@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { Terminal, Apple, Monitor, Download, Check, Copy, Code2 } from 'lucide-react';
+import { Terminal, Apple, Monitor, Check, Copy, Code2, Download, ShieldCheck, ArrowUpRight } from 'lucide-react';
 import { OSPlatform } from '../types';
-import { BUILD_FROM_SOURCE_COMMAND, INSTALL_CURL_COMMAND, UPDATE_COMMAND } from '../constants';
+import { BUILD_FROM_SOURCE_COMMAND, INSTALL_CURL_COMMAND, RELEASES_URL } from '../constants';
 
 interface DownloadSectionProps {
   detectedOS: OSPlatform;
@@ -18,49 +18,45 @@ export const DownloadSection: React.FC<DownloadSectionProps> = ({ detectedOS }) 
   };
 
   return (
-    <section id="downloads" className="py-20 lg:py-28 max-w-6xl mx-auto px-4 sm:px-6 border-t border-white/[0.06]">
-      <div className="flex flex-col gap-3 max-w-2xl mb-10">
-        <h2 className="text-3xl sm:text-4xl font-medium tracking-[-0.03em] text-white leading-tight">
-          Native binaries. Zero browser bundle.
+    <section id="downloads" className="py-20 lg:py-28 max-w-7xl mx-auto px-4 sm:px-6 border-t border-white/[0.08]">
+      {/* Section Header */}
+      <div className="flex flex-col gap-3 max-w-3xl mb-16 text-left">
+        <div className="inline-flex items-center gap-2 self-start px-2.5 py-0.5 rounded bg-[#12151e] border border-white/[0.1] text-[11px] font-mono text-zinc-300">
+          <span className="text-[#38bdf8] font-bold">[05/06]</span>
+          <span>DISTRIBUTION // NATIVE ARTIFACTS</span>
+        </div>
+        <h2 className="text-3xl sm:text-5xl font-extrabold tracking-[-0.04em] text-white leading-[1.05] font-display">
+          NATIVE BINARIES. COMPILED MACHINE CODE.
         </h2>
-        <p className="text-slate-400 text-sm sm:text-base leading-relaxed">
-          Pre-compiled, cryptographically signed binaries built with Rust and Tauri. Distributed under the MIT License.
+        <p className="text-zinc-400 text-sm sm:text-base leading-relaxed font-sans">
+          Pre-compiled, cryptographically verified binary packages for Linux, macOS, and Windows. Under 15MB, licensed under MIT.
         </p>
       </div>
 
-      {/* Distilled OS Switcher & Installer Box */}
-      <div className="rounded-2xl bg-white/[0.02] border border-white/[0.08] p-6 sm:p-8">
+      {/* Main Download Console */}
+      <div className="rounded-xl bg-[#090b10] border border-white/[0.1] p-6 sm:p-8 font-mono">
         {/* OS Platform Tabs */}
         <div
           role="tablist"
-          aria-label="Target operating system"
-          className="flex items-center gap-2 overflow-x-auto pb-4 mb-6 border-b border-white/[0.06]"
+          aria-label="Target operating system selection"
+          className="flex items-center gap-2 overflow-x-auto pb-4 mb-8 border-b border-white/[0.06]"
         >
           <button
             type="button"
             role="tab"
-            id="tab-linux"
             aria-selected={selectedOS === 'linux'}
-            aria-controls="panel-linux"
-            tabIndex={selectedOS === 'linux' ? 0 : -1}
             onClick={() => setSelectedOS('linux')}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault();
-                setSelectedOS('linux');
-              }
-            }}
-            className={`flex items-center gap-2 min-h-[44px] px-4 py-2.5 rounded-xl text-xs font-mono transition-all cursor-pointer shrink-0 ${
+            className={`flex items-center gap-2 px-3.5 py-1.5 rounded text-xs font-mono transition-all cursor-pointer shrink-0 ${
               selectedOS === 'linux'
-                ? 'bg-white/[0.08] text-white border border-white/20 font-semibold'
-                : 'text-slate-400 hover:text-white hover:bg-white/[0.03] border border-transparent'
+                ? 'bg-[#181c26] text-[#38bdf8] border border-[#38bdf8]/40 font-bold shadow-xs'
+                : 'text-zinc-400 hover:text-white hover:bg-white/[0.02] border border-transparent'
             }`}
           >
-            <Terminal className="w-3.5 h-3.5 text-sky-400" />
-            <span>Linux</span>
+            <Terminal className="w-3.5 h-3.5" />
+            <span>Linux (Arch / Hyprland / .deb)</span>
             {detectedOS === 'linux' && (
-              <span className="text-[10px] px-1.5 py-0.2 rounded bg-sky-500/20 text-sky-300">
-                Detected
+              <span className="text-[9px] px-1.5 py-0.2 rounded bg-[#38bdf8]/20 text-[#38bdf8] font-bold">
+                DETECTED
               </span>
             )}
           </button>
@@ -68,28 +64,19 @@ export const DownloadSection: React.FC<DownloadSectionProps> = ({ detectedOS }) 
           <button
             type="button"
             role="tab"
-            id="tab-mac"
             aria-selected={selectedOS === 'mac'}
-            aria-controls="panel-mac"
-            tabIndex={selectedOS === 'mac' ? 0 : -1}
             onClick={() => setSelectedOS('mac')}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault();
-                setSelectedOS('mac');
-              }
-            }}
-            className={`flex items-center gap-2 min-h-[44px] px-4 py-2.5 rounded-xl text-xs font-mono transition-all cursor-pointer shrink-0 ${
+            className={`flex items-center gap-2 px-3.5 py-1.5 rounded text-xs font-mono transition-all cursor-pointer shrink-0 ${
               selectedOS === 'mac'
-                ? 'bg-white/[0.08] text-white border border-white/20 font-semibold'
-                : 'text-slate-400 hover:text-white hover:bg-white/[0.03] border border-transparent'
+                ? 'bg-[#181c26] text-[#38bdf8] border border-[#38bdf8]/40 font-bold shadow-xs'
+                : 'text-zinc-400 hover:text-white hover:bg-white/[0.02] border border-transparent'
             }`}
           >
-            <Apple className="w-3.5 h-3.5 text-slate-300" />
-            <span>macOS</span>
+            <Apple className="w-3.5 h-3.5" />
+            <span>macOS (Universal)</span>
             {detectedOS === 'mac' && (
-              <span className="text-[10px] px-1.5 py-0.2 rounded bg-sky-500/20 text-sky-300">
-                Detected
+              <span className="text-[9px] px-1.5 py-0.2 rounded bg-[#38bdf8]/20 text-[#38bdf8] font-bold">
+                DETECTED
               </span>
             )}
           </button>
@@ -97,28 +84,19 @@ export const DownloadSection: React.FC<DownloadSectionProps> = ({ detectedOS }) 
           <button
             type="button"
             role="tab"
-            id="tab-windows"
             aria-selected={selectedOS === 'windows'}
-            aria-controls="panel-windows"
-            tabIndex={selectedOS === 'windows' ? 0 : -1}
             onClick={() => setSelectedOS('windows')}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault();
-                setSelectedOS('windows');
-              }
-            }}
-            className={`flex items-center gap-2 min-h-[44px] px-4 py-2.5 rounded-xl text-xs font-mono transition-all cursor-pointer shrink-0 ${
+            className={`flex items-center gap-2 px-3.5 py-1.5 rounded text-xs font-mono transition-all cursor-pointer shrink-0 ${
               selectedOS === 'windows'
-                ? 'bg-white/[0.08] text-white border border-white/20 font-semibold'
-                : 'text-slate-400 hover:text-white hover:bg-white/[0.03] border border-transparent'
+                ? 'bg-[#181c26] text-[#38bdf8] border border-[#38bdf8]/40 font-bold shadow-xs'
+                : 'text-zinc-400 hover:text-white hover:bg-white/[0.02] border border-transparent'
             }`}
           >
-            <Monitor className="w-3.5 h-3.5 text-cyan-400" />
-            <span>Windows</span>
+            <Monitor className="w-3.5 h-3.5" />
+            <span>Windows (x64)</span>
             {detectedOS === 'windows' && (
-              <span className="text-[10px] px-1.5 py-0.2 rounded bg-sky-500/20 text-sky-300">
-                Detected
+              <span className="text-[9px] px-1.5 py-0.2 rounded bg-[#38bdf8]/20 text-[#38bdf8] font-bold">
+                DETECTED
               </span>
             )}
           </button>
@@ -126,245 +104,209 @@ export const DownloadSection: React.FC<DownloadSectionProps> = ({ detectedOS }) 
           <button
             type="button"
             role="tab"
-            id="tab-source"
             aria-selected={selectedOS === 'source'}
-            aria-controls="panel-source"
-            tabIndex={selectedOS === 'source' ? 0 : -1}
             onClick={() => setSelectedOS('source')}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault();
-                setSelectedOS('source');
-              }
-            }}
-            className={`flex items-center gap-2 min-h-[44px] px-4 py-2.5 rounded-xl text-xs font-mono transition-all cursor-pointer shrink-0 ${
+            className={`flex items-center gap-2 px-3.5 py-1.5 rounded text-xs font-mono transition-all cursor-pointer shrink-0 ${
               selectedOS === 'source'
-                ? 'bg-white/[0.08] text-white border border-white/20 font-semibold'
-                : 'text-slate-400 hover:text-white hover:bg-white/[0.03] border border-transparent'
+                ? 'bg-[#181c26] text-[#38bdf8] border border-[#38bdf8]/40 font-bold shadow-xs'
+                : 'text-zinc-400 hover:text-white hover:bg-white/[0.02] border border-transparent'
             }`}
           >
-            <Code2 className="w-3.5 h-3.5 text-slate-400" />
-            <span>Build Source</span>
+            <Code2 className="w-3.5 h-3.5" />
+            <span>Build from Source</span>
           </button>
         </div>
 
-        {/* Live announcement region for copy actions */}
-        <div aria-live="polite" aria-atomic="true" className="sr-only">
-          {copiedKey ? "Command copied to clipboard" : ""}
-        </div>
-
-        {/* Content based on selected platform */}
+        {/* Tab 1: Linux Details */}
         {selectedOS === 'linux' && (
-          <div
-            id="panel-linux"
-            role="tabpanel"
-            aria-labelledby="tab-linux"
-            tabIndex={0}
-            className="space-y-6 focus:outline-none"
-          >
-            {/* Quick 1-Liner for Arch Linux & Hyprland */}
-            <div className="p-5 rounded-2xl bg-sky-500/[0.04] border border-sky-500/20 space-y-3">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                <div className="flex items-center gap-2">
-                  <span className="w-2 h-2 rounded-full bg-sky-400 animate-pulse" />
-                  <span className="font-semibold text-white text-sm">Arch Linux & Hyprland 1-Liner</span>
-                  <span className="text-[10px] px-2 py-0.5 rounded-full bg-sky-500/20 text-sky-300 font-mono">
-                    Zero git clone needed
-                  </span>
-                </div>
-                <span className="text-xs text-slate-400">Auto-configures shortcuts, window rules & updates</span>
+          <div className="space-y-6">
+            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-6 border-b border-white/[0.06]">
+              <div>
+                <h3 className="text-sm font-bold text-white uppercase tracking-wider font-display">
+                  Arch Linux &amp; Hyprland Wayland Integration
+                </h3>
+                <p className="text-xs text-zinc-400 mt-1 font-sans">
+                  Includes native Wayland clipboard integration (<code className="text-zinc-200 font-mono">wl-clipboard</code>) and dedicated Hyprland floating rules.
+                </p>
               </div>
 
-              <div className="flex items-center justify-between gap-3 p-3 rounded-xl bg-black/60 border border-white/[0.08] text-xs font-mono">
-                <code className="text-sky-300 select-all overflow-x-auto whitespace-nowrap">{INSTALL_CURL_COMMAND}</code>
-                <button
-                  type="button"
-                  onClick={() => copyCommand(INSTALL_CURL_COMMAND, 'curl-arch')}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter' || e.key === ' ') {
-                      e.preventDefault();
-                      copyCommand(INSTALL_CURL_COMMAND, 'curl-arch');
-                    }
-                  }}
-                  className="min-w-[36px] min-h-[36px] flex items-center justify-center rounded-lg bg-white/[0.06] hover:bg-white/[0.12] text-slate-300 hover:text-white transition-colors cursor-pointer shrink-0"
-                  aria-label={copiedKey === 'curl-arch' ? "Install command copied" : "Copy install command"}
+              <div className="flex flex-wrap items-center gap-3">
+                <a
+                  href="https://github.com/themistrinel/omnicmd/releases/latest/download/omnicmd_amd64.deb"
+                  className="flex items-center gap-2 px-4 py-2 rounded bg-[#38bdf8] text-black font-bold text-xs hover:bg-[#0ea5e9] transition-all cursor-pointer"
                 >
-                  {copiedKey === 'curl-arch' ? (
-                    <Check className="w-3.5 h-3.5 text-emerald-400" />
-                  ) : (
-                    <Copy className="w-3.5 h-3.5" />
-                  )}
-                </button>
-              </div>
-
-              <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-[11px] text-slate-400 font-mono">
-                <span>✦ Default toggle: <kbd className="px-1.5 py-0.5 rounded bg-white/[0.08] text-slate-200">SUPER + SPACE</kbd></span>
-                <span>✦ Update utility: <code className="text-slate-200">{UPDATE_COMMAND}</code></span>
+                  <Download className="w-3.5 h-3.5" />
+                  <span>DOWNLOAD .DEB (DEBIAN / UBUNTU)</span>
+                </a>
+                <a
+                  href="https://github.com/themistrinel/omnicmd/releases/latest/download/omnicmd_x86_64.AppImage"
+                  className="flex items-center gap-2 px-4 py-2 rounded bg-[#151922] text-zinc-200 border border-white/[0.1] text-xs hover:bg-[#1f2432] transition-all cursor-pointer"
+                >
+                  <Download className="w-3.5 h-3.5" />
+                  <span>UNIVERSAL .APPIMAGE</span>
+                </a>
               </div>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <a
-                href="https://github.com/themistrinel/omnicmd/releases/latest/download/omnicmd_amd64.deb"
-                className="flex items-center justify-between p-4 min-h-[44px] rounded-xl bg-white/[0.03] hover:bg-white/[0.06] border border-white/[0.08] transition-all cursor-pointer group"
-              >
-                <div>
-                  <div className="font-semibold text-white text-sm">Debian / Ubuntu</div>
-                  <div className="text-xs text-slate-400 font-mono mt-0.5">.deb package • 12.4 MB</div>
+            {/* Quick 1-Liner Shell Snippet */}
+            <div className="space-y-2">
+              <span className="text-[11px] font-mono text-zinc-500 uppercase tracking-wider block">
+                1-Liner Quick Install (No Git Clone Required)
+              </span>
+              <div className="flex items-center justify-between p-3.5 rounded bg-[#06070a] border border-white/[0.08] text-xs text-zinc-200">
+                <div className="flex items-center gap-2 overflow-x-auto min-w-0 pr-3">
+                  <span className="text-[#38bdf8] font-bold select-none">$</span>
+                  <span className="select-all text-zinc-300">{INSTALL_CURL_COMMAND}</span>
                 </div>
-                <Download className="w-4 h-4 text-sky-400 group-hover:translate-y-0.5 transition-transform" />
-              </a>
-
-              <a
-                href="https://github.com/themistrinel/omnicmd/releases/latest/download/omnicmd_x86_64.AppImage"
-                className="flex items-center justify-between p-4 min-h-[44px] rounded-xl bg-white/[0.03] hover:bg-white/[0.06] border border-white/[0.08] transition-all cursor-pointer group"
-              >
-                <div>
-                  <div className="font-semibold text-white text-sm">Universal AppImage</div>
-                  <div className="text-xs text-slate-400 font-mono mt-0.5">Standalone x86_64 • 14.1 MB</div>
-                </div>
-                <Download className="w-4 h-4 text-sky-400 group-hover:translate-y-0.5 transition-transform" />
-              </a>
-            </div>
-
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3.5 rounded-xl bg-black/40 border border-white/[0.04] text-xs font-mono">
-              <span className="text-slate-400">Arch Linux AUR:</span>
-              <div className="flex items-center gap-2">
-                <code className="text-slate-200">yay -S omnicmd-bin</code>
                 <button
                   type="button"
-                  onClick={() => copyCommand('yay -S omnicmd-bin', 'arch')}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter' || e.key === ' ') {
-                      e.preventDefault();
-                      copyCommand('yay -S omnicmd-bin', 'arch');
-                    }
-                  }}
-                  className="min-w-[44px] min-h-[44px] flex items-center justify-center rounded-lg bg-white/[0.05] hover:bg-white/[0.1] text-slate-400 hover:text-white transition-colors cursor-pointer shrink-0"
-                  aria-label={copiedKey === 'arch' ? "AUR command copied" : "Copy AUR command"}
+                  onClick={() => copyCommand(INSTALL_CURL_COMMAND, 'curl-linux')}
+                  aria-label="Copy Linux curl install command"
+                  className="p-2 rounded bg-white/[0.06] hover:bg-white/[0.12] text-zinc-300 hover:text-white transition-colors cursor-pointer shrink-0"
                 >
-                  {copiedKey === 'arch' ? (
-                    <Check className="w-3.5 h-3.5 text-emerald-400" />
+                  {copiedKey === 'curl-linux' ? (
+                    <Check className="w-4 h-4 text-[#38bdf8]" />
                   ) : (
-                    <Copy className="w-3.5 h-3.5" />
+                    <Copy className="w-4 h-4" />
                   )}
                 </button>
               </div>
+            </div>
+
+            {/* Hyprland Rules Snippet */}
+            <div className="space-y-2 pt-2">
+              <span className="text-[11px] font-mono text-zinc-500 uppercase tracking-wider block">
+                Native Hyprland Window Rules (~/.config/hypr/omnicmd.conf)
+              </span>
+              <pre className="p-3.5 rounded bg-[#06070a] border border-white/[0.06] font-mono text-xs text-zinc-300 overflow-x-auto leading-relaxed">
+{`# Floating overlay configuration without tiling splits
+windowrulev2 = float, class:^(omnicmd)$
+windowrulev2 = center, class:^(omnicmd)$
+windowrulev2 = size 800 560, class:^(omnicmd)$
+windowrulev2 = noborder, class:^(omnicmd)$
+windowrulev2 = stayfocused, class:^(omnicmd)$`}
+              </pre>
             </div>
           </div>
         )}
 
+        {/* Tab 2: macOS Details */}
         {selectedOS === 'mac' && (
-          <div
-            id="panel-mac"
-            role="tabpanel"
-            aria-labelledby="tab-mac"
-            tabIndex={0}
-            className="space-y-6 focus:outline-none"
-          >
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <a
-                href="https://github.com/themistrinel/omnicmd/releases/latest/download/omnicmd_aarch64.dmg"
-                className="flex items-center justify-between p-4 min-h-[44px] rounded-xl bg-white/[0.03] hover:bg-white/[0.06] border border-white/[0.08] transition-all cursor-pointer group"
-              >
-                <div>
-                  <div className="font-semibold text-white text-sm">Apple Silicon (M1/M2/M3/M4)</div>
-                  <div className="text-xs text-slate-400 font-mono mt-0.5">.dmg disk image • 9.8 MB</div>
-                </div>
-                <Download className="w-4 h-4 text-sky-400 group-hover:translate-y-0.5 transition-transform" />
-              </a>
+          <div className="space-y-6">
+            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-6 border-b border-white/[0.06]">
+              <div>
+                <h3 className="text-sm font-bold text-white uppercase tracking-wider font-display">
+                  Universal macOS Application Bundle
+                </h3>
+                <p className="text-xs text-zinc-400 mt-1 font-sans">
+                  Native binary for Apple Silicon (M1/M2/M3/M4) and Intel x86_64. Signed and notarized for macOS 11+.
+                </p>
+              </div>
 
               <a
-                href="https://github.com/themistrinel/omnicmd/releases/latest/download/omnicmd_x64.dmg"
-                className="flex items-center justify-between p-4 min-h-[44px] rounded-xl bg-white/[0.03] hover:bg-white/[0.06] border border-white/[0.08] transition-all cursor-pointer group"
+                href="https://github.com/themistrinel/omnicmd/releases/latest/download/OmniCmd_macOS_universal.dmg"
+                className="flex items-center gap-2 px-5 py-2.5 rounded bg-[#38bdf8] text-black font-bold text-xs hover:bg-[#0ea5e9] transition-all cursor-pointer self-start lg:self-auto"
               >
-                <div>
-                  <div className="font-semibold text-white text-sm">Intel Mac (x86_64)</div>
-                  <div className="text-xs text-slate-400 font-mono mt-0.5">.dmg disk image • 11.2 MB</div>
-                </div>
-                <Download className="w-4 h-4 text-sky-400 group-hover:translate-y-0.5 transition-transform" />
+                <Download className="w-4 h-4" />
+                <span>DOWNLOAD UNIVERSAL .DMG</span>
               </a>
             </div>
 
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3.5 rounded-xl bg-black/40 border border-white/[0.04] text-xs font-mono">
-              <span className="text-slate-400">Homebrew Tap:</span>
-              <div className="flex items-center gap-2">
-                <code className="text-slate-200">brew install themistrinel/tap/omnicmd</code>
-                <button
-                  type="button"
-                  onClick={() => copyCommand('brew install themistrinel/tap/omnicmd', 'brew')}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter' || e.key === ' ') {
-                      e.preventDefault();
-                      copyCommand('brew install themistrinel/tap/omnicmd', 'brew');
-                    }
-                  }}
-                  className="min-w-[44px] min-h-[44px] flex items-center justify-center rounded-lg bg-white/[0.05] hover:bg-white/[0.1] text-slate-400 hover:text-white transition-colors cursor-pointer shrink-0"
-                  aria-label={copiedKey === 'brew' ? "Brew command copied" : "Copy brew command"}
-                >
-                  {copiedKey === 'brew' ? (
-                    <Check className="w-3.5 h-3.5 text-emerald-400" />
-                  ) : (
-                    <Copy className="w-3.5 h-3.5" />
-                  )}
-                </button>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs font-mono text-zinc-400">
+              <div className="p-4 rounded bg-[#06070a] border border-white/[0.06] space-y-2">
+                <span className="text-white font-bold flex items-center gap-1.5">
+                  <Apple className="w-3.5 h-3.5 text-zinc-300" />
+                  ACCESSIBILITY PERMISSIONS
+                </span>
+                <p className="text-[11px] leading-relaxed font-sans text-zinc-400">
+                  OmniCmd requires macOS Accessibility permissions to register the global <code className="text-zinc-200">Cmd+Space</code> hotkey and read active buffer selections without stealing permanent window focus.
+                </p>
+              </div>
+
+              <div className="p-4 rounded bg-[#06070a] border border-white/[0.06] space-y-2">
+                <span className="text-white font-bold flex items-center gap-1.5">
+                  <ShieldCheck className="w-3.5 h-3.5 text-[#38bdf8]" />
+                  LOCAL STORAGE ONLY
+                </span>
+                <p className="text-[11px] leading-relaxed font-sans text-zinc-400">
+                  Zero cloud beacons. All prompt histories, custom actions, and configuration stay completely local on your machine.
+                </p>
               </div>
             </div>
           </div>
         )}
 
+        {/* Tab 3: Windows Details */}
         {selectedOS === 'windows' && (
-          <div
-            id="panel-windows"
-            role="tabpanel"
-            aria-labelledby="tab-windows"
-            tabIndex={0}
-            className="space-y-6 focus:outline-none"
-          >
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <a
-                href="https://github.com/themistrinel/omnicmd/releases/latest/download/omnicmd_x64_en-US.msi"
-                className="flex items-center justify-between p-4 min-h-[44px] rounded-xl bg-white/[0.03] hover:bg-white/[0.06] border border-white/[0.08] transition-all cursor-pointer group"
-              >
-                <div>
-                  <div className="font-semibold text-white text-sm">Windows Installer (.msi)</div>
-                  <div className="text-xs text-slate-400 font-mono mt-0.5">64-bit installer • 11.8 MB</div>
-                </div>
-                <Download className="w-4 h-4 text-sky-400 group-hover:translate-y-0.5 transition-transform" />
-              </a>
+          <div className="space-y-6">
+            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-6 border-b border-white/[0.06]">
+              <div>
+                <h3 className="text-sm font-bold text-white uppercase tracking-wider font-display">
+                  Native Windows x64 Distribution
+                </h3>
+                <p className="text-xs text-zinc-400 mt-1 font-sans">
+                  Lightweight installer or standalone portable executable utilizing system WebView2 runtime.
+                </p>
+              </div>
 
-              <a
-                href="https://github.com/themistrinel/omnicmd/releases/latest/download/omnicmd_x64.exe"
-                className="flex items-center justify-between p-4 min-h-[44px] rounded-xl bg-white/[0.03] hover:bg-white/[0.06] border border-white/[0.08] transition-all cursor-pointer group"
-              >
-                <div>
-                  <div className="font-semibold text-white text-sm">Standalone Portable (.exe)</div>
-                  <div className="text-xs text-slate-400 font-mono mt-0.5">Single binary • 10.9 MB</div>
-                </div>
-                <Download className="w-4 h-4 text-sky-400 group-hover:translate-y-0.5 transition-transform" />
-              </a>
+              <div className="flex flex-wrap items-center gap-3">
+                <a
+                  href="https://github.com/themistrinel/omnicmd/releases/latest/download/OmniCmd_x64_en-US.msi"
+                  className="flex items-center gap-2 px-4 py-2 rounded bg-[#38bdf8] text-black font-bold text-xs hover:bg-[#0ea5e9] transition-all cursor-pointer"
+                >
+                  <Download className="w-3.5 h-3.5" />
+                  <span>DOWNLOAD INSTALLER (.MSI)</span>
+                </a>
+                <a
+                  href="https://github.com/themistrinel/omnicmd/releases/latest/download/OmniCmd_x64_portable.zip"
+                  className="flex items-center gap-2 px-4 py-2 rounded bg-[#151922] text-zinc-200 border border-white/[0.1] text-xs hover:bg-[#1f2432] transition-all cursor-pointer"
+                >
+                  <Download className="w-3.5 h-3.5" />
+                  <span>PORTABLE (.ZIP)</span>
+                </a>
+              </div>
             </div>
 
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3.5 rounded-xl bg-black/40 border border-white/[0.04] text-xs font-mono">
-              <span className="text-slate-400">Windows Package Manager:</span>
-              <div className="flex items-center gap-2">
-                <code className="text-slate-200">winget install omnicmd</code>
+            <div className="p-4 rounded bg-[#06070a] border border-white/[0.06] text-xs text-zinc-400 space-y-2">
+              <span className="text-white font-bold block">WINDOWS SYSTEM TRAY DAEMON</span>
+              <p className="text-[11px] font-sans leading-relaxed text-zinc-400">
+                OmniCmd persists in the Windows system notification area. Summon with <kbd className="pbt-keycap text-[9px]">Win</kbd> + <kbd className="pbt-keycap text-[9px]">Space</kbd> over Visual Studio, VS Code, or Windows Terminal.
+              </p>
+            </div>
+          </div>
+        )}
+
+        {/* Tab 4: Build from Source */}
+        {selectedOS === 'source' && (
+          <div className="space-y-6">
+            <div className="space-y-2">
+              <h3 className="text-sm font-bold text-white uppercase tracking-wider font-display">
+                Compile Directly with Cargo &amp; Tauri CLI
+              </h3>
+              <p className="text-xs text-zinc-400 font-sans">
+                Requires Rust 1.77+, Node.js (or pnpm), and standard OS development headers (libwebkit2gtk on Linux).
+              </p>
+            </div>
+
+            <div className="space-y-2">
+              <span className="text-[11px] font-mono text-zinc-500 uppercase tracking-wider block">
+                Terminal Build Pipeline
+              </span>
+              <div className="flex items-center justify-between p-3.5 rounded bg-[#06070a] border border-white/[0.08] text-xs text-zinc-200">
+                <div className="flex items-center gap-2 overflow-x-auto min-w-0 pr-3">
+                  <span className="text-[#38bdf8] font-bold select-none">$</span>
+                  <span className="select-all text-zinc-300">{BUILD_FROM_SOURCE_COMMAND}</span>
+                </div>
                 <button
                   type="button"
-                  onClick={() => copyCommand('winget install omnicmd', 'winget')}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter' || e.key === ' ') {
-                      e.preventDefault();
-                      copyCommand('winget install omnicmd', 'winget');
-                    }
-                  }}
-                  className="min-w-[44px] min-h-[44px] flex items-center justify-center rounded-lg bg-white/[0.05] hover:bg-white/[0.1] text-slate-400 hover:text-white transition-colors cursor-pointer shrink-0"
-                  aria-label={copiedKey === 'winget' ? "Winget command copied" : "Copy winget command"}
+                  onClick={() => copyCommand(BUILD_FROM_SOURCE_COMMAND, 'source-build')}
+                  aria-label="Copy build from source command"
+                  className="p-2 rounded bg-white/[0.06] hover:bg-white/[0.12] text-zinc-300 hover:text-white transition-colors cursor-pointer shrink-0"
                 >
-                  {copiedKey === 'winget' ? (
-                    <Check className="w-3.5 h-3.5 text-emerald-400" />
+                  {copiedKey === 'source-build' ? (
+                    <Check className="w-4 h-4 text-[#38bdf8]" />
                   ) : (
-                    <Copy className="w-3.5 h-3.5" />
+                    <Copy className="w-4 h-4" />
                   )}
                 </button>
               </div>
@@ -372,40 +314,23 @@ export const DownloadSection: React.FC<DownloadSectionProps> = ({ detectedOS }) 
           </div>
         )}
 
-        {selectedOS === 'source' && (
-          <div
-            id="panel-source"
-            role="tabpanel"
-            aria-labelledby="tab-source"
-            tabIndex={0}
-            className="space-y-4 focus:outline-none"
-          >
-            <p className="text-xs text-slate-400 leading-relaxed">
-              Compile OmniCmd from source using Rust (Cargo 1.77+) and Node/pnpm for the Tauri v2 frontend shell.
-            </p>
-            <div className="flex items-center justify-between gap-3 p-3.5 rounded-xl bg-black/40 border border-white/[0.04] text-xs font-mono">
-              <code className="text-slate-200 truncate">{BUILD_FROM_SOURCE_COMMAND}</code>
-              <button
-                type="button"
-                onClick={() => copyCommand(BUILD_FROM_SOURCE_COMMAND, 'source')}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' || e.key === ' ') {
-                    e.preventDefault();
-                    copyCommand(BUILD_FROM_SOURCE_COMMAND, 'source');
-                  }
-                }}
-                className="min-w-[44px] min-h-[44px] flex items-center justify-center rounded-lg bg-white/[0.05] hover:bg-white/[0.1] text-slate-400 hover:text-white transition-colors cursor-pointer shrink-0"
-                aria-label={copiedKey === 'source' ? "Build command copied" : "Copy build command"}
-              >
-                {copiedKey === 'source' ? (
-                  <Check className="w-3.5 h-3.5 text-emerald-400" />
-                ) : (
-                  <Copy className="w-3.5 h-3.5" />
-                )}
-              </button>
-            </div>
+        {/* Releases link footer */}
+        <div className="mt-8 pt-6 border-t border-white/[0.06] flex flex-col sm:flex-row items-center justify-between gap-4 text-xs font-mono text-zinc-400">
+          <div className="flex items-center gap-2">
+            <ShieldCheck className="w-4 h-4 text-[#38bdf8]" />
+            <span>All binary artifacts signed with SHA-256 checksums</span>
           </div>
-        )}
+
+          <a
+            href={RELEASES_URL}
+            target="_blank"
+            rel="noreferrer"
+            className="flex items-center gap-1.5 text-[#38bdf8] hover:underline"
+          >
+            <span>VIEW ALL GITHUB RELEASE ARTIFACTS</span>
+            <ArrowUpRight className="w-3.5 h-3.5" />
+          </a>
+        </div>
       </div>
     </section>
   );

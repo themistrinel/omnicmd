@@ -104,7 +104,7 @@ export const VoiceInputModal: React.FC<VoiceInputModalProps> = ({
           </button>
           <button
             onClick={handleStopAndConfirm}
-            className="flex-1 py-2 rounded-lg text-sm font-medium bg-indigo-600 hover:bg-indigo-500 text-white shadow-md shadow-indigo-600/20 transition-colors cursor-pointer"
+            className="flex-1 py-2 rounded-lg text-sm font-medium bg-sky-600 hover:bg-sky-500 text-white shadow-md shadow-sky-600/20 transition-colors cursor-pointer"
           >
             Concluir Fala
           </button>
