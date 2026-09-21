@@ -11,32 +11,17 @@ import { CtaSection } from './components/CtaSection';
 import { Footer } from './components/Footer';
 import { OSPlatform } from './types';
 import { detectUserOS, getDownloadInfo } from './utils';
+import { LanguageProvider } from './i18n/LanguageContext';
 
-export const LandingPage: React.FC = () => {
+const LandingPageContent: React.FC = () => {
   const [detectedOS] = useState<OSPlatform>(detectUserOS);
   const downloadInfo = getDownloadInfo(detectedOS);
 
   return (
-    <div className="min-h-screen w-full bg-[#030712] text-zinc-100 font-sans antialiased selection:bg-sky-400 selection:text-black relative overflow-x-hidden">
-      {/* Cosmic Starry Sky Layer */}
+    <div className="min-h-screen w-full bg-[#08090d] text-slate-100 font-sans antialiased selection:bg-sky-400 selection:text-[#082f49] relative overflow-x-hidden">
+      {/* Subtle Top Atmosphere */}
       <div
-        className="pointer-events-none fixed inset-0 cosmic-stars opacity-40 z-0"
-        aria-hidden="true"
-      />
-
-      {/* Top Ambient Cosmic Glows */}
-      <div
-        className="pointer-events-none fixed top-[-10%] left-1/2 -translate-x-1/2 w-[1000px] h-[600px] bg-gradient-to-b from-sky-500/15 via-cyan-400/10 to-transparent rounded-full blur-[140px] z-0"
-        aria-hidden="true"
-      />
-
-      {/* Side Cyan/Sky Aurora Accent */}
-      <div
-        className="pointer-events-none fixed top-[40%] -left-[200px] w-[600px] h-[600px] bg-sky-900/15 rounded-full blur-[160px] z-0"
-        aria-hidden="true"
-      />
-      <div
-        className="pointer-events-none fixed top-[60%] -right-[200px] w-[600px] h-[600px] bg-blue-600/15 rounded-full blur-[160px] z-0"
+        className="pointer-events-none fixed top-[-20%] left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-sky-500/8 rounded-full blur-[120px] z-0"
         aria-hidden="true"
       />
 
@@ -55,5 +40,13 @@ export const LandingPage: React.FC = () => {
 
       <Footer />
     </div>
+  );
+};
+
+export const LandingPage: React.FC = () => {
+  return (
+    <LanguageProvider>
+      <LandingPageContent />
+    </LanguageProvider>
   );
 };
