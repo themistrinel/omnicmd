@@ -9,6 +9,7 @@ import { GithubIcon } from './GithubIcon';
 import { DownloadInfo, OSPlatform } from '../types';
 import { GITHUB_URL, INSTALL_CURL_COMMAND } from '../constants';
 import { ProductShowcase } from './ProductShowcase';
+import { useLanguage } from '../i18n/LanguageContext';
 
 interface HeroSectionProps {
   detectedOS: OSPlatform;
@@ -19,6 +20,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
   detectedOS,
   downloadInfo,
 }) => {
+  const { t } = useLanguage();
   const [copiedInstallCmd, setCopiedInstallCmd] = useState(false);
 
   const copyInstallCommand = () => {
@@ -35,77 +37,68 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
       aria-label="OmniCmd Hero Section & Product Showcase"
       className="relative pt-24 pb-20 sm:pt-32 sm:pb-28 lg:pt-36 lg:pb-36 max-w-7xl mx-auto px-4 sm:px-6 overflow-visible"
     >
-      {/* ─────────────────────────────────────────────────────────────
-          PERSPECTIVE GRID & CYBER HORIZON BACKGROUND (Image 1)
-          ───────────────────────────────────────────────────────────── */}
+      {/* Background Perspective Grid */}
       <div className="perspective-grid-container" aria-hidden="true">
-        {/* Top converging perspective ceiling */}
         <div className="perspective-ceiling-plane" />
-
-        {/* 3D Perspective Grid Floor */}
         <div className="perspective-grid-plane" />
       </div>
 
-      {/* ─────────────────────────────────────────────────────────────
-          HERO CENTRAL MONUMENTAL HEADER (Direct & Monumental Flow)
-          ───────────────────────────────────────────────────────────── */}
+      {/* Main Hero Header */}
       <div className="relative z-10 text-center max-w-4xl mx-auto mb-12 sm:mb-16 space-y-6 font-sans">
-        {/* Pill Badge (Image 1) */}
-        <div className="inline-flex items-center gap-2 px-5 py-2 rounded-full border border-sky-500/30 bg-sky-950/30 backdrop-blur-md text-xs font-sans text-sky-200 shadow-[0_0_20px_rgba(56,189,248,0.25)] mx-auto hover:border-sky-400 transition-all">
+        {/* Release Pill Badge */}
+        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-white/[0.08] bg-white/[0.03] backdrop-blur-md text-xs font-sans text-slate-300 shadow-sm mx-auto hover:border-white/[0.14] transition-all">
           <span className="relative flex h-2 w-2">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-sky-400 opacity-75" />
             <span className="relative inline-flex rounded-full h-2 w-2 bg-sky-400" />
           </span>
-          <span className="font-semibold tracking-wide">
-            Unlimited local runtime // Open Source <span className="font-mono">v0.1.0</span>
+          <span className="font-medium tracking-wide">
+            {t.hero.badgeRuntime} <span className="font-mono text-slate-400">v0.1.0</span>
           </span>
-          <span className="text-sky-400/60 hidden sm:inline">•</span>
-          <span className="text-sky-300/80 hidden sm:inline font-normal">
-            Zero cloud dependencies
+          <span className="text-slate-600 hidden sm:inline">•</span>
+          <span className="text-slate-400 hidden sm:inline font-normal">
+            {t.hero.badgeZeroCloud}
           </span>
         </div>
 
-        {/* Monumental Headline */}
-        <h1 className="text-4xl sm:text-6xl md:text-7xl lg:text-[5.2rem] font-extrabold tracking-[-0.04em] text-white font-display leading-[1.02]">
-          New Era of Command Intelligence
+        {/* Hero Title */}
+        <h1 className="text-4xl sm:text-6xl md:text-7xl lg:text-[4.8rem] font-extrabold tracking-[-0.035em] text-white font-display leading-[1.04]">
+          {t.hero.headline}
         </h1>
 
-        {/* Subtitle in soft lavender / sky */}
-        <p className="text-base sm:text-xl text-sky-100/80 font-sans leading-relaxed max-w-2xl mx-auto font-normal">
-          An instant AI HUD composited directly over your active code editor. Wakes in{' '}
-          <strong className="text-white font-mono font-semibold">18ms</strong> with zero window switches, zero telemetry egress, and native Rust performance.
+        {/* Hero Subtitle */}
+        <p className="text-base sm:text-lg text-slate-300 font-sans leading-relaxed max-w-2xl mx-auto font-normal">
+          {t.hero.subtitle}
         </p>
 
         {/* Tactile Hotkey Indicator */}
-        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#081430]/90 border border-sky-500/30 text-xs font-sans text-sky-200 shadow-inner">
-          <span className="text-sky-400 font-semibold uppercase tracking-wider text-[11px]">
-            GLOBAL HOTKEY:
+        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-lg bg-white/[0.03] border border-white/[0.08] text-xs font-sans text-slate-300">
+          <span className="text-slate-400 font-semibold uppercase tracking-wider text-[11px] font-mono">
+            {t.hero.globalHotkey}
           </span>
           <div className="flex items-center gap-1.5 font-mono">
-            <span className="pbt-keycap phosphor-active text-[11px] px-2.5 py-0.5">
+            <span className="pbt-keycap phosphor-active text-[11px] px-2 py-0.5">
               {hotkeyModifier}
             </span>
-            <span className="text-sky-400 text-xs font-bold">+</span>
-            <span className="pbt-keycap phosphor-active text-[11px] px-2.5 py-0.5">
+            <span className="text-slate-400 text-xs font-bold">+</span>
+            <span className="pbt-keycap phosphor-active text-[11px] px-2 py-0.5">
               Space
             </span>
           </div>
-          <span className="text-sky-300/60 text-[11px] hidden sm:inline font-normal">
-            // floats over Neovim, VS Code, or terminal
+          <span className="text-slate-500 text-[11px] hidden sm:inline font-normal">
+            {t.hero.hotkeyComment}
           </span>
         </div>
 
-        {/* Central Call-to-Action Pill Buttons */}
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-3.5 pt-2 max-w-xl mx-auto">
-          {/* Primary Pill Download Button */}
+        {/* Central Call-to-Action Buttons */}
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2 max-w-xl mx-auto">
+          {/* Primary High-Contrast Action Button */}
           <a
             href={downloadInfo.url}
-            className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-8 py-3.5 rounded-full bg-gradient-to-r from-sky-500 via-cyan-400 to-blue-600 hover:from-sky-400 hover:to-blue-500 text-white font-sans font-semibold text-sm transition-all shadow-[0_0_30px_rgba(56,189,248,0.4)] hover:shadow-[0_0_40px_rgba(56,189,248,0.6)] cursor-pointer active:translate-y-0.5"
+            className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-6 py-3.5 btn-primary-azure font-sans font-bold text-sm cursor-pointer"
           >
-            <Download className="w-4 h-4 text-white stroke-[2.5]" />
-            <span>Download for {downloadInfo.osName}</span>
-            <span className="text-xs font-mono font-normal opacity-85 pl-1.5 border-l border-white/30">
-              {downloadInfo.format} • ~12MB
+            <Download className="w-4 h-4 stroke-[2.5]" />
+            <span>{t.hero.downloadBtn} {downloadInfo.osName}</span>
+            <span className="text-xs font-mono font-normal opacity-85 pl-2 border-l border-[#082f49]/30">
+              {downloadInfo.format} • {t.hero.downloadDetails}
             </span>
           </a>
 
@@ -114,21 +107,21 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
             href={GITHUB_URL}
             target="_blank"
             rel="noreferrer"
-            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-full bg-[#081430] hover:bg-[#0c1f4d] text-sky-200 hover:text-white border border-sky-500/30 font-sans font-medium text-sm transition-all cursor-pointer shadow-sm"
+            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-3.5 btn-secondary-obsidian font-sans font-medium text-sm cursor-pointer"
           >
-            <GithubIcon className="w-4 h-4 text-sky-300" />
-            <span>GitHub Repo</span>
-            <ArrowUpRight className="w-3.5 h-3.5 text-sky-400" />
+            <GithubIcon className="w-4 h-4 text-slate-400" />
+            <span>{t.hero.githubRepo}</span>
+            <ArrowUpRight className="w-3.5 h-3.5 text-slate-500" />
           </a>
         </div>
 
-        {/* Single-Line cURL Bootstrap Box */}
-        <div className="flex items-center justify-between gap-3 px-4 py-2.5 rounded-full bg-[#060f24]/95 border border-sky-500/25 font-mono text-xs shadow-inner max-w-md mx-auto">
+        {/* Terminal cURL Bootstrap Box */}
+        <div className="flex items-center justify-between gap-3 px-4 py-2 rounded-xl bg-[#0c0e14] border border-white/[0.08] font-mono text-xs shadow-inner max-w-md mx-auto">
           <div className="flex items-center gap-2.5 min-w-0 overflow-hidden pr-2">
-            <span className="text-cyan-400 font-bold select-none shrink-0 text-sm">
+            <span className="text-sky-400 font-bold select-none shrink-0 text-sm">
               $
             </span>
-            <span className="text-sky-200/85 truncate select-all text-[11px] sm:text-xs font-mono">
+            <span className="text-slate-300 truncate select-all text-[11px] sm:text-xs font-mono">
               {INSTALL_CURL_COMMAND}
             </span>
           </div>
@@ -137,37 +130,34 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
             onClick={copyInstallCommand}
             aria-label={
               copiedInstallCmd
-                ? 'Terminal command copied'
-                : 'Copy terminal installation command'
+                ? t.hero.copied
+                : t.hero.copy
             }
-            className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-sky-900/40 hover:bg-sky-800/50 text-sky-200 hover:text-white transition-colors cursor-pointer shrink-0 text-xs font-sans font-semibold border border-sky-500/30"
+            className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white/[0.05] hover:bg-white/[0.1] text-slate-300 hover:text-white transition-colors cursor-pointer shrink-0 text-xs font-sans font-semibold border border-white/[0.08]"
           >
             {copiedInstallCmd ? (
               <>
-                <Check className="w-3.5 h-3.5 text-cyan-400" />
-                <span className="text-cyan-400 font-bold">Copied</span>
+                <Check className="w-3.5 h-3.5 text-emerald-400" />
+                <span className="text-emerald-400 font-bold">{t.hero.copied}</span>
               </>
             ) : (
               <>
-                <Copy className="w-3.5 h-3.5 text-sky-300" />
-                <span>Copy</span>
+                <Copy className="w-3.5 h-3.5 text-slate-400" />
+                <span>{t.hero.copy}</span>
               </>
             )}
           </button>
         </div>
       </div>
 
-      {/* ─────────────────────────────────────────────────────────────
-          CENTRAL FLOATING PRODUCT MOCKUP (Wope Style Horizon Anchor)
-          Direct flow: Badge -> Headline -> Subtitle -> CTAs -> Mockup
-          ───────────────────────────────────────────────────────────── */}
+      {/* Central Floating Product Mockup */}
       <div className="relative z-20 mt-10 sm:mt-14">
-        {/* Soft Cosmic Aurora Glow anchored smoothly behind the app window without harsh horizontal beam lines */}
+        {/* Soft Aurora Glow behind the app window */}
         <div
           className="absolute -top-24 sm:-top-32 left-1/2 -translate-x-1/2 w-full max-w-6xl h-64 pointer-events-none -z-10 overflow-visible"
           aria-hidden="true"
         >
-          <div className="horizon-glow w-[140%] -top-12 left-1/2 -translate-x-1/2 animate-aurora" />
+          <div className="horizon-glow w-[140%] -top-12 left-1/2 -translate-x-1/2" />
         </div>
 
         {/* The Window Component */}

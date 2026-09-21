@@ -53,8 +53,8 @@ export const SHORTCUT_ITEMS: ShortcutItem[] = [
     separator: '+',
   },
   {
-    title: 'Disparo de Ação Rápida',
-    description: 'Executa diretamente as ações 1 a 8',
+    title: 'Instant Action Trigger',
+    description: 'Executes quick-action directives 1 through 8 directly',
     keys: ['Alt', '1 .. 8'],
     separator: '+',
   },
