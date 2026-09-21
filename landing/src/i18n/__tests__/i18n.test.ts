@@ -67,12 +67,14 @@ describe('i18n suite', () => {
       expect(trans.commands.headline, `${code} missing commands.headline`).toBeDefined();
       expect(trans.downloads.headline, `${code} missing downloads.headline`).toBeDefined();
       expect(trans.devlogs.headline, `${code} missing devlogs.headline`).toBeDefined();
+      expect(trans.donations.headline, `${code} missing donations.headline`).toBeDefined();
       expect(trans.cta.headline, `${code} missing cta.headline`).toBeDefined();
 
       expect(trans.commands.items.length).toBe(8);
       expect(trans.commands.systemItems.length).toBe(4);
       expect(trans.features.card1.directives.length).toBe(4);
       expect(trans.devlogs.changes.length).toBe(3);
+      expect(trans.donations.features.length).toBe(3);
     }
   });
 });

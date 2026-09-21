@@ -250,6 +250,21 @@ export interface Translations {
     license: string;
     viewCommits: string;
   };
+  donations: {
+    pill: string;
+    headline: string;
+    subtitle: string;
+    qrTitle: string;
+    qrScanText: string;
+    pixBadge: string;
+    pixKeyLabel: string;
+    copyKeyBtn: string;
+    keyCopied: string;
+    features: Array<{
+      title: string;
+      desc: string;
+    }>;
+  };
   cta: {
     badge: string;
     headline: string;
@@ -264,6 +279,7 @@ export interface Translations {
       cadence: string;
       architecture: string;
       commands: string;
+      support: string;
       github: string;
       releases: string;
       mit: string;

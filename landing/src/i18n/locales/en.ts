@@ -385,6 +385,32 @@ export const en: Translations = {
     license: 'Open-source release licensed under MIT',
     viewCommits: 'VIEW COMMITS & SHAS →',
   },
+  donations: {
+    pill: 'SUPPORT THE PROJECT // INDEPENDENT OPEN SOURCE',
+    headline: 'Enjoying OmniCmd?\nSupport Ongoing Development.',
+    subtitle:
+      'OmniCmd is a free, open-source project created and maintained by independent developers. If OmniCmd saves you time and boosts your day-to-day coding productivity, please consider supporting continued development via Pix!',
+    qrTitle: 'Pix QR Code',
+    qrScanText: 'Scan the QR Code using your banking or payment app',
+    pixBadge: 'INSTANT PIX',
+    pixKeyLabel: 'Pix Key (Random Key)',
+    copyKeyBtn: 'Copy Pix Key',
+    keyCopied: 'Key Copied!',
+    features: [
+      {
+        title: '100% Independent Development',
+        desc: 'Your donation directly funds new LLM integrations, Rust runtime performance optimizations, and regular releases.',
+      },
+      {
+        title: 'Zero Telemetry & Ad-Free',
+        desc: 'OmniCmd will always remain free of invasive telemetry trackers, cloud surveillance, or paywalls.',
+      },
+      {
+        title: 'High-Performance Multiplatform',
+        desc: 'Dedicated maintenance for Linux (Wayland/X11), Windows 10/11, and macOS (Apple Silicon & Intel).',
+      },
+    ],
+  },
   cta: {
     badge: 'Local-First & Telemetry-Free',
     headline: 'Stop Switching Windows.\nReclaim Your Keystrokes.',
@@ -400,6 +426,7 @@ export const en: Translations = {
       cadence: 'Cadence',
       architecture: 'Architecture',
       commands: 'Commands',
+      support: 'Support',
       github: 'GitHub',
       releases: 'Releases',
       mit: 'MIT',

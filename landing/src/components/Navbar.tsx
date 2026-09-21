@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Download, Menu, X, ArrowUpRight } from 'lucide-react';
+import { Download, Menu, X, ArrowUpRight, Heart } from 'lucide-react';
 import { GithubIcon } from './GithubIcon';
 import { APP_VERSION, GITHUB_URL } from '../constants';
 import { DownloadInfo, OSPlatform } from '../types';
@@ -201,6 +201,20 @@ export const Navbar: React.FC<NavbarProps> = ({ downloadInfo: propDownloadInfo, 
                 {link.label}
               </a>
             ))}
+
+            <a
+              href="#donate"
+              onClick={closeMobileMenu}
+              className="py-3 text-base font-semibold text-rose-300 hover:text-rose-200 border-b border-white/[0.08] flex items-center justify-between transition-colors"
+            >
+              <span className="flex items-center gap-2">
+                <Heart className="w-4 h-4 text-rose-400 fill-rose-400/20" />
+                {t.footer.links.support}
+              </span>
+              <span className="text-[10px] font-mono uppercase tracking-wider px-2 py-0.5 rounded bg-rose-500/10 text-rose-300 border border-rose-500/20">
+                Pix
+              </span>
+            </a>
 
             {/* Language Selector in Mobile Drawer */}
             <div className="pt-4 pb-2">

@@ -7,6 +7,7 @@ import { BenchmarksSection } from './components/BenchmarksSection';
 import { CommandsSection } from './components/CommandsSection';
 import { DownloadSection } from './components/DownloadSection';
 import { DevlogSection } from './components/DevlogSection';
+import { DonationSection } from './components/DonationSection';
 import { CtaSection } from './components/CtaSection';
 import { Footer } from './components/Footer';
 import { OSPlatform } from './types';
@@ -36,6 +37,7 @@ const LandingPageContent: React.FC = () => {
         <CommandsSection />
         <DownloadSection detectedOS={detectedOS} downloadLinks={downloadLinks} />
         <DevlogSection />
+        <DonationSection />
         <CtaSection detectedOS={detectedOS} downloadInfo={downloadInfo} />
       </main>
 

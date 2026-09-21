@@ -14,6 +14,9 @@ export const UPDATE_COMMAND = 'omnicmd-update';
 export const BUILD_FROM_SOURCE_COMMAND =
   'git clone https://github.com/themistrinel/omnicmd.git && pnpm install && pnpm tauri build';
 
+export const PIX_KEY = '698b86a2-3f72-4be7-ab3e-f838522a41e2';
+export const PIX_QR_IMAGE = './pix-qr.png';
+
 export const BENCHMARK_ROWS: BenchmarkRow[] = [
   {
     metric: 'Idle RAM Footprint',

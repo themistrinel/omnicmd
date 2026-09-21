@@ -385,6 +385,32 @@ export const pt: Translations = {
     license: 'Lançamento de código aberto sob licença MIT',
     viewCommits: 'VER COMMITS E SHAS →',
   },
+  donations: {
+    pill: 'APOIE O PROJETO // CÓDIGO ABERTO INDEPENDENTE',
+    headline: 'Gostou do OmniCmd?\nApoie o Desenvolvimento.',
+    subtitle:
+      'O OmniCmd é um software livre, gratuito e mantido de forma independente. Se ele economiza seu tempo e acelera sua produtividade diária no teclado, considere apoiar a evolução contínua via Pix!',
+    qrTitle: 'QR Code Pix',
+    qrScanText: 'Abra o app do seu banco e escaneie o código abaixo',
+    pixBadge: 'PIX INSTANTÂNEO',
+    pixKeyLabel: 'Chave Pix (Aleatória)',
+    copyKeyBtn: 'Copiar Chave Pix',
+    keyCopied: 'Chave Copiada!',
+    features: [
+      {
+        title: 'Desenvolvimento 100% Independente',
+        desc: 'Sua contribuição financia diretamente novas funcionalidades, otimizações de runtime em Rust e lançamentos regulares.',
+      },
+      {
+        title: 'Zero Telemetria & Sem Anúncios',
+        desc: 'O OmniCmd continuará sempre livre de rastreadores, telemetria invasiva ou modelos de assinatura predatórios.',
+      },
+      {
+        title: 'Multiplataforma de Alta Performance',
+        desc: 'Manutenção dedicada para Linux (Wayland/X11), Windows 10/11 e macOS (Apple Silicon e Intel).',
+      },
+    ],
+  },
   cta: {
     badge: 'Local-First & Livre de Telemetria',
     headline: 'Pare de Alternar Janelas.\nRecupere Suas Teclas.',
@@ -400,6 +426,7 @@ export const pt: Translations = {
       cadence: 'Fluxo',
       architecture: 'Arquitetura',
       commands: 'Comandos',
+      support: 'Apoiar',
       github: 'GitHub',
       releases: 'Releases',
       mit: 'MIT',
