@@ -1,7 +1,7 @@
 use crate::ai::{execute_chat_completion, AiRequestPayload, AiResponsePayload};
 use crate::db::{DbState, HistoryItem};
 use std::collections::HashMap;
-use tauri::{AppHandle, Manager, State};
+use tauri::{AppHandle, State};
 
 #[tauri::command]
 pub fn db_save_history(state: State<'_, DbState>, item: HistoryItem) -> Result<i64, String> {
@@ -44,32 +44,19 @@ pub async fn execute_ai_request(payload: AiRequestPayload) -> Result<AiResponseP
 
 #[tauri::command]
 pub fn toggle_window(app: AppHandle) -> Result<(), String> {
-    if let Some(window) = app.get_webview_window("main") {
-        let is_visible = window.is_visible().unwrap_or(false);
-        if is_visible {
-            let _ = window.hide();
-        } else {
-            let _ = window.show();
-            let _ = window.set_focus();
-        }
-    }
+    crate::toggle_main_window(&app);
     Ok(())
 }
 
 #[tauri::command]
 pub fn hide_window(app: AppHandle) -> Result<(), String> {
-    if let Some(window) = app.get_webview_window("main") {
-        let _ = window.hide();
-    }
+    crate::hide_main_window(&app);
     Ok(())
 }
 
 #[tauri::command]
 pub fn show_window(app: AppHandle) -> Result<(), String> {
-    if let Some(window) = app.get_webview_window("main") {
-        let _ = window.show();
-        let _ = window.set_focus();
-    }
+    crate::activate_and_show_window(&app, None);
     Ok(())
 }
 

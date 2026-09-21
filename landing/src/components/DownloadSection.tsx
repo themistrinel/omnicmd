@@ -1,17 +1,20 @@
 import React, { useState } from 'react';
 import { Terminal, Apple, Monitor, Check, Copy, Code2, Download, ShieldCheck, ArrowUpRight } from 'lucide-react';
-import { OSPlatform } from '../types';
+import { OSPlatform, PlatformDownloadLinks } from '../types';
 import { BUILD_FROM_SOURCE_COMMAND, INSTALL_CURL_COMMAND, RELEASES_URL } from '../constants';
+import { getDefaultDownloadLinks } from '../utils';
 import { useLanguage } from '../i18n/LanguageContext';
 
 interface DownloadSectionProps {
   detectedOS: OSPlatform;
+  downloadLinks?: PlatformDownloadLinks;
 }
 
-export const DownloadSection: React.FC<DownloadSectionProps> = ({ detectedOS }) => {
+export const DownloadSection: React.FC<DownloadSectionProps> = ({ detectedOS, downloadLinks }) => {
   const { t } = useLanguage();
   const [selectedOS, setSelectedOS] = useState<OSPlatform | 'source'>(detectedOS);
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
+  const links = downloadLinks || getDefaultDownloadLinks();
 
   const copyCommand = (cmd: string, key: string) => {
     navigator.clipboard?.writeText(cmd);
@@ -130,14 +133,14 @@ export const DownloadSection: React.FC<DownloadSectionProps> = ({ detectedOS }) 
 
               <div className="flex flex-wrap items-center gap-3">
                 <a
-                  href="https://github.com/themistrinel/omnicmd/releases/latest/download/omnicmd_amd64.deb"
+                  href={links.linuxDeb}
                   className="flex items-center gap-2 px-5 py-2.5 btn-primary-azure font-bold text-xs cursor-pointer"
                 >
                   <Download className="w-3.5 h-3.5 stroke-[2.5]" />
                   <span>{t.downloads.linux.btnDeb}</span>
                 </a>
                 <a
-                  href="https://github.com/themistrinel/omnicmd/releases/latest/download/omnicmd_x86_64.AppImage"
+                  href={links.linuxAppImage}
                   className="flex items-center gap-2 px-4 py-2.5 btn-secondary-obsidian text-xs cursor-pointer"
                 >
                   <Download className="w-3.5 h-3.5 text-slate-400" />
@@ -202,7 +205,7 @@ windowrulev2 = stayfocused, class:^(omnicmd)$`}
               </div>
 
               <a
-                href="https://github.com/themistrinel/omnicmd/releases/latest/download/OmniCmd_macOS_universal.dmg"
+                href={links.macDmg}
                 className="flex items-center gap-2 px-6 py-2.5 btn-primary-azure font-bold text-xs cursor-pointer self-start lg:self-auto"
               >
                 <Download className="w-4 h-4 stroke-[2.5]" />
@@ -249,14 +252,14 @@ windowrulev2 = stayfocused, class:^(omnicmd)$`}
 
               <div className="flex flex-wrap items-center gap-3">
                 <a
-                  href="https://github.com/themistrinel/omnicmd/releases/latest/download/OmniCmd_x64_en-US.msi"
+                  href={links.windowsMsi}
                   className="flex items-center gap-2 px-5 py-2.5 btn-primary-azure font-bold text-xs cursor-pointer"
                 >
                   <Download className="w-3.5 h-3.5 stroke-[2.5]" />
                   <span>{t.downloads.windows.btnMsi}</span>
                 </a>
                 <a
-                  href="https://github.com/themistrinel/omnicmd/releases/latest/download/OmniCmd_x64_portable.zip"
+                  href={links.windowsExe}
                   className="flex items-center gap-2 px-4 py-2.5 btn-secondary-obsidian text-xs cursor-pointer"
                 >
                   <Download className="w-3.5 h-3.5 text-slate-400" />

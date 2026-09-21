@@ -8,6 +8,17 @@ export interface DownloadInfo {
   format: string;
   url: string;
   releaseNote: string;
+  secondaryUrl?: string;
+  secondaryFormat?: string;
+}
+
+export interface PlatformDownloadLinks {
+  linuxDeb: string;
+  linuxAppImage: string;
+  macDmg: string;
+  windowsMsi: string;
+  windowsExe: string;
+  version: string;
 }
 
 export interface BenchmarkRow {

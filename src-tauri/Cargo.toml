@@ -1,6 +1,6 @@
 [package]
 name = "omnicmd"
-version = "0.1.0"
+version = "0.1.1"
 description = "Keyboard-First AI Command Palette for Developers & Power Users"
 authors = ["OmniCmd Contributors"]
 license = "MIT"

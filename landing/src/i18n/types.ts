@@ -49,6 +49,8 @@ export interface Translations {
     githubRepo: string;
     copied: string;
     copy: string;
+    paletteImage: string;
+    paletteAlt: string;
   };
   features: {
     pill: string;

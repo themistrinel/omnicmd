@@ -2,12 +2,14 @@ name: Release OmniCmd
 
 on:
   push:
-    branches:
-      - main
-      - feat-develop
     tags:
       - 'v*'
   workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Release tag (e.g. v0.1.1). If blank, reads version from package.json'
+        required: false
+        default: ''
 
 permissions:
   contents: write
@@ -73,7 +75,9 @@ jobs:
         id: tag_info
         shell: bash
         run: |
-          if [[ "${{ github.ref }}" == refs/tags/* ]]; then
+          if [ -n "${{ inputs.tag }}" ]; then
+            TAG="${{ inputs.tag }}"
+          elif [[ "${{ github.ref }}" == refs/tags/* ]]; then
             TAG="${{ github.ref_name }}"
           else
             VERSION=$(node -p "require('./package.json').version")
@@ -94,21 +98,22 @@ jobs:
           releaseBody: |
             ## ✨ OmniCmd ${{ steps.tag_info.outputs.tag }}
             
-            Welcome to the latest release of **OmniCmd** — The Keyboard-First AI Command Palette for Power Users, Developers, and Linux/Hyprland enthusiasts!
+            Welcome to the latest release of **OmniCmd** — The Keyboard-First AI Command Palette for Power Users and Developers!
             
             ### 🚀 Quick Install on Arch Linux / Hyprland
             ```bash
             curl -fsSL https://raw.githubusercontent.com/themistrinel/omnicmd/master/install.sh | bash
             ```
             
-            ### 📦 Binaries & Installers
-            - **Linux (Arch, Ubuntu, Debian, Fedora)**: `.deb`, `.AppImage`, tarball
-            - **Windows**: `.msi`, `setup.exe`
+            ### 📦 Multiplatform Binaries & Installers
+            - **Linux (Arch, Ubuntu, Debian, Fedora)**: `.deb`, `.AppImage`, tarball, RPM
+            - **Windows**: `.msi` and `setup.exe` installer
             - **macOS**: `.dmg` (Universal binary for Intel & Apple Silicon)
             
-            ### ⚡ Hyprland & Shortcuts
-            - Default toggle shortcut: `SUPER + SPACE` (configured via `omnicmd-toggle`)
-            - Built-in update checker: runs automatically or run `omnicmd-update` from your terminal.
+            ### ⚡ Keyboard Shortcuts
+            - **Linux**: `Super+A` or `Super+Space` (with instant IPC toggle daemon)
+            - **Windows**: `Alt+Space` (system launcher shortcut) or `Ctrl+Space`
+            - **macOS**: `Option+Space` (`Alt+Space`) or `Command+Shift+Space`
             
             ### 🔑 Configuration
             Configure your AI keys directly in the settings menu (`/settings` or via `Ctrl+,`).

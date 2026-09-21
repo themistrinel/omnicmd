@@ -60,6 +60,13 @@ function testTranslationsIntegrity() {
   for (const [code, trans] of Object.entries(locales)) {
     assert.ok(trans.nav.cockpit, `${code} missing nav.cockpit`);
     assert.ok(trans.hero.headline, `${code} missing hero.headline`);
+    assert.ok(trans.hero.paletteImage, `${code} missing hero.paletteImage`);
+    assert.ok(trans.hero.paletteAlt, `${code} missing hero.paletteAlt`);
+    assert.strictEqual(
+      trans.hero.paletteImage,
+      `./omnicmd-palette-${code}.png`,
+      `${code} hero.paletteImage should point to ./omnicmd-palette-${code}.png`,
+    );
     assert.ok(trans.features.headline, `${code} missing features.headline`);
     assert.ok(trans.workflow.headline, `${code} missing workflow.headline`);
     assert.ok(trans.benchmarks.headline, `${code} missing benchmarks.headline`);

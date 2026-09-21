@@ -1,18 +1,24 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Download, Menu, X, ArrowUpRight, Sparkles } from 'lucide-react';
+import { Download, Menu, X, ArrowUpRight } from 'lucide-react';
 import { GithubIcon } from './GithubIcon';
-import { GITHUB_URL } from '../constants';
-import { OSPlatform } from '../types';
+import { APP_VERSION, GITHUB_URL } from '../constants';
+import { DownloadInfo, OSPlatform } from '../types';
 import { detectUserOS, getDownloadInfo } from '../utils';
 import { useLanguage } from '../i18n/LanguageContext';
 import { LanguageSelector } from './LanguageSelector';
 
-export const Navbar: React.FC = () => {
+interface NavbarProps {
+  downloadInfo?: DownloadInfo;
+  version?: string;
+}
+
+export const Navbar: React.FC<NavbarProps> = ({ downloadInfo: propDownloadInfo, version }) => {
   const { t } = useLanguage();
   const [scrolled, setScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [detectedOS] = useState<OSPlatform>(detectUserOS);
-  const downloadInfo = getDownloadInfo(detectedOS);
+  const downloadInfo = propDownloadInfo || getDownloadInfo(detectedOS);
+  const activeVersion = version || APP_VERSION;
   const menuButtonRef = useRef<HTMLButtonElement>(null);
   const drawerRef = useRef<HTMLDivElement>(null);
 
@@ -92,7 +98,7 @@ export const Navbar: React.FC = () => {
               href="#devlog"
               className="hidden sm:inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-[11px] font-mono font-medium text-slate-400 hover:text-white bg-white/[0.04] border border-white/[0.08] transition-colors"
             >
-              <span>v0.1.0</span>
+              <span>v{activeVersion}</span>
             </a>
           </div>
 

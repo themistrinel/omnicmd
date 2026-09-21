@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    body {
+      width: 1804px;
+      height: 1122px;
+      overflow: hidden;
+      background: transparent;
+      position: relative;
+    }
+    .base-layer {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 1804px;
+      height: 1122px;
+      z-index: 1;
+    }
+
+    .overlay {
+      position: absolute;
+      z-index: 10;
+      display: flex;
+      align-items: center;
+      font-family: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+
+    /* Search Input Placeholder */
+    .input-overlay {
+      top: 36px;
+      left: 98px;
+      width: 1520px;
+      height: 52px;
+      background: #0f1014;
+      color: #94a3b8;
+      font-size: 29.5px;
+      font-weight: 400;
+      letter-spacing: -0.2px;
+    }
+
+    /* Common Item Title styles */
+    .title-row {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .item-title {
+      font-size: 26.5px;
+      font-weight: 600;
+      letter-spacing: -0.3px;
+      line-height: 1;
+    }
+    .badge-mono {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 21px;
+      font-weight: 600;
+      padding: 3px 10px;
+      border-radius: 6px;
+      line-height: 1.15;
+    }
+    .item-desc {
+      font-size: 23px;
+      font-weight: 400;
+      letter-spacing: -0.15px;
+      line-height: 1;
+      color: #94a3b8;
+    }
+
+    /* Item 1 (Selected State) */
+    .item1-title-box {
+      top: 140px;
+      left: 106px;
+      width: 1480px;
+      height: 48px;
+      background: #1e1f21;
+    }
+    .item1-title-box .item-title {
+      color: #ffffff;
+    }
+    .item1-title-box .badge-mono {
+      background: #70b7f5;
+      color: #1e293b;
+    }
+    .item1-desc-box {
+      top: 188px;
+      left: 106px;
+      width: 1480px;
+      height: 44px;
+      background: #1e1f21;
+    }
+
+    /* Unselected items (2 to 8) */
+    .item-unselected-title {
+      left: 106px;
+      width: 1480px;
+      height: 48px;
+      background: #0b0c0f;
+    }
+    .item-unselected-title .item-title {
+      color: #f1f5f9;
+    }
+    .item-unselected-title .badge-mono {
+      background: rgba(56, 189, 248, 0.14);
+      color: #38bdf8;
+    }
+    .item-unselected-desc {
+      left: 106px;
+      width: 1480px;
+      height: 44px;
+      background: #0b0c0f;
+    }
+
+    /* Footer text overlays */
+    .footer-text {
+      background: #0b0c0f;
+      font-size: 22px;
+      font-weight: 500;
+      color: #94a3b8;
+      height: 40px;
+      top: 1060px;
+    }
+  </style>
+</head>
+<body>
+  <img src="../../landing/public/omnicmd-palette-pt.png" class="base-layer" alt="OmniCmd HUD Base" />
+
+  <!-- Search Input Placeholder -->
+  <div class="overlay input-overlay">Escribe / para acciones, @ para agentes, o texto libre...</div>
+
+  <!-- Item 1: Mejorar prompt -->
+  <div class="overlay item1-title-box">
+    <div class="title-row">
+      <span class="item-title">Mejorar prompt</span>
+      <span class="badge-mono">/mejorar</span>
+    </div>
+  </div>
+  <div class="overlay item1-desc-box">
+    <span class="item-desc">Transforma el texto en un prompt potente, detallado y estructurado para LLMs</span>
+  </div>
+
+  <!-- Item 2: Traducir -->
+  <div class="overlay item-unselected-title" style="top: 251px;">
+    <div class="title-row">
+      <span class="item-title">Traducir</span>
+      <span class="badge-mono">/traducir</span>
+    </div>
+  </div>
+  <div class="overlay item-unselected-desc" style="top: 299px;">
+    <span class="item-desc">Traduce de forma fluida y natural (ES ↔ EN o detecta el idioma)</span>
+  </div>
+
+  <!-- Item 3: Corregir texto -->
+  <div class="overlay item-unselected-title" style="top: 362px;">
+    <div class="title-row">
+      <span class="item-title">Corregir texto</span>
+      <span class="badge-mono">/corregir</span>
+    </div>
+  </div>
+  <div class="overlay item-unselected-desc" style="top: 410px;">
+    <span class="item-desc">Corrige puntuación, ortografía, concordancia y cohesión gramatical</span>
+  </div>
+
+  <!-- Item 4: Resumir -->
+  <div class="overlay item-unselected-title" style="top: 473px;">
+    <div class="title-row">
+      <span class="item-title">Resumir</span>
+      <span class="badge-mono">/resumir</span>
+    </div>
+  </div>
+  <div class="overlay item-unselected-desc" style="top: 521px;">
+    <span class="item-desc">Condensa el contenido en puntos clave esenciales y directos</span>
+  </div>
+
+  <!-- Item 5: Explicar -->
+  <div class="overlay item-unselected-title" style="top: 584px;">
+    <div class="title-row">
+      <span class="item-title">Explicar</span>
+      <span class="badge-mono">/explicar</span>
+    </div>
+  </div>
+  <div class="overlay item-unselected-desc" style="top: 632px;">
+    <span class="item-desc">Explica el concepto o código de forma cristalina y didáctica</span>
+  </div>
+
+  <!-- Item 6: Reescribir -->
+  <div class="overlay item-unselected-title" style="top: 695px;">
+    <div class="title-row">
+      <span class="item-title">Reescribir</span>
+      <span class="badge-mono">/reescribir</span>
+    </div>
+  </div>
+  <div class="overlay item-unselected-desc" style="top: 743px;">
+    <span class="item-desc">Reformula el texto para mayor claridad, impacto y elegancia</span>
+  </div>
+
+  <!-- Item 7: Transformar en prompt -->
+  <div class="overlay item-unselected-title" style="top: 806px;">
+    <div class="title-row">
+      <span class="item-title">Transformar en prompt</span>
+      <span class="badge-mono">/generar-prompt</span>
+    </div>
+  </div>
+  <div class="overlay item-unselected-desc" style="top: 854px;">
+    <span class="item-desc">Convierte una idea suelta o nota en una instrucción ejecutable</span>
+  </div>
+
+  <!-- Item 8: Personalizado -->
+  <div class="overlay item-unselected-title" style="top: 917px;">
+    <div class="title-row">
+      <span class="item-title">Personalizado</span>
+      <span class="badge-mono">/libre</span>
+    </div>
+  </div>
+  <div class="overlay item-unselected-desc" style="top: 965px;">
+    <span class="item-desc">Envía cualquier instrucción libre directamente con el texto seleccionado</span>
+  </div>
+
+  <!-- Footer Overlays -->
+  <!-- 'Acciones' -->
+  <div class="overlay footer-text" style="left: 68px; width: 95px;">Acciones</div>
+  <!-- 'Agentes' -->
+  <div class="overlay footer-text" style="left: 210px; width: 95px;">Agentes</div>
+  <!-- 'Completar' -->
+  <div class="overlay footer-text" style="left: 398px; width: 142px;">Completar</div>
+  <!-- 'Historial' -->
+  <div class="overlay footer-text" style="left: 1065px; width: 118px;">Historial</div>
+  <!-- 'Ajustes' -->
+  <div class="overlay footer-text" style="left: 1375px; width: 171px;">Ajustes</div>
+</body>
+</html>

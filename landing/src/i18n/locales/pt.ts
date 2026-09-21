@@ -24,6 +24,8 @@ export const pt: Translations = {
     githubRepo: 'Repositório GitHub',
     copied: 'Copiado',
     copy: 'Copiar',
+    paletteImage: './omnicmd-palette-pt.png',
+    paletteAlt: 'OmniCmd HUD Desktop Nativo — A Paleta de Comandos de IA Focada em Teclado',
   },
   features: {
     pill: 'ARQUITETURA NATIVA // TAURI V2 & RUST',
@@ -368,16 +370,16 @@ export const pt: Translations = {
     verified: 'VERIFICADO SHA-256',
     changes: [
       {
-        title: 'Tauri v2 + Tokio Core',
-        desc: 'Reescrita completa do daemon em Rust compilado, reduzindo o consumo de memória em repouso de 400MB para 23.8MB com abertura em menos de 20ms.',
+        title: 'Multiplataforma & Atalhos Globais',
+        desc: 'Atalhos nativos sem conflito de SO: Alt+Space no Windows, Option+Space no macOS e IPC Unix no Linux Hyprland com foco instantâneo.',
       },
       {
-        title: 'SQLite Embutido Local',
-        desc: 'Substituição do localStorage do navegador por um banco SQLite local com zero telemetria em ~/.omnicmd.db.',
+        title: 'Downloads Resilientes & i18n',
+        desc: 'Descoberta dinâmica de releases via GitHub API com fallbacks determinísticos e suporte nativo a Português, Inglês e Espanhol.',
       },
       {
-        title: 'Motor SSE Multi-Provedor',
-        desc: 'Streaming assíncrono de tokens com despacho sub-milissegundo entre Ollama, 9router, OpenAI e Anthropic.',
+        title: 'Clipboard Nativo & Atualizador',
+        desc: 'Integração de baixa latência com wl-copy/xclip, scripts automatizados de desinstalação e verificador integrado de atualizações.',
       },
     ],
     license: 'Lançamento de código aberto sob licença MIT',

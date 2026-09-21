@@ -24,6 +24,8 @@ export const en: Translations = {
     githubRepo: 'GitHub Repo',
     copied: 'Copied',
     copy: 'Copy',
+    paletteImage: './omnicmd-palette-en.png',
+    paletteAlt: 'OmniCmd Native Desktop HUD — The Keyboard-First AI Command Palette',
   },
   features: {
     pill: 'NATIVE ARCHITECTURE // TAURI V2 & RUST',
@@ -368,16 +370,16 @@ export const en: Translations = {
     verified: 'SHA-256 VERIFIED',
     changes: [
       {
-        title: 'Tauri v2 + Tokio Core',
-        desc: 'Complete rewrite of background daemon into compiled Rust, dropping idle memory from 400MB to 23.8MB with sub-20ms summon.',
+        title: 'Multiplatform & Global Shortcuts',
+        desc: 'Conflict-free native shortcuts: Alt+Space on Windows, Option+Space on macOS, and Unix IPC on Linux Hyprland with instant focus recovery.',
       },
       {
-        title: 'Local Embedded SQLite',
-        desc: 'Replaced browser localStorage with a zero-telemetry local SQLite database store at ~/.omnicmd.db.',
+        title: 'Resilient Downloads & i18n',
+        desc: 'Dynamic GitHub Release asset resolution with deterministic fallbacks and full trilingual internationalization (EN, PT, ES).',
       },
       {
-        title: 'Multi-Provider SSE Engine',
-        desc: 'Added asynchronous token streaming with sub-millisecond thread dispatching across Ollama, 9router, OpenAI, and Anthropic.',
+        title: 'Native Clipboard & Updater',
+        desc: 'Zero-overhead Wayland (wl-copy) and X11 clipboard pipeline, automated uninstaller, and autonomous background updates.',
       },
     ],
     license: 'Open-source release licensed under MIT',

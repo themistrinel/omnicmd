@@ -10,6 +10,9 @@ on:
       - 'package.json'
       - 'pnpm-lock.yaml'
       - '.github/workflows/deploy-landing.yml'
+  workflow_run:
+    workflows: ['Release OmniCmd']
+    types: [completed]
   workflow_dispatch:
 
 permissions:

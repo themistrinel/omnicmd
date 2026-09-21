@@ -10,12 +10,13 @@ import { DevlogSection } from './components/DevlogSection';
 import { CtaSection } from './components/CtaSection';
 import { Footer } from './components/Footer';
 import { OSPlatform } from './types';
-import { detectUserOS, getDownloadInfo } from './utils';
+import { detectUserOS, getDownloadInfo, useResolvedDownloads } from './utils';
 import { LanguageProvider } from './i18n/LanguageContext';
 
 const LandingPageContent: React.FC = () => {
   const [detectedOS] = useState<OSPlatform>(detectUserOS);
-  const downloadInfo = getDownloadInfo(detectedOS);
+  const downloadLinks = useResolvedDownloads();
+  const downloadInfo = getDownloadInfo(detectedOS, downloadLinks);
 
   return (
     <div className="min-h-screen w-full bg-[#08090d] text-slate-100 font-sans antialiased selection:bg-sky-400 selection:text-[#082f49] relative overflow-x-hidden">
@@ -25,7 +26,7 @@ const LandingPageContent: React.FC = () => {
         aria-hidden="true"
       />
 
-      <Navbar />
+      <Navbar downloadInfo={downloadInfo} version={downloadLinks.version} />
 
       <main className="relative z-10">
         <HeroSection detectedOS={detectedOS} downloadInfo={downloadInfo} />
@@ -33,7 +34,7 @@ const LandingPageContent: React.FC = () => {
         <WorkflowSection />
         <BenchmarksSection />
         <CommandsSection />
-        <DownloadSection detectedOS={detectedOS} />
+        <DownloadSection detectedOS={detectedOS} downloadLinks={downloadLinks} />
         <DevlogSection />
         <CtaSection detectedOS={detectedOS} downloadInfo={downloadInfo} />
       </main>

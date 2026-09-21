@@ -63,6 +63,16 @@ We follow [Conventional Commits](https://www.conventionalcommits.org/):
 
 ---
 
+## 🌟 Releases, Devlogs & Website Documentation Policy
+
+> **Grandes mudanças funcionais, mudanças de UX/UI, novos recursos, correções importantes, alterações de comportamento, mudanças de plataforma e mudanças relevantes de arquitetura DEVEM ser avaliadas para atualização do website/devlog e, quando aplicável, para uma nova versão.**
+
+1. **Mudanças internas/pequenas** (typos, refactors internos, configs de teste) -> Commit normal.
+2. **Mudanças relevantes** (novos recursos, correções que afetam usuários, suporte a SO) -> Atualizar `CHANGELOG.md` e `landing/src/data/devlogs.ts` (junto com locales em `landing/src/i18n/locales/`).
+3. **Novas releases públicas** -> Usar `./scripts/bump-version.sh <version> --tag` para sincronizar os manifestos e disparar a GitHub Actions Release.
+
+---
+
 ## 💡 Submitting a Pull Request
 1. Create a feature branch (`git checkout -b feat/my-awesome-feature`).
 2. Keep PRs focused on a single change or bug.

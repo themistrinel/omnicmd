@@ -1,5 +1,7 @@
 import { BenchmarkRow, ShortcutItem } from './types';
 
+export const APP_VERSION = '0.1.1';
+export const GITHUB_REPO = 'themistrinel/omnicmd';
 export const GITHUB_URL = 'https://github.com/themistrinel/omnicmd';
 export const RELEASES_URL = 'https://github.com/themistrinel/omnicmd/releases';
 export const LICENSE_URL = 'https://github.com/themistrinel/omnicmd/blob/master/LICENSE';

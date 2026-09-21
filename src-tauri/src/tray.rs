@@ -1,11 +1,25 @@
 use tauri::{
     menu::{Menu, MenuItem, PredefinedMenuItem},
     tray::{MouseButton, MouseButtonState, TrayIconBuilder, TrayIconEvent},
-    AppHandle, Emitter, Manager,
+    AppHandle,
 };
 
 pub fn setup_tray(app: &AppHandle) -> Result<(), Box<dyn std::error::Error>> {
-    let toggle_item = MenuItem::with_id(app, "toggle", "Abrir / Ocultar (Super+A)", true, None::<&str>)?;
+    #[cfg(target_os = "windows")]
+    let toggle_title = "Abrir / Ocultar (Alt+Space)";
+    #[cfg(target_os = "macos")]
+    let toggle_title = "Abrir / Ocultar (⌥ Space)";
+    #[cfg(not(any(target_os = "windows", target_os = "macos")))]
+    let toggle_title = "Abrir / Ocultar (Super+A)";
+
+    #[cfg(target_os = "windows")]
+    let tooltip_text = "OmniCmd (Alt+Space)";
+    #[cfg(target_os = "macos")]
+    let tooltip_text = "OmniCmd (⌥ Space)";
+    #[cfg(not(any(target_os = "windows", target_os = "macos")))]
+    let tooltip_text = "OmniCmd (Super+A)";
+
+    let toggle_item = MenuItem::with_id(app, "toggle", toggle_title, true, None::<&str>)?;
     let history_item = MenuItem::with_id(app, "history", "Histórico (Ctrl+H)", true, None::<&str>)?;
     let settings_item = MenuItem::with_id(app, "settings", "Configurações (Ctrl+,)", true, None::<&str>)?;
     let separator_1 = PredefinedMenuItem::separator(app)?;
@@ -34,19 +48,19 @@ pub fn setup_tray(app: &AppHandle) -> Result<(), Box<dyn std::error::Error>> {
     };
 
     let _tray = TrayIconBuilder::with_id("omnicmd-tray")
-        .tooltip("OmniCmd (Super+A)")
+        .tooltip(tooltip_text)
         .icon(icon)
         .menu(&menu)
         .show_menu_on_left_click(false)
         .on_menu_event(|app, event| match event.id.as_ref() {
             "toggle" => {
-                toggle_window_action(app, None);
+                crate::toggle_main_window(app);
             }
             "history" => {
-                show_window_and_emit(app, "open-history");
+                crate::activate_and_show_window(app, Some("open-history"));
             }
             "settings" => {
-                show_window_and_emit(app, "open-settings");
+                crate::activate_and_show_window(app, Some("open-settings"));
             }
             "quit" => {
                 app.exit(0);
@@ -61,35 +75,10 @@ pub fn setup_tray(app: &AppHandle) -> Result<(), Box<dyn std::error::Error>> {
             } = event
             {
                 let app = tray.app_handle();
-                toggle_window_action(app, None);
+                crate::toggle_main_window(app);
             }
         })
         .build(app)?;
 
     Ok(())
-}
-
-fn toggle_window_action(app: &AppHandle, view_event: Option<&str>) {
-    if let Some(window) = app.get_webview_window("main") {
-        let is_visible = window.is_visible().unwrap_or(false);
-        if is_visible && view_event.is_none() {
-            let _ = window.hide();
-        } else {
-            let _ = window.show();
-            let _ = window.set_focus();
-            if let Some(ev) = view_event {
-                let _ = app.emit(ev, ());
-            } else {
-                let _ = app.emit("palette-opened", ());
-            }
-        }
-    }
-}
-
-fn show_window_and_emit(app: &AppHandle, event: &str) {
-    if let Some(window) = app.get_webview_window("main") {
-        let _ = window.show();
-        let _ = window.set_focus();
-        let _ = app.emit(event, ());
-    }
 }

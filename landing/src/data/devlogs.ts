@@ -2,6 +2,25 @@ import { DevlogRelease } from '../types';
 
 export const FALLBACK_DEVLOGS: DevlogRelease[] = [
   {
+    id: 102,
+    tag_name: 'v0.1.1',
+    name: 'v0.1.1 — Multiplatform Shortcuts, Resilient Downloads & i18n',
+    published_at: '2026-09-21T18:00:00Z',
+    html_url: 'https://github.com/themistrinel/omnicmd/releases/tag/v0.1.1',
+    author: {
+      login: 'omnicmd-team',
+      avatar_url: 'https://avatars.githubusercontent.com/u/1024025?v=4',
+    },
+    prerelease: false,
+    draft: false,
+    body: `### Multiplatform Architecture & Fixes
+- **Multiplatform Launcher Shortcuts**: Configured native \`Alt+Space\` for Windows (avoiding Action Center Win+A conflict) and \`Option+Space\` for macOS (avoiding Spotlight Cmd+Space conflict).
+- **Window Focus Management**: Implemented explicit unminimization and foreground elevation to prevent focus-stealing drops on background summons.
+- **Resilient Website Downloads**: Switched from static brittle links to real-time GitHub release discovery with deterministic versioned fallbacks for Windows (.msi/.exe), macOS (.dmg), and Linux (.deb/.AppImage).
+- **Internationalization (i18n)**: Full multilingual support across English, Portuguese, and Spanish with persistent user locale selection.
+- **Native Clipboard Subsystem**: Added zero-lag Wayland (\`wl-copy\`/paste) and X11 native clipboard pipelines with Tauri fallbacks.`,
+  },
+  {
     id: 101,
     tag_name: 'v0.1.0',
     name: 'v0.1.0 — Initial Release: Translucent HUD & Instant AI Shortcuts',

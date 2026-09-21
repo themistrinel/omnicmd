@@ -6,8 +6,29 @@ use std::io::{BufRead, BufReader, Write};
 use std::os::unix::net::{UnixListener, UnixStream};
 #[cfg(unix)]
 use std::path::PathBuf;
-#[cfg(unix)]
-use tauri::{Emitter, Manager};
+
+#[cfg(windows)]
+use std::fs;
+#[cfg(windows)]
+use std::io::{BufRead, BufReader, Write};
+#[cfg(windows)]
+use std::net::{TcpListener, TcpStream};
+#[cfg(windows)]
+use std::path::PathBuf;
+
+pub fn dispatch_ipc_command(handle: &tauri::AppHandle, cmd: &str) {
+    if cmd == "toggle" || cmd.is_empty() {
+        crate::toggle_main_window(handle);
+    } else if cmd == "show" {
+        crate::activate_and_show_window(handle, None);
+    } else if cmd == "settings" {
+        crate::activate_and_show_window(handle, Some("open-settings"));
+    } else if cmd == "history" {
+        crate::activate_and_show_window(handle, Some("open-history"));
+    } else if cmd == "hide" {
+        crate::hide_main_window(handle);
+    }
+}
 
 #[cfg(unix)]
 pub fn get_socket_path() -> PathBuf {
@@ -56,54 +77,68 @@ pub fn start_ipc_server(handle: tauri::AppHandle) {
                 let mut line = String::new();
                 if reader.read_line(&mut line).is_ok() {
                     let cmd = line.trim();
-                    let h = handle.clone();
-
-                    if cmd == "toggle" || cmd.is_empty() {
-                        if let Some(window) = h.get_webview_window("main") {
-                            let is_visible = window.is_visible().unwrap_or(false);
-                            if is_visible {
-                                let _ = window.hide();
-                            } else {
-                                let _ = window.show();
-                                let _ = window.set_focus();
-                                let _ = h.emit("palette-opened", ());
-                            }
-                        }
-                    } else if cmd == "show" {
-                        if let Some(window) = h.get_webview_window("main") {
-                            let _ = window.show();
-                            let _ = window.set_focus();
-                            let _ = h.emit("palette-opened", ());
-                        }
-                    } else if cmd == "settings" {
-                        if let Some(window) = h.get_webview_window("main") {
-                            let _ = window.show();
-                            let _ = window.set_focus();
-                            let _ = h.emit("open-settings", ());
-                        }
-                    } else if cmd == "history" {
-                        if let Some(window) = h.get_webview_window("main") {
-                            let _ = window.show();
-                            let _ = window.set_focus();
-                            let _ = h.emit("open-history", ());
-                        }
-                    } else if cmd == "hide" {
-                        if let Some(window) = h.get_webview_window("main") {
-                            let _ = window.hide();
-                        }
-                    }
+                    dispatch_ipc_command(&handle, cmd);
                 }
             }
         }
     });
 }
 
-#[cfg(not(unix))]
+#[cfg(windows)]
+fn get_port_file() -> PathBuf {
+    std::env::temp_dir().join("omnicmd.port")
+}
+
+#[cfg(windows)]
+pub fn send_command(cmd: &str) -> bool {
+    let port_file = get_port_file();
+    if let Ok(content) = fs::read_to_string(&port_file) {
+        if let Ok(port) = content.trim().parse::<u16>() {
+            if let Ok(mut stream) = TcpStream::connect(("127.0.0.1", port)) {
+                if writeln!(stream, "{}", cmd).is_ok() {
+                    return true;
+                }
+            }
+        }
+    }
+    false
+}
+
+#[cfg(windows)]
+pub fn start_ipc_server(handle: tauri::AppHandle) {
+    let listener = match TcpListener::bind("127.0.0.1:0") {
+        Ok(l) => l,
+        Err(e) => {
+            log::warn!("Failed to bind local loopback TCP for Windows IPC: {}", e);
+            return;
+        }
+    };
+
+    if let Ok(addr) = listener.local_addr() {
+        let port_file = get_port_file();
+        let _ = fs::write(&port_file, addr.port().to_string());
+        log::info!("OmniCmd Windows IPC listening on 127.0.0.1:{}", addr.port());
+    }
+
+    std::thread::spawn(move || {
+        for stream in listener.incoming() {
+            if let Ok(stream) = stream {
+                let mut reader = BufReader::new(stream);
+                let mut line = String::new();
+                if reader.read_line(&mut line).is_ok() {
+                    let cmd = line.trim();
+                    dispatch_ipc_command(&handle, cmd);
+                }
+            }
+        }
+    });
+}
+
+#[cfg(not(any(unix, windows)))]
 pub fn send_command(_cmd: &str) -> bool {
     false
 }
 
-#[cfg(not(unix))]
+#[cfg(not(any(unix, windows)))]
 pub fn start_ipc_server(_handle: tauri::AppHandle) {
-    // IPC via UNIX domain socket is not supported on non-unix systems
 }

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Terminal, ArrowUp, ArrowUpRight } from 'lucide-react';
-import { GITHUB_URL, RELEASES_URL, LICENSE_URL } from '../constants';
+import { APP_VERSION, GITHUB_URL, RELEASES_URL, LICENSE_URL } from '../constants';
 import { useLanguage } from '../i18n/LanguageContext';
 
 export const Footer: React.FC = () => {
@@ -19,7 +19,7 @@ export const Footer: React.FC = () => {
           </div>
           <span className="text-white font-bold font-display text-sm tracking-tight">OmniCmd</span>
           <span className="text-slate-700">//</span>
-          <span className="text-slate-400">v0.1.0</span>
+          <span className="text-slate-400">v{APP_VERSION}</span>
           <span className="text-slate-700">//</span>
           <span className="text-slate-500 font-sans">MIT Open Source</span>
         </div>

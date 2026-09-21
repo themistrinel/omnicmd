@@ -1,7 +1,7 @@
 {
   "$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
   "productName": "omnicmd",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "identifier": "com.omnicmd.desktop",
   "build": {
     "frontendDist": "../dist",
@@ -31,9 +31,13 @@
         "center": true,
         "shadow": false,
         "windowEffects": {
-          "effects": ["hudWindow", "acrylic", "blur"],
+          "effects": [
+            "hudWindow",
+            "acrylic",
+            "blur"
+          ],
           "state": "active",
-          "radius": 16.0
+          "radius": 16
         }
       }
     ],
