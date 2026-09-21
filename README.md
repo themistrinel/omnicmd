@@ -56,7 +56,7 @@ Built with **Tauri v2**, **Rust**, and **React 19**, OmniCmd consumes a fraction
 
 | Shortcut | Action | Description |
 | :--- | :--- | :--- |
-| <kbd>Super</kbd> + <kbd>Space</kbd> | **Toggle HUD** | Shows or hides the OmniCmd command window |
+| <kbd>Super</kbd> + <kbd>A</kbd> / <kbd>Space</kbd> | **Toggle HUD** | Shows or hides the OmniCmd command window (`Super+A` on Hyprland) |
 | <kbd>Enter</kbd> | **Execute Selected** | Runs the highlighted action against active context |
 | <kbd>#1</kbd> .. <kbd>#9</kbd> | **Direct Action Run** | Immediately triggers the corresponding item in the list |
 | <kbd>Ctrl</kbd> + <kbd>j</kbd> / <kbd>k</kbd> | **Vim Navigation** | Moves selection down / up |
@@ -95,14 +95,14 @@ curl -fsSL https://raw.githubusercontent.com/themistrinel/omnicmd/master/install
 1. **Sem Git Clone**: Baixa os arquivos necessários e o binário oficial otimizado direto do GitHub Releases.
 2. **Dependências do Arch**: Instala via pacman `webkit2gtk-4.1`, `libayatana-appindicator`, `openssl`, `wl-clipboard` (área de transferência nativa Wayland), `librsvg`, `jq` e `curl`.
 3. **Binários e Atalhos de Sistema**: Instala `omnicmd`, `omnicmd-toggle` e `omnicmd-update` em `~/.local/bin/` e registra o lançador desktop `.desktop` com ícone oficial.
-4. **Regras de Janela no Hyprland (`~/.config/hypr/omnicmd.conf`)**:
+4. **Regras de Janela no Hyprland (`omnicmd.lua` ou `omnicmd.conf`)**:
+   - Suporte nativo para Hyprland 0.55+ (Lua) e Hyprland clássico (`.conf`)
    - Flutuação (`float`), centralização (`center`), tamanho fixo `800x560`
-   - Remoção de bordas e decoração tiling (`noborder`)
    - Manutenção de foco e fixação sobre qualquer workspace (`stayfocused`, `pin`)
    - Animação rápida fluida popin 95%
 5. **Atalhos / Shortcuts no Hyprland**:
-   - `SUPER + SPACE`: Alterna visibilidade da paleta instantaneamente via `omnicmd-toggle`
-   - `SUPER + SHIFT + SPACE`: Abre/recarrega nova sessão
+   - `SUPER + A`: Alterna visibilidade da paleta instantaneamente via `omnicmd-toggle` (sem conflito com Rofi/lançadores)
+   - `SUPER + SHIFT + A`: Abre/recarrega nova sessão diretamente
 6. **Atualizações Contínuas com 1 Comando**:
    - Cria o utilitário `omnicmd-update` no terminal para você atualizar o OmniCmd direto das novas releases do GitHub sempre que quiser:
    ```bash

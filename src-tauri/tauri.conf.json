@@ -13,7 +13,9 @@
     "macOSPrivateApi": true,
     "windows": [
       {
+        "label": "main",
         "title": "OmniCmd",
+        "url": "index.html",
         "width": 800,
         "height": 560,
         "minWidth": 800,

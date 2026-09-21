@@ -34,7 +34,7 @@ pub fn setup_tray(app: &AppHandle) -> Result<(), Box<dyn std::error::Error>> {
     };
 
     let _tray = TrayIconBuilder::with_id("omnicmd-tray")
-        .tooltip("OmniCmd (Super+Space)")
+        .tooltip("OmniCmd (Super+A)")
         .icon(icon)
         .menu(&menu)
         .show_menu_on_left_click(false)

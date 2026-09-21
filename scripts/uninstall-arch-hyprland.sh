@@ -126,23 +126,39 @@ log_success "Atalhos e ícones removidos."
 log_info "Removendo regras e atalhos do Hyprland..."
 HYPR_DIR="$HOME/.config/hypr"
 HYPR_CONF="$HYPR_DIR/hyprland.conf"
+HYPR_LUA="$HYPR_DIR/hyprland.lua"
 OMNICMD_CONF="$HYPR_DIR/omnicmd.conf"
+OMNICMD_LUA="$HYPR_DIR/omnicmd.lua"
 
-# Remove o arquivo de configuração dedicado
+# Remove os arquivos de configuração dedicados
 if [ -f "$OMNICMD_CONF" ]; then
   rm -f "$OMNICMD_CONF"
   log_info "Removido: $OMNICMD_CONF"
 fi
+if [ -f "$OMNICMD_LUA" ]; then
+  rm -f "$OMNICMD_LUA"
+  log_info "Removido: $OMNICMD_LUA"
+fi
 
-# Remove a linha 'source = ~/.config/hypr/omnicmd.conf' do hyprland.conf
+# Remove a integração de hyprland.conf
 if [ -f "$HYPR_CONF" ]; then
-  if grep -q "omnicmd.conf" "$HYPR_CONF"; then
+  if grep -q "omnicmd" "$HYPR_CONF"; then
     log_info "Removendo integração do OmniCmd em $HYPR_CONF..."
     TMP_HYPR="$(mktemp)"
-    # Remove comentários do omnicmd e a linha de source
     sed -E '/(# Integração Oficial OmniCmd|source.*omnicmd\.conf)/d' "$HYPR_CONF" > "$TMP_HYPR"
     mv "$TMP_HYPR" "$HYPR_CONF"
     log_success "Integração removida de $HYPR_CONF."
+  fi
+fi
+
+# Remove a integração de hyprland.lua
+if [ -f "$HYPR_LUA" ]; then
+  if grep -q "omnicmd" "$HYPR_LUA"; then
+    log_info "Removendo integração do OmniCmd em $HYPR_LUA..."
+    TMP_HYPR="$(mktemp)"
+    sed -E '/(-- Integração Oficial OmniCmd|pcall\(require,\s*"omnicmd"\))/d' "$HYPR_LUA" > "$TMP_HYPR"
+    mv "$TMP_HYPR" "$HYPR_LUA"
+    log_success "Integração removida de $HYPR_LUA."
   fi
 fi
 

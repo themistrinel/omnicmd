@@ -82,8 +82,16 @@ if [ -t 0 ]; then
   fi
 fi
 
-# Localizar asset de download para Linux (.deb ou .AppImage ou tar.gz ou binário)
-DOWNLOAD_URL="$(echo "$RELEASE_JSON" | grep -o '"browser_download_url": "[^"]*"' | grep -iE 'amd64\.deb|\.deb|amd64\.AppImage|\.AppImage|linux.*x86_64.*tar\.gz|linux-x64' | head -1 | cut -d'"' -f4 || true)"
+# Localizar asset de download para Linux (.deb prioritário para binário ELF nativo)
+DOWNLOAD_URL="$(echo "$RELEASE_JSON" | grep -o '"browser_download_url": "[^"]*"' | grep -iE 'amd64\.deb|\.deb' | head -1 | cut -d'"' -f4 || true)"
+
+if [ -z "$DOWNLOAD_URL" ]; then
+  DOWNLOAD_URL="$(echo "$RELEASE_JSON" | grep -o '"browser_download_url": "[^"]*"' | grep -iE 'linux.*x86_64.*tar\.gz|linux-x64.*tar\.gz|\.tar\.gz' | head -1 | cut -d'"' -f4 || true)"
+fi
+
+if [ -z "$DOWNLOAD_URL" ]; then
+  DOWNLOAD_URL="$(echo "$RELEASE_JSON" | grep -o '"browser_download_url": "[^"]*"' | grep -iE 'amd64\.AppImage|\.AppImage' | head -1 | cut -d'"' -f4 || true)"
+fi
 
 if [ -z "$DOWNLOAD_URL" ]; then
   # Fallback: tentar qualquer asset de linux
@@ -103,10 +111,10 @@ log_info "Baixando atualização de: $DOWNLOAD_URL..."
 DOWNLOAD_FILE="$TMP_DIR/omnicmd_latest"
 curl -sSL --progress-bar -o "$DOWNLOAD_FILE" "$DOWNLOAD_URL"
 
-# Tratar arquivo baixado
+# Tratar arquivo baixado garantindo o binário ELF nativo
 if [[ "$DOWNLOAD_URL" =~ \.tar\.gz$ ]]; then
   tar -xzf "$DOWNLOAD_FILE" -C "$TMP_DIR"
-  FOUND_BIN="$(find "$TMP_DIR" -type f -name "omnicmd" | head -1)"
+  FOUND_BIN="$(find "$TMP_DIR" -type f -name "omnicmd" ! -name "*.tar.gz" | head -1)"
   if [ -n "$FOUND_BIN" ]; then
     DOWNLOAD_FILE="$FOUND_BIN"
   fi
@@ -116,8 +124,17 @@ elif [[ "$DOWNLOAD_URL" =~ \.deb$ ]]; then
     tar -xzf "$TMP_DIR/data.tar.gz" -C "$TMP_DIR"
   elif [ -f "$TMP_DIR/data.tar.xz" ]; then
     tar -xJf "$TMP_DIR/data.tar.xz" -C "$TMP_DIR"
+  elif [ -f "$TMP_DIR/data.tar.zst" ]; then
+    tar --zstd -xf "$TMP_DIR/data.tar.zst" -C "$TMP_DIR"
   fi
-  FOUND_BIN="$(find "$TMP_DIR" -type f -name "omnicmd" | head -1)"
+  FOUND_BIN="$(find "$TMP_DIR" -type f -name "omnicmd" ! -name "*.deb" | head -1)"
+  if [ -n "$FOUND_BIN" ]; then
+    DOWNLOAD_FILE="$FOUND_BIN"
+  fi
+elif [[ "$DOWNLOAD_URL" =~ \.AppImage$ ]]; then
+  chmod +x "$DOWNLOAD_FILE"
+  (cd "$TMP_DIR" && "$DOWNLOAD_FILE" --appimage-extract "usr/bin/omnicmd" >/dev/null 2>&1) || (cd "$TMP_DIR" && "$DOWNLOAD_FILE" --appimage-extract >/dev/null 2>&1) || true
+  FOUND_BIN="$(find "$TMP_DIR" -type f -name "omnicmd" ! -name "*.AppImage" | head -1)"
   if [ -n "$FOUND_BIN" ]; then
     DOWNLOAD_FILE="$FOUND_BIN"
   fi
