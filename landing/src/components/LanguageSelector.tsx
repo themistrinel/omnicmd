@@ -65,15 +65,15 @@ export const LanguageSelector: React.FC<LanguageSelectorProps> = ({ variant = 'd
                 key={opt.code}
                 type="button"
                 onClick={() => handleSelect(opt.code)}
-                className={`flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
+                className={`flex items-center justify-center gap-1 sm:gap-1.5 py-2 px-1.5 sm:px-3 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
                   isSelected
                     ? 'bg-sky-400/15 border border-sky-400/40 text-sky-300'
                     : 'bg-white/[0.04] border border-white/[0.08] text-slate-300 hover:text-white hover:bg-white/[0.08]'
                 }`}
               >
-                <span>{opt.flag}</span>
+                <span className="shrink-0">{opt.flag}</span>
                 <span className="font-mono">{opt.label}</span>
-                {isSelected && <Check className="w-3 h-3 text-sky-400" />}
+                {isSelected && <Check className="w-3 h-3 text-sky-400 shrink-0" />}
               </button>
             );
           })}

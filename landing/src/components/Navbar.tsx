@@ -74,26 +74,26 @@ export const Navbar: React.FC<NavbarProps> = ({ downloadInfo: propDownloadInfo, 
   return (
     <>
       <header
-        className="fixed top-2.5 sm:top-4 inset-x-0 z-50 flex justify-center px-3 sm:px-6 pointer-events-none font-sans"
+        className="fixed top-2 sm:top-4 inset-x-0 z-50 flex justify-center px-2.5 sm:px-6 pointer-events-none font-sans"
       >
         <div
-          className={`pointer-events-auto max-w-5xl w-full h-13 sm:h-14 px-3 sm:px-5 flex items-center justify-between rounded-2xl sm:rounded-full transition-all duration-300 ${
+          className={`pointer-events-auto max-w-5xl w-full h-12 sm:h-14 px-3 sm:px-5 flex items-center justify-between gap-2 rounded-2xl sm:rounded-full transition-all duration-300 ${
             scrolled
               ? 'bg-[#07090e]/92 backdrop-blur-xl border border-white/[0.14] shadow-[0_12px_40px_rgba(0,0,0,0.75),inset_0_1px_0_rgba(255,255,255,0.08)]'
               : 'bg-[#090c13]/75 backdrop-blur-lg border border-white/[0.08] shadow-[0_8px_30px_rgba(0,0,0,0.45),inset_0_1px_0_rgba(255,255,255,0.05)]'
           }`}
         >
           {/* Logo & Version Tag */}
-          <div className="flex items-center gap-2.5 sm:gap-3">
-            <Magnet padding={30} magnetStrength={4}>
+          <div className="flex items-center gap-2 sm:gap-3 shrink-0 min-w-0">
+            <Magnet padding={20} magnetStrength={3} wrapperClassName="shrink-0">
               <a
                 href="#"
-                className="flex items-center gap-2 text-white font-bold tracking-tight text-sm focus:outline-none group"
+                className="flex items-center gap-2 text-white font-bold tracking-tight text-sm focus:outline-none group shrink-0"
               >
-                <div className="w-6 h-6 rounded-md bg-sky-400 text-[#082f49] flex items-center justify-center font-mono font-bold text-xs group-hover:scale-105 group-hover:shadow-[0_0_12px_rgba(56,189,248,0.6)] transition-all">
+                <div className="w-6 h-6 rounded-md bg-sky-400 text-[#082f49] flex items-center justify-center font-mono font-bold text-xs group-hover:scale-105 group-hover:shadow-[0_0_12px_rgba(56,189,248,0.6)] transition-all shrink-0">
                   &gt;_
                 </div>
-                <span className="font-display font-bold tracking-tight text-sm sm:text-base text-white">
+                <span className="font-display font-bold tracking-tight text-sm sm:text-base text-white whitespace-nowrap">
                   OMNICMD
                 </span>
               </a>
@@ -101,19 +101,19 @@ export const Navbar: React.FC<NavbarProps> = ({ downloadInfo: propDownloadInfo, 
 
             <a
               href="#devlog"
-              className="hidden sm:inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[11px] font-mono font-medium text-slate-400 hover:text-white bg-white/[0.04] border border-white/[0.08] hover:border-white/[0.16] transition-colors"
+              className="hidden sm:inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[11px] font-mono font-medium text-slate-400 hover:text-white bg-white/[0.04] border border-white/[0.08] hover:border-white/[0.16] transition-colors whitespace-nowrap shrink-0"
             >
               <span>v{activeVersion}</span>
             </a>
           </div>
 
           {/* Navigation Items (Desktop Pill Nav) */}
-          <nav className="hidden md:flex items-center gap-1 text-xs font-medium text-slate-300 font-sans">
+          <nav className="hidden md:flex items-center gap-1 text-xs font-medium text-slate-300 font-sans shrink-0">
             {navLinks.map((link) => (
               <Magnet key={link.label} padding={25} magnetStrength={4}>
                 <a
                   href={link.href}
-                  className="px-3 py-1.5 rounded-full text-slate-300 hover:text-white hover:bg-white/[0.07] transition-all duration-150"
+                  className="px-3 py-1.5 rounded-full text-slate-300 hover:text-white hover:bg-white/[0.07] transition-all duration-150 whitespace-nowrap"
                 >
                   {link.label}
                 </a>
@@ -122,17 +122,19 @@ export const Navbar: React.FC<NavbarProps> = ({ downloadInfo: propDownloadInfo, 
           </nav>
 
           {/* Right Action Cluster */}
-          <div className="flex items-center gap-2 sm:gap-2.5">
-            {/* Language Selector (Desktop) */}
-            <LanguageSelector variant="desktop" />
+          <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
+            {/* Language Selector (Desktop / Tablets >= sm) */}
+            <div className="hidden sm:block shrink-0">
+              <LanguageSelector variant="desktop" />
+            </div>
 
-            <Magnet padding={30} magnetStrength={3} wrapperClassName="hidden lg:inline-block">
+            <Magnet padding={30} magnetStrength={3} wrapperClassName="hidden lg:inline-block shrink-0">
               <a
                 href={GITHUB_URL}
                 target="_blank"
                 rel="noreferrer"
                 aria-label="View OmniCmd on GitHub"
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium font-sans text-slate-300 hover:text-white bg-white/[0.03] hover:bg-white/[0.08] border border-white/[0.08] hover:border-white/[0.18] transition-all"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium font-sans text-slate-300 hover:text-white bg-white/[0.03] hover:bg-white/[0.08] border border-white/[0.08] hover:border-white/[0.18] transition-all whitespace-nowrap"
               >
                 <GithubIcon className="w-3.5 h-3.5 text-slate-400" />
                 <span>GitHub</span>
@@ -141,7 +143,7 @@ export const Navbar: React.FC<NavbarProps> = ({ downloadInfo: propDownloadInfo, 
             </Magnet>
 
             {/* Tactical StarBorder Action Button */}
-            <Magnet padding={30} magnetStrength={3}>
+            <Magnet padding={20} magnetStrength={3} wrapperClassName="shrink-0">
               <StarBorder
                 as="a"
                 href={downloadInfo.url}
@@ -150,11 +152,12 @@ export const Navbar: React.FC<NavbarProps> = ({ downloadInfo: propDownloadInfo, 
                 thickness={1}
                 backgroundColor="rgba(8, 12, 19, 0.95)"
                 borderColor="rgba(255, 255, 255, 0.12)"
-                innerClassName="px-3.5 py-1.5 flex items-center gap-1.5 text-xs font-semibold text-white bg-gradient-to-b from-sky-500/15 via-[#0a0e17] to-[#06080e] hover:from-sky-500/25 hover:border-sky-400/40 hover:shadow-[0_0_18px_rgba(56,189,248,0.3)] transition-all cursor-pointer rounded-[9px]"
+                innerClassName="px-2.5 min-[440px]:px-3.5 py-1.5 flex items-center justify-center gap-1.5 text-xs font-semibold text-white bg-gradient-to-b from-sky-500/15 via-[#0a0e17] to-[#06080e] hover:from-sky-500/25 hover:border-sky-400/40 hover:shadow-[0_0_18px_rgba(56,189,248,0.3)] transition-all cursor-pointer rounded-[9px]"
                 className="rounded-xl shadow-md shadow-black/40"
+                aria-label={`${t.nav.downloadBtn} (${downloadInfo.osName})`}
               >
-                <Download className="w-3.5 h-3.5 text-sky-400 stroke-[2.5]" />
-                <span className="tracking-tight">{t.nav.downloadBtn}</span>
+                <Download className="w-3.5 h-3.5 text-sky-400 stroke-[2.5] shrink-0" />
+                <span className="hidden min-[440px]:inline tracking-tight whitespace-nowrap">{t.nav.downloadBtn}</span>
               </StarBorder>
             </Magnet>
 
@@ -166,9 +169,9 @@ export const Navbar: React.FC<NavbarProps> = ({ downloadInfo: propDownloadInfo, 
               aria-expanded={isMobileMenuOpen}
               aria-controls="mobile-drawer"
               aria-label={isMobileMenuOpen ? 'Close navigation menu' : 'Open navigation menu'}
-              className="md:hidden p-1.5 rounded-lg text-slate-400 hover:text-white bg-white/[0.04] border border-white/[0.08] transition-colors cursor-pointer"
+              className="md:hidden w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center rounded-xl text-slate-300 hover:text-white bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] hover:border-white/[0.14] transition-all cursor-pointer shrink-0"
             >
-              {isMobileMenuOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
+              {isMobileMenuOpen ? <X className="w-4 h-4 text-sky-400" /> : <Menu className="w-4 h-4" />}
             </button>
           </div>
         </div>
@@ -182,7 +185,7 @@ export const Navbar: React.FC<NavbarProps> = ({ downloadInfo: propDownloadInfo, 
           role="dialog"
           aria-modal="true"
           aria-label="Mobile Navigation Menu"
-          className="fixed inset-0 z-40 bg-[#08090d]/98 backdrop-blur-2xl md:hidden pt-20 px-6 flex flex-col justify-between pb-8 font-sans overflow-y-auto"
+          className="fixed inset-0 z-40 bg-[#08090d]/98 backdrop-blur-2xl md:hidden pt-20 px-5 sm:px-6 flex flex-col justify-between pb-8 font-sans overflow-y-auto overscroll-contain h-dvh"
         >
           <div className="flex flex-col gap-2">
             <div className="text-[10px] uppercase tracking-wider font-semibold text-slate-500 mb-2 font-mono">
