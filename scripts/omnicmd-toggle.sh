@@ -9,16 +9,28 @@
 
 set -eo pipefail
 
+export GDK_BACKEND="wayland,x11"
+export WEBKIT_DISABLE_DMABUF_RENDERER="1"
+
+# Garante ~/.local/bin no PATH para comandos disparados por compositores
+if [[ ":$PATH:" != *":$HOME/.local/bin:"* ]]; then
+  export PATH="$HOME/.local/bin:$PATH"
+fi
+
 OMNICMD_BIN="$(command -v omnicmd 2>/dev/null || echo "$HOME/.local/bin/omnicmd")"
 SOCKET_PATH="${XDG_RUNTIME_DIR:-/tmp}/omnicmd.sock"
 
-# 1. Se o processo estiver rodando e com socket ativo, alterna via IPC (< 1ms)
-if pgrep -x "omnicmd" >/dev/null 2>&1 || [ -S "$SOCKET_PATH" ]; then
+# 1. Se o processo estiver rodando, tenta alternar via IPC (< 1ms)
+if pgrep -x "omnicmd" >/dev/null 2>&1; then
   if "$OMNICMD_BIN" --toggle >/dev/null 2>&1; then
     exit 0
   fi
 fi
 
+# Se não estiver rodando (ou o IPC falhou), limpa socket residual se houver
+rm -f "$SOCKET_PATH" 2>/dev/null || true
+
 # 2. Se não estiver rodando, inicia o processo em segundo plano desacoplado
-nohup "$OMNICMD_BIN" >/dev/null 2>&1 &
+nohup "$OMNICMD_BIN" </dev/null >/dev/null 2>&1 &
+disown
 exit 0

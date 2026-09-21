@@ -75,6 +75,18 @@ pub fn start_ipc_server(handle: tauri::AppHandle) {
                             let _ = window.set_focus();
                             let _ = h.emit("palette-opened", ());
                         }
+                    } else if cmd == "settings" {
+                        if let Some(window) = h.get_webview_window("main") {
+                            let _ = window.show();
+                            let _ = window.set_focus();
+                            let _ = h.emit("open-settings", ());
+                        }
+                    } else if cmd == "history" {
+                        if let Some(window) = h.get_webview_window("main") {
+                            let _ = window.show();
+                            let _ = window.set_focus();
+                            let _ = h.emit("open-history", ());
+                        }
                     } else if cmd == "hide" {
                         if let Some(window) = h.get_webview_window("main") {
                             let _ = window.hide();

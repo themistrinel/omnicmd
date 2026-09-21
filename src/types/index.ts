@@ -90,6 +90,8 @@ export interface HistoryEntry {
 
 export type KeyboardNavigationMode = 'hybrid' | 'vim' | 'standard';
 
+export type Language = 'pt-BR' | 'en-US' | 'es-ES';
+
 export type ThemeMode = 'dark' | 'light' | 'system';
 export type FontFamily = 'ibm_plex' | 'mono' | 'sans' | 'system';
 export type AccentColor = 'sky' | 'cyan' | 'amber' | 'emerald' | 'indigo' | 'violet' | 'rose' | 'zinc';
@@ -127,6 +129,7 @@ export interface AppSettings {
   temperature: number;
   keyboardNavMode: KeyboardNavigationMode;
   enableVimMnemonicShortcuts: boolean;
+  language?: Language;
   appearance?: AppearanceSettings;
   customVisionPrompt?: string;
   customUiPrompt?: string;

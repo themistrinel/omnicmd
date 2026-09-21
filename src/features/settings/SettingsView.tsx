@@ -7,12 +7,14 @@ import {
   FontFamily,
   AccentColor,
   AppearanceSettings,
+  Language,
 } from '@/types';
 import { StorageService, DEFAULT_SETTINGS, DEFAULT_APPEARANCE } from '@/lib/storage';
 import { PROMPT_ACTIONS } from '@/lib/actions';
 import { AGENTS } from '@/lib/agents';
 import { Icon } from '@/components/Icon';
 import { ACCENT_COLORS, FONT_FAMILIES, applyAppearanceSettings } from '@/lib/theme';
+import { getTranslation, SUPPORTED_LANGUAGES } from '@/lib/i18n';
 import { UpdaterService, UpdateCheckResult } from '@/lib/updater';
 import { AgentsSettingsTab } from './AgentsSettingsTab';
 import { ActionsSettingsTab } from './ActionsSettingsTab';
@@ -22,7 +24,7 @@ interface SettingsViewProps {
   onSaved: (newSettings: AppSettings) => void;
 }
 
-type SettingsSection = 'appearance' | 'providers' | 'agents' | 'actions' | 'keyboard' | 'vision' | 'updater' | 'general';
+type SettingsSection = 'appearance' | 'language' | 'providers' | 'agents' | 'actions' | 'keyboard' | 'vision' | 'updater' | 'general';
 
 interface SectionItem {
   id: SettingsSection;
@@ -39,6 +41,13 @@ const SECTIONS: SectionItem[] = [
     shortLabel: 'Aparência',
     icon: 'Palette',
     description: 'Modo de cor, paleta de destaque, desfoque de vidro e tipografia',
+  },
+  {
+    id: 'language',
+    label: 'Idioma & Região',
+    shortLabel: 'Idioma',
+    icon: 'Globe',
+    description: 'Selecione o idioma da interface (Português, English, Español)',
   },
   {
     id: 'providers',
@@ -198,6 +207,18 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ onBack, onSaved }) =
   }, []);
 
   const appearance: AppearanceSettings = settings.appearance || DEFAULT_APPEARANCE;
+  const t = getTranslation(settings.language);
+
+  const handleUpdateLanguage = useCallback((lang: Language) => {
+    setSettings((prev) => {
+      const updated = { ...prev, language: lang };
+      StorageService.saveSettings(updated);
+      onSaved(updated);
+      return updated;
+    });
+    setSavedNotification(true);
+    setTimeout(() => setSavedNotification(false), 2000);
+  }, [onSaved]);
 
   const handleUpdateAppearance = useCallback(
     <K extends keyof AppearanceSettings>(field: K, value: AppearanceSettings[K]) => {
@@ -330,7 +351,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ onBack, onSaved }) =
           <button
             type="button"
             onClick={onBack}
-            className="p-1.5 rounded-lg text-zinc-400 hover:text-inherit hover:bg-black/10 dark:hover:bg-white/10 transition-colors cursor-pointer"
+            className="p-1.5 rounded-lg text-slate-500 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-inherit hover:bg-black/5 dark:hover:bg-white/10 transition-colors cursor-pointer"
             title="Voltar para a busca (Esc)"
           >
             <Icon name="ArrowLeft" className="w-4 h-4" />
@@ -344,17 +365,17 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ onBack, onSaved }) =
                 boxShadow: `0 0 8px var(--accent-color)`,
               }}
             />
-            <h1 className="text-sm font-semibold tracking-tight">Configurações</h1>
-            <span className="text-zinc-500 text-xs">•</span>
-            <span className="text-xs text-zinc-400 font-medium">{activeSectionInfo.shortLabel}</span>
+            <h1 className="text-sm font-semibold tracking-tight text-slate-900 dark:text-white">{t.settingsTitle}</h1>
+            <span className="text-slate-400 dark:text-zinc-500 text-xs">•</span>
+            <span className="text-xs text-slate-500 dark:text-zinc-400 font-medium">{activeSectionInfo.shortLabel}</span>
           </div>
         </div>
 
         <div className="flex items-center gap-3">
           {savedNotification && (
-            <span className="text-xs flex items-center gap-1.5 font-medium text-emerald-500 dark:text-emerald-400 animate-in fade-in zoom-in-95 duration-150">
+            <span className="text-xs flex items-center gap-1.5 font-medium text-emerald-600 dark:text-emerald-400 animate-in fade-in zoom-in-95 duration-150">
               <Icon name="Check" className="w-3.5 h-3.5" />
-              <span>Configurações salvas!</span>
+              <span>{t.settingsSaveSuccess}</span>
             </span>
           )}
 
@@ -369,7 +390,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ onBack, onSaved }) =
             title="Salvar alterações (Ctrl+S)"
           >
             <Icon name="Check" className="w-3.5 h-3.5" />
-            <span>Salvar</span>
+            <span>{settings.language === 'en-US' ? 'Save' : settings.language === 'es-ES' ? 'Guardar' : 'Salvar'}</span>
             <kbd className="text-[10px] bg-black/20 dark:bg-white/20 px-1 py-0.2 rounded font-mono ml-0.5">Ctrl+S</kbd>
           </button>
         </div>
@@ -389,8 +410,8 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ onBack, onSaved }) =
                   onClick={() => setCurrentSection(section.id)}
                   className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium transition-all text-left cursor-pointer border ${
                     isSelected
-                      ? 'bg-black/10 dark:bg-white/10 text-inherit border-hud shadow-xs'
-                      : 'border-transparent text-zinc-400 hover:text-inherit hover:bg-black/5 dark:hover:bg-white/5'
+                      ? 'bg-black/10 dark:bg-white/10 text-slate-900 dark:text-white border-hud shadow-xs'
+                      : 'border-transparent text-slate-600 dark:text-zinc-400 hover:text-slate-950 dark:hover:text-inherit hover:bg-black/5 dark:hover:bg-white/5'
                   }`}
                   style={
                     isSelected
@@ -424,7 +445,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ onBack, onSaved }) =
                   )}
 
                   {section.id !== 'providers' && (
-                    <span className="text-[10px] text-zinc-500 font-mono shrink-0">{idx + 1}</span>
+                    <span className="text-[10px] text-slate-400 dark:text-zinc-500 font-mono shrink-0">{idx + 1}</span>
                   )}
                 </button>
               );
@@ -432,10 +453,10 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ onBack, onSaved }) =
           </nav>
 
           {/* Bottom Sidebar Status Card */}
-          <div className="p-2.5 rounded-xl border border-hud hud-card space-y-1.5 text-[11px] text-zinc-400">
+          <div className="p-2.5 rounded-xl border border-hud hud-card space-y-1.5 text-[11px] text-slate-600 dark:text-zinc-400">
             <div className="flex items-center justify-between">
               <span className="font-medium">Tema do HUD</span>
-              <span className="capitalize font-mono text-inherit text-[10px] px-1.5 py-0.5 rounded bg-black/10 dark:bg-white/10">
+              <span className="capitalize font-mono text-slate-800 dark:text-inherit text-[10px] px-1.5 py-0.5 rounded bg-black/10 dark:bg-white/10">
                 {appearance.themeMode}
               </span>
             </div>
@@ -446,7 +467,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ onBack, onSaved }) =
                 {activeAccent.name}
               </span>
             </div>
-            <div className="pt-1 border-t border-hud flex items-center justify-between text-[10px] text-zinc-500 font-mono">
+            <div className="pt-1 border-t border-hud flex items-center justify-between text-[10px] text-slate-400 dark:text-zinc-500 font-mono">
               <span>↑↓ Navegar</span>
               <span>1-5 Alternar</span>
             </div>
@@ -456,21 +477,78 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ onBack, onSaved }) =
         {/* Right Content Pane */}
         <main className="col-span-8 flex flex-col min-h-0 overflow-y-auto px-4 py-3 text-sm">
           {/* ======================================================== */}
+          {/* SECTION: IDIOMA & REGIÃO                                 */}
+          {/* ======================================================== */}
+          {currentSection === 'language' && (
+            <div className="space-y-4">
+              <div>
+                <h2 className="text-sm font-semibold text-slate-900 dark:text-white">{t.languageLabel}</h2>
+                <p className="text-xs text-slate-500 dark:text-zinc-400 mt-0.5">
+                  {t.languageDesc}
+                </p>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1">
+                {SUPPORTED_LANGUAGES.map((lang) => {
+                  const isSelected = (settings.language || 'pt-BR') === lang.id;
+                  return (
+                    <button
+                      key={lang.id}
+                      type="button"
+                      onClick={() => handleUpdateLanguage(lang.id)}
+                      className={`flex flex-col items-center gap-2.5 p-4 rounded-xl border transition-all cursor-pointer text-center ${
+                        isSelected
+                          ? 'border-sky-500 dark:border-white/20 bg-sky-500/10 dark:bg-white/[0.08] shadow-sm'
+                          : 'border-hud hover:bg-black/5 dark:hover:bg-white/5 opacity-80 hover:opacity-100'
+                      }`}
+                      style={
+                        isSelected
+                          ? {
+                              borderColor: 'var(--accent-color)',
+                              backgroundColor: 'rgba(var(--accent-rgb), 0.12)',
+                            }
+                          : undefined
+                      }
+                    >
+                      <span className="text-3xl">{lang.flag}</span>
+                      <div className="flex flex-col">
+                        <span className="text-sm font-semibold text-slate-900 dark:text-white">{lang.name}</span>
+                        <span className="text-xs text-slate-500 dark:text-zinc-400 mt-0.5">{lang.nativeName}</span>
+                      </div>
+                      {isSelected && (
+                        <span
+                          className="mt-1 px-2 py-0.5 rounded text-[10px] font-mono font-semibold"
+                          style={{
+                            backgroundColor: 'rgba(var(--accent-rgb), 0.18)',
+                            color: 'var(--accent-text, var(--accent-color))',
+                          }}
+                        >
+                          Ativo / Active
+                        </span>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* ======================================================== */}
           {/* SECTION: APARÊNCIA & HUD                                */}
           {/* ======================================================== */}
           {currentSection === 'appearance' && (
             <div className="space-y-4">
               {/* Section Header */}
               <div>
-                <h2 className="text-sm font-semibold">Aparência &amp; Estilo Visual</h2>
-                <p className="text-xs text-zinc-400 mt-0.5">
+                <h2 className="text-sm font-semibold text-slate-900 dark:text-white">Aparência &amp; Estilo Visual</h2>
+                <p className="text-xs text-slate-500 dark:text-zinc-400 mt-0.5">
                   Personalize o visual acrílico do HUD, modos de contraste e paletas temáticas.
                 </p>
               </div>
 
               {/* Theme Mode Selector (Dark, Light, System) */}
               <div className="space-y-2">
-                <label className="text-xs font-semibold block text-zinc-300">Modo de Cor</label>
+                <label className="text-xs font-semibold block text-slate-800 dark:text-zinc-200">{t.themeModeLabel}</label>
                 <div className="grid grid-cols-3 gap-2">
                   <button
                     type="button"
@@ -478,7 +556,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ onBack, onSaved }) =
                     className={`flex flex-col items-center gap-1.5 p-3 rounded-xl border transition-all cursor-pointer text-center ${
                       appearance.themeMode === 'dark'
                         ? 'border-hud shadow-sm'
-                        : 'border-hud hover:bg-black/5 dark:hover:bg-white/5 opacity-70 hover:opacity-100'
+                        : 'border-hud hover:bg-black/5 dark:hover:bg-white/5 opacity-75 hover:opacity-100'
                     }`}
                     style={
                       appearance.themeMode === 'dark'
@@ -490,8 +568,8 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ onBack, onSaved }) =
                     }
                   >
                     <Icon name="Moon" className="w-4 h-4" style={{ color: 'var(--accent-color)' }} />
-                    <span className="text-xs font-semibold">Escuro</span>
-                    <span className="text-[10px] text-zinc-400">Zinc &amp; preto suave</span>
+                    <span className="text-xs font-semibold text-slate-900 dark:text-white">{t.themeDark}</span>
+                    <span className="text-[10px] text-slate-500 dark:text-zinc-400">{t.themeDarkDesc}</span>
                   </button>
 
                   <button
@@ -500,7 +578,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ onBack, onSaved }) =
                     className={`flex flex-col items-center gap-1.5 p-3 rounded-xl border transition-all cursor-pointer text-center ${
                       appearance.themeMode === 'light'
                         ? 'border-hud shadow-sm'
-                        : 'border-hud hover:bg-black/5 dark:hover:bg-white/5 opacity-70 hover:opacity-100'
+                        : 'border-hud hover:bg-black/5 dark:hover:bg-white/5 opacity-75 hover:opacity-100'
                     }`}
                     style={
                       appearance.themeMode === 'light'
@@ -512,8 +590,8 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ onBack, onSaved }) =
                     }
                   >
                     <Icon name="Sun" className="w-4 h-4" style={{ color: 'var(--accent-color)' }} />
-                    <span className="text-xs font-semibold">Claro</span>
-                    <span className="text-[10px] text-zinc-400">Contraste diurno limpo</span>
+                    <span className="text-xs font-semibold text-slate-900 dark:text-white">{t.themeLight}</span>
+                    <span className="text-[10px] text-slate-500 dark:text-zinc-400">{t.themeLightDesc}</span>
                   </button>
 
                   <button
@@ -522,7 +600,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ onBack, onSaved }) =
                     className={`flex flex-col items-center gap-1.5 p-3 rounded-xl border transition-all cursor-pointer text-center ${
                       appearance.themeMode === 'system'
                         ? 'border-hud shadow-sm'
-                        : 'border-hud hover:bg-black/5 dark:hover:bg-white/5 opacity-70 hover:opacity-100'
+                        : 'border-hud hover:bg-black/5 dark:hover:bg-white/5 opacity-75 hover:opacity-100'
                     }`}
                     style={
                       appearance.themeMode === 'system'
@@ -534,8 +612,8 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ onBack, onSaved }) =
                     }
                   >
                     <Icon name="Laptop" className="w-4 h-4" style={{ color: 'var(--accent-color)' }} />
-                    <span className="text-xs font-semibold">Sistema</span>
-                    <span className="text-[10px] text-zinc-400">Sincroniza com o SO</span>
+                    <span className="text-xs font-semibold text-slate-900 dark:text-white">{t.themeSystem}</span>
+                    <span className="text-[10px] text-slate-500 dark:text-zinc-400">{t.themeSystemDesc}</span>
                   </button>
                 </div>
               </div>
@@ -543,7 +621,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ onBack, onSaved }) =
               {/* Accent Color Palette */}
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <label className="text-xs font-semibold text-zinc-300">Cor de Destaque</label>
+                  <label className="text-xs font-semibold text-slate-800 dark:text-zinc-200">Cor de Destaque</label>
                   <span className="text-xs font-medium" style={{ color: 'var(--accent-color)' }}>
                     {activeAccent.name}
                   </span>
@@ -583,7 +661,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ onBack, onSaved }) =
                         >
                           {isSelected && <Icon name="Check" className="w-3 h-3 stroke-[3]" />}
                         </span>
-                        <span className="text-[11px] font-medium truncate max-w-full text-center">
+                        <span className="text-[11px] font-semibold text-slate-800 dark:text-slate-200 truncate max-w-full text-center">
                           {meta.name.split(' ')[0]}
                         </span>
                       </button>
@@ -607,12 +685,12 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ onBack, onSaved }) =
                     <span className="font-semibold" style={{ color: 'var(--accent-color)' }}>
                       Prévia do Tema Ativo:
                     </span>
-                    <span className="text-zinc-400">Botões, bordas e cursores respondem a esta cor</span>
+                    <span className="text-slate-600 dark:text-zinc-400">Botões, bordas e cursores respondem a esta cor</span>
                   </div>
 
                   <div className="flex items-center gap-1.5">
                     <span
-                      className="px-2 py-0.5 rounded text-[11px] font-mono border"
+                      className="px-2 py-0.5 rounded text-[11px] font-mono border font-semibold"
                       style={{
                         backgroundColor: 'rgba(var(--accent-rgb), 0.2)',
                         borderColor: 'var(--accent-color)',
@@ -622,7 +700,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ onBack, onSaved }) =
                       Tab
                     </span>
                     <span
-                      className="px-2.5 py-0.5 rounded text-[11px] font-medium text-white shadow-xs"
+                      className="px-2.5 py-0.5 rounded text-[11px] font-semibold text-white shadow-xs"
                       style={{ backgroundColor: 'var(--accent-color)' }}
                     >
                       Ação
@@ -633,11 +711,11 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ onBack, onSaved }) =
 
               {/* Glassmorphism & Translucency */}
               <div className="space-y-3 pt-1">
-                <label className="text-xs font-semibold block text-zinc-300">Vidro &amp; Desfoque Acrílico</label>
+                <label className="text-xs font-semibold block text-slate-800 dark:text-zinc-200">Vidro &amp; Desfoque Acrílico</label>
 
                 <div className="space-y-1.5">
                   <div className="flex items-center justify-between text-xs">
-                    <span className="text-zinc-400">Opacidade de Fundo do HUD</span>
+                    <span className="text-slate-700 dark:text-zinc-300 font-medium">Opacidade de Fundo do HUD</span>
                     <span className="font-mono text-[11px] font-semibold" style={{ color: 'var(--accent-color)' }}>
                       {appearance.hudOpacity}%
                     </span>
@@ -652,7 +730,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ onBack, onSaved }) =
                     className="w-full h-1.5 rounded-lg appearance-none cursor-pointer bg-black/20 dark:bg-white/20"
                     style={{ accentColor: 'var(--accent-color)' }}
                   />
-                  <div className="flex justify-between text-[10px] text-zinc-500">
+                  <div className="flex justify-between text-[10px] text-slate-500 dark:text-zinc-400">
                     <span>50% (Ultra-Translúcido)</span>
                     <span>75% (Acrílico Médio)</span>
                     <span>100% (Opaco)</span>
@@ -661,7 +739,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ onBack, onSaved }) =
 
                 <div className="space-y-1.5 pt-1">
                   <div className="flex items-center justify-between text-xs">
-                    <span className="text-zinc-400">Desfoque Acrílico de Fundo</span>
+                    <span className="text-slate-700 dark:text-zinc-300 font-medium">Desfoque Acrílico de Fundo</span>
                     <span className="font-mono text-[11px] font-semibold" style={{ color: 'var(--accent-color)' }}>
                       {appearance.hudBlur}px
                     </span>
@@ -676,7 +754,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ onBack, onSaved }) =
                     className="w-full h-1.5 rounded-lg appearance-none cursor-pointer bg-black/20 dark:bg-white/20"
                     style={{ accentColor: 'var(--accent-color)' }}
                   />
-                  <div className="flex justify-between text-[10px] text-zinc-500">
+                  <div className="flex justify-between text-[10px] text-slate-500 dark:text-zinc-400">
                     <span>0px (Nítido sem blur)</span>
                     <span>16px (Padrão)</span>
                     <span>32px (Máxima profundidade)</span>
@@ -686,7 +764,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ onBack, onSaved }) =
 
               {/* Typography */}
               <div className="space-y-2 pt-1">
-                <label className="text-xs font-semibold block text-slate-200">Família Tipográfica</label>
+                <label className="text-xs font-semibold block text-slate-800 dark:text-slate-200">Família Tipográfica</label>
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                   {(Object.keys(FONT_FAMILIES) as FontFamily[]).map((fontKey) => {
                     const fMeta = FONT_FAMILIES[fontKey];
@@ -1166,19 +1244,51 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ onBack, onSaved }) =
           {currentSection === 'general' && (
             <div className="space-y-4">
               <div>
-                <h2 className="text-sm font-semibold">Geral &amp; Comportamento</h2>
-                <p className="text-xs text-zinc-400 mt-0.5">
-                  Parâmetros de execução do modelo e agente padrão utilizado para texto livre.
+                <h2 className="text-sm font-semibold text-slate-900 dark:text-white">Geral &amp; Idioma</h2>
+                <p className="text-xs text-slate-500 dark:text-zinc-400 mt-0.5">
+                  Selecione o idioma da interface, parâmetros do modelo e agente padrão.
                 </p>
+              </div>
+
+              {/* Language Selector */}
+              <div className="space-y-2 pb-3 border-b border-hud">
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-semibold block text-slate-900 dark:text-zinc-200">{t.languageLabel}</label>
+                  <span className="text-[11px] font-medium text-slate-500 dark:text-zinc-400">{t.languageDesc}</span>
+                </div>
+                <div className="grid grid-cols-3 gap-2">
+                  {SUPPORTED_LANGUAGES.map((lang) => {
+                    const isSelected = (settings.language || 'pt-BR') === lang.id;
+                    return (
+                      <button
+                        key={lang.id}
+                        type="button"
+                        onClick={() => handleUpdateLanguage(lang.id)}
+                        className={`flex items-center gap-2.5 p-2.5 rounded-xl border transition-all cursor-pointer ${
+                          isSelected
+                            ? 'border-sky-500 dark:border-white/20 bg-sky-500/10 dark:bg-white/[0.08] shadow-xs'
+                            : 'border-hud hover:bg-black/5 dark:hover:bg-white/5 opacity-75 hover:opacity-100'
+                        }`}
+                        style={isSelected ? { borderColor: 'var(--accent-color)', backgroundColor: 'rgba(var(--accent-rgb), 0.12)' } : undefined}
+                      >
+                        <span className="text-xl shrink-0">{lang.flag}</span>
+                        <div className="flex flex-col text-left truncate">
+                          <span className="text-xs font-semibold text-slate-900 dark:text-white">{lang.name}</span>
+                          <span className="text-[10px] text-slate-500 dark:text-zinc-400">{lang.nativeName}</span>
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
 
               <div className="space-y-3">
                 <div className="space-y-1">
-                  <label className="text-xs font-medium">Agente Padrão (Texto Livre)</label>
+                  <label className="text-xs font-medium text-slate-800 dark:text-zinc-200">Agente Padrão (Texto Livre)</label>
                   <select
                     value={settings.defaultProfile}
                     onChange={(e) => setSettings({ ...settings, defaultProfile: e.target.value })}
-                    className="hud-input w-full px-3 py-1.5 rounded-lg border text-xs focus:outline-none"
+                    className="hud-input w-full px-3 py-1.5 rounded-lg border text-xs focus:outline-none text-slate-900 dark:text-white"
                   >
                     {(settings.agents || AGENTS).map((p) => (
                       <option key={p.id} value={p.id}>
@@ -1190,7 +1300,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ onBack, onSaved }) =
 
                 <div className="space-y-1 pt-1">
                   <div className="flex items-center justify-between text-xs">
-                    <span className="font-medium">Temperatura do Modelo</span>
+                    <span className="font-medium text-slate-800 dark:text-zinc-200">Temperatura do Modelo</span>
                     <span className="font-mono text-[11px] font-semibold" style={{ color: 'var(--accent-color)' }}>
                       {settings.temperature}
                     </span>
@@ -1205,7 +1315,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ onBack, onSaved }) =
                     className="w-full h-1.5 rounded-lg appearance-none cursor-pointer bg-black/20 dark:bg-white/20"
                     style={{ accentColor: 'var(--accent-color)' }}
                   />
-                  <div className="flex justify-between text-[10px] text-zinc-500">
+                  <div className="flex justify-between text-[10px] text-slate-500 dark:text-zinc-500">
                     <span>0.0 (Determinístico / Código)</span>
                     <span>0.7 (Equilibrado)</span>
                     <span>1.5 (Criativo / Brainstorm)</span>
@@ -1214,8 +1324,8 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ onBack, onSaved }) =
 
                 <div className="pt-2 flex items-center justify-between border-t border-hud">
                   <div>
-                    <span className="font-medium block text-xs">Leitura Automática da Área de Transferência</span>
-                    <span className="text-xs text-zinc-400">
+                    <span className="font-medium block text-xs text-slate-800 dark:text-zinc-200">Leitura Automática da Área de Transferência</span>
+                    <span className="text-xs text-slate-500 dark:text-zinc-400">
                       Detecta texto e imagens no clipboard ao abrir o HUD
                     </span>
                   </div>

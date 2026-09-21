@@ -170,7 +170,18 @@ if [ "$INSTALLED_FROM_LOCAL" = false ]; then
   log_info "Buscando release oficial mais recente no GitHub (${REPO})..."
   RELEASE_JSON="$(curl -sSL -H "Accept: application/vnd.github.v3+json" "https://api.github.com/repos/${REPO}/releases/latest" 2>/dev/null || true)"
   
-  DOWNLOAD_URL="$(echo "$RELEASE_JSON" | grep -o '"browser_download_url": "[^"]*"' | grep -iE 'amd64\.deb|\.deb|amd64\.AppImage|\.AppImage|linux.*x86_64.*tar\.gz|linux-x64' | head -1 | cut -d'"' -f4 || true)"
+  # Prioridade 1: Pacote .deb (extração limpa do binário nativo ELF com dependências de sistema do Arch)
+  DOWNLOAD_URL="$(echo "$RELEASE_JSON" | grep -o '"browser_download_url": "[^"]*"' | grep -iE 'amd64\.deb|\.deb' | head -1 | cut -d'"' -f4 || true)"
+  
+  # Prioridade 2: Tarball linux x86_64
+  if [ -z "$DOWNLOAD_URL" ]; then
+    DOWNLOAD_URL="$(echo "$RELEASE_JSON" | grep -o '"browser_download_url": "[^"]*"' | grep -iE 'linux.*x86_64.*tar\.gz|linux-x64.*tar\.gz|\.tar\.gz' | head -1 | cut -d'"' -f4 || true)"
+  fi
+
+  # Prioridade 3: AppImage (extrairemos o binário interno para evitar incompatibilidade EGL com WebKitGTK)
+  if [ -z "$DOWNLOAD_URL" ]; then
+    DOWNLOAD_URL="$(echo "$RELEASE_JSON" | grep -o '"browser_download_url": "[^"]*"' | grep -iE 'amd64\.AppImage|\.AppImage' | head -1 | cut -d'"' -f4 || true)"
+  fi
   
   if [ -n "$DOWNLOAD_URL" ]; then
     log_info "Baixando release oficial de: $DOWNLOAD_URL..."
@@ -180,7 +191,7 @@ if [ "$INSTALLED_FROM_LOCAL" = false ]; then
     
     if [[ "$DOWNLOAD_URL" =~ \.tar\.gz$ ]]; then
       tar -xzf "$DOWNLOAD_FILE" -C "$TMP_DIR"
-      FOUND_BIN="$(find "$TMP_DIR" -type f -name "omnicmd" | head -1)"
+      FOUND_BIN="$(find "$TMP_DIR" -type f -name "omnicmd" ! -name "*.tar.gz" | head -1)"
       if [ -n "$FOUND_BIN" ]; then
         DOWNLOAD_FILE="$FOUND_BIN"
       fi
@@ -190,8 +201,18 @@ if [ "$INSTALLED_FROM_LOCAL" = false ]; then
         tar -xzf "$TMP_DIR/data.tar.gz" -C "$TMP_DIR"
       elif [ -f "$TMP_DIR/data.tar.xz" ]; then
         tar -xJf "$TMP_DIR/data.tar.xz" -C "$TMP_DIR"
+      elif [ -f "$TMP_DIR/data.tar.zst" ]; then
+        tar --zstd -xf "$TMP_DIR/data.tar.zst" -C "$TMP_DIR"
       fi
-      FOUND_BIN="$(find "$TMP_DIR" -type f -name "omnicmd" | head -1)"
+      FOUND_BIN="$(find "$TMP_DIR" -type f -name "omnicmd" ! -name "*.deb" | head -1)"
+      if [ -n "$FOUND_BIN" ]; then
+        DOWNLOAD_FILE="$FOUND_BIN"
+      fi
+    elif [[ "$DOWNLOAD_URL" =~ \.AppImage$ ]]; then
+      log_info "Extraindo binário nativo do AppImage para compatibilidade com WebKitGTK/Wayland..."
+      chmod +x "$DOWNLOAD_FILE"
+      (cd "$TMP_DIR" && "$DOWNLOAD_FILE" --appimage-extract "usr/bin/omnicmd" >/dev/null 2>&1) || (cd "$TMP_DIR" && "$DOWNLOAD_FILE" --appimage-extract >/dev/null 2>&1) || true
+      FOUND_BIN="$(find "$TMP_DIR" -type f -name "omnicmd" ! -name "*.AppImage" | head -1)"
       if [ -n "$FOUND_BIN" ]; then
         DOWNLOAD_FILE="$FOUND_BIN"
       fi
@@ -287,14 +308,18 @@ log_success "Lançador criado em: ${APPLICATIONS_DIR}/omnicmd.desktop"
 # ------------------------------------------------------------------------------
 log_info "Configurando regras de janela e atalhos para o Hyprland..."
 
+HYPR_LUA="${HYPR_CONFIG_DIR}/hyprland.lua"
+OMNICMD_HYPR_LUA="${HYPR_CONFIG_DIR}/omnicmd.lua"
+
+# 1. Configuração para Hyprland clássico (.conf)
 cat << 'EOF' > "$OMNICMD_HYPR_CONF"
 # ==============================================================================
-# OmniCmd - Configuração Dedicada para Hyprland
+# OmniCmd - Configuração Dedicada para Hyprland (Conf)
 # Gerado automaticamente pelo instalador do OmniCmd
 # ==============================================================================
 
 # 1. Regras de Janela (Window Rules v2)
-# Modo Nativo: Delega bordas ativas (col.active_border), cantos arredondados (rounding) e sombras ao Hyprland
+# Mantém o HUD flutuante, centralizado, no topo e fixado no workspace ativo
 windowrulev2 = float, class:^(?i)omnicmd$
 windowrulev2 = center, class:^(?i)omnicmd$
 windowrulev2 = size 800 560, class:^(?i)omnicmd$
@@ -303,30 +328,70 @@ windowrulev2 = pin, class:^(?i)omnicmd$
 windowrulev2 = animation popin 95%, class:^(?i)omnicmd$
 
 # 2. Atalhos de Teclado (Shortcuts / Binds)
-# Pressione Super + Espaço para abrir ou fechar/alternar a paleta
-bind = SUPER, SPACE, exec, ~/.local/bin/omnicmd-toggle
+# Pressione Super + A para abrir ou alternar instantaneamente a paleta
+bind = SUPER, A, exec, ~/.local/bin/omnicmd-toggle
 
-# Pressione Super + Shift + Espaço para abrir forçado
-bind = SUPER SHIFT, SPACE, exec, ~/.local/bin/omnicmd
+# Pressione Super + Shift + A para abrir forçado
+bind = SUPER SHIFT, A, exec, ~/.local/bin/omnicmd
 EOF
 
-log_success "Arquivo de regras criado em: ${OMNICMD_HYPR_CONF}"
+# 2. Configuração para Hyprland moderno em Lua (.lua, Hyprland 0.55+)
+cat << 'EOF' > "$OMNICMD_HYPR_LUA"
+-- ==============================================================================
+-- OmniCmd - Configuração Dedicada para Hyprland (Lua)
+-- Gerado automaticamente pelo instalador do OmniCmd
+-- ==============================================================================
 
-# Integrar no hyprland.conf caso não esteja incluído
+local HOME = os.getenv("HOME")
+
+-- 1. Atalhos de Teclado (Shortcuts)
+-- Super + A: Alterna a exibição instantânea da paleta via omnicmd-toggle
+hl.bind("SUPER + A", hl.dsp.exec_cmd(HOME .. "/.local/bin/omnicmd-toggle"))
+hl.bind("SUPER + SHIFT + A", hl.dsp.exec_cmd(HOME .. "/.local/bin/omnicmd"))
+
+-- 2. Regras de Janela (Window Rules)
+hl.window_rule({ name = "float-omnicmd",  match = { class = "^(?i)omnicmd$" }, float = true })
+hl.window_rule({ name = "center-omnicmd", match = { class = "^(?i)omnicmd$" }, center = true })
+hl.window_rule({ name = "size-omnicmd",   match = { class = "^(?i)omnicmd$" }, size = "800 560" })
+hl.window_rule({ name = "pin-omnicmd",    match = { class = "^(?i)omnicmd$" }, pin = true })
+EOF
+
+log_success "Arquivos de regras criados em: ${OMNICMD_HYPR_CONF} e ${OMNICMD_HYPR_LUA}"
+
+# Integrar nas configurações ativas do Hyprland
+CONFIG_INTEGRATED=false
+
+if [ -f "$HYPR_LUA" ]; then
+  if grep -q "omnicmd" "$HYPR_LUA"; then
+    log_info "A integração com omnicmd.lua já existe em ${HYPR_LUA}."
+  else
+    log_info "Integrando ao ${HYPR_LUA}..."
+    cp "$HYPR_LUA" "${HYPR_LUA}.bak.$(date +%Y%m%d%H%M%S)"
+    echo "" >> "$HYPR_LUA"
+    echo "-- Integração Oficial OmniCmd AI Command Palette" >> "$HYPR_LUA"
+    echo 'pcall(require, "omnicmd")' >> "$HYPR_LUA"
+    log_success "Linha 'pcall(require, \"omnicmd\")' adicionada ao seu hyprland.lua!"
+  fi
+  CONFIG_INTEGRATED=true
+fi
+
 if [ -f "$HYPR_CONF" ]; then
   if grep -q "omnicmd.conf" "$HYPR_CONF"; then
     log_info "A inclusão do omnicmd.conf já existe em ${HYPR_CONF}."
   else
     log_info "Criando backup de segurança em ${HYPR_CONF}.bak..."
     cp "$HYPR_CONF" "${HYPR_CONF}.bak.$(date +%Y%m%d%H%M%S)"
-    
     echo "" >> "$HYPR_CONF"
     echo "# Integração Oficial OmniCmd AI Command Palette" >> "$HYPR_CONF"
     echo "source = ~/.config/hypr/omnicmd.conf" >> "$HYPR_CONF"
     log_success "Linha 'source = ~/.config/hypr/omnicmd.conf' adicionada ao seu hyprland.conf!"
   fi
-else
-  log_warn "Arquivo ${HYPR_CONF} não encontrado. Certifique-se de incluir 'source = ~/.config/hypr/omnicmd.conf' no seu arquivo de configuração do Hyprland."
+  CONFIG_INTEGRATED=true
+fi
+
+if [ "$CONFIG_INTEGRATED" = false ]; then
+  log_warn "Nenhum arquivo hyprland.lua ou hyprland.conf encontrado automaticamente."
+  log_info "Certifique-se de incluir 'pcall(require, \"omnicmd\")' ou 'source = ~/.config/hypr/omnicmd.conf' nas configurações do Hyprland."
 fi
 
 # ------------------------------------------------------------------------------
@@ -351,9 +416,9 @@ echo -e "${GREEN}${BOLD}========================================================
 echo -e "${GREEN}${BOLD}   🎉 OmniCmd instalado e adaptado com sucesso para o Hyprland!              ${NC}"
 echo -e "${GREEN}${BOLD}==============================================================================${NC}"
 echo ""
-echo -e "  • ${BOLD}Atalho Principal:${NC} ${CYAN}SUPER + SPACE${NC} (Abre ou fecha a paleta instantaneamente)"
-echo -e "  • ${BOLD}Atalho Secundário:${NC} ${CYAN}SUPER + SHIFT + SPACE${NC}"
+echo -e "  • ${BOLD}Atalho Principal:${NC} ${CYAN}SUPER + A${NC} (Abre ou fecha a paleta instantaneamente)"
+echo -e "  • ${BOLD}Atalho Secundário:${NC} ${CYAN}SUPER + SHIFT + A${NC}"
 echo -e "  • ${BOLD}Comando de Alternância:${NC} ${CYAN}omnicmd-toggle${NC}"
 echo -e "  • ${BOLD}Comando de Atualização:${NC} ${CYAN}omnicmd-update${NC} (Busca e instala novas versões do GitHub)"
-echo -e "  • ${BOLD}Arquivo de Configuração:${NC} ${YELLOW}~/.config/hypr/omnicmd.conf${NC}"
+echo -e "  • ${BOLD}Configuração Hyprland:${NC} ${YELLOW}~/.config/hypr/omnicmd.lua / omnicmd.conf${NC}"
 echo ""

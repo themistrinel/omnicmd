@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { listen } from '@tauri-apps/api/event';
-import { PromptAction, Agent, AppSettings, HistoryEntry, AIProviderId } from '@/types';
+import { PromptAction, Agent, AppSettings, HistoryEntry, AIProviderId, Language } from '@/types';
 import { PROMPT_ACTIONS } from '@/lib/actions';
 import { AGENTS, DEFAULT_AGENT, getAgent } from '@/lib/agents';
 import { StorageService, DEFAULT_SETTINGS } from '@/lib/storage';
@@ -8,6 +8,7 @@ import { ClipboardService } from '@/lib/clipboard';
 import { WindowService } from '@/lib/shortcuts';
 import { aiRegistry, NineRouterProvider } from '@/lib/ai';
 import { applyAppearanceSettings } from '@/lib/theme';
+import { getTranslation } from '@/lib/i18n';
 import {
   parseCommandInput,
   composeExecutionPlan,
@@ -156,6 +157,8 @@ export const CommandPalette: React.FC = () => {
     ? Math.max(0, suggestions.length - 1)
     : selectedItemIndex;
 
+  const t = getTranslation(settings.language);
+
   // Dynamic context badge for StatusBar
   const contextBadge = useMemo(() => {
     const trimmed = searchQuery.trim();
@@ -278,6 +281,19 @@ export const CommandPalette: React.FC = () => {
     const provider = aiRegistry.getProvider(nextProviderId) as NineRouterProvider;
     provider.setCredentials(nextConfig.endpoint, nextConfig.apiKey, nextConfig.model);
 
+    await StorageService.saveSettings(updatedSettings);
+  };
+
+  // Cycle UI Language
+  const handleCycleLanguage = async () => {
+    const langs: Language[] = ['pt-BR', 'en-US', 'es-ES'];
+    const currentIdx = langs.indexOf(settings.language || 'pt-BR');
+    const nextLang = langs[(currentIdx + 1) % langs.length];
+    const updatedSettings: AppSettings = {
+      ...settings,
+      language: nextLang,
+    };
+    setSettings(updatedSettings);
     await StorageService.saveSettings(updatedSettings);
   };
 
@@ -498,7 +514,7 @@ export const CommandPalette: React.FC = () => {
       {/* Top Search bar when in SEARCH mode */}
       {viewMode === 'SEARCH' && (
         <div className="flex items-center px-4 py-3.5 border-b border-hud gap-3 shrink-0 hud-header">
-          <Icon name="Search" className="w-5 h-5 text-slate-400 shrink-0" />
+          <Icon name="Search" className="w-5 h-5 text-slate-500 dark:text-slate-400 shrink-0" />
           <input
             ref={searchInputRef}
             type="text"
@@ -516,24 +532,24 @@ export const CommandPalette: React.FC = () => {
               setSearchQuery(e.target.value);
               setSelectedItemIndex(0);
             }}
-            placeholder="Digite / para ações, @ para agentes, ou texto livre..."
+            placeholder={t.searchPlaceholder}
             autoFocus
-            className="flex-1 bg-transparent text-[15px] placeholder:text-slate-400 focus:outline-none tracking-normal font-sans"
+            className="flex-1 bg-transparent text-[15px] text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none tracking-normal font-sans"
           />
 
           <div className="flex items-center gap-1.5 shrink-0">
             <button
               onClick={() => setIsVoiceOpen(true)}
-              className="p-1.5 rounded-lg hover:bg-white/10 text-slate-400 hover:text-white transition-colors cursor-pointer"
-              title="Entrada por Voz"
+              className="p-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors cursor-pointer"
+              title={t.voiceInputTitle}
             >
               <Icon name="Mic" className="w-4 h-4" />
             </button>
 
             <button
               onClick={() => WindowService.hide()}
-              className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
-              title="Fechar (Esc)"
+              className="p-1.5 rounded-lg text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/10 transition-colors cursor-pointer"
+              title={t.closeEsc}
             >
               <Icon name="X" className="w-4 h-4" />
             </button>
@@ -543,29 +559,29 @@ export const CommandPalette: React.FC = () => {
 
       {/* Proactive Update Alert Banner for Older Versions */}
       {pendingUpdate?.available && !updateBannerDismissed && (
-        <div className="flex items-center justify-between px-4 py-1.5 bg-emerald-500/15 border-b border-emerald-500/30 text-emerald-300 text-xs shrink-0 select-none animate-in fade-in">
+        <div className="flex items-center justify-between px-4 py-1.5 bg-emerald-500/15 border-b border-emerald-500/30 text-emerald-700 dark:text-emerald-300 text-xs shrink-0 select-none animate-in fade-in">
           <div className="flex items-center gap-2">
             <span className="flex h-2 w-2 relative">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
               <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
             </span>
             <span>
-              Nova versão <strong>v{pendingUpdate.version}</strong> disponível!
+              {t.updateAvailable} <strong>v{pendingUpdate.version}</strong>
             </span>
           </div>
           <div className="flex items-center gap-2">
             <button
               type="button"
               onClick={() => setIsUpdateModalOpen(true)}
-              className="px-2.5 py-0.5 rounded-md bg-emerald-500/25 hover:bg-emerald-500/40 text-white font-semibold cursor-pointer text-[11px] transition-colors border border-emerald-500/40 shadow-xs"
+              className="px-2.5 py-0.5 rounded-md bg-emerald-600 hover:bg-emerald-700 dark:bg-emerald-500/25 dark:hover:bg-emerald-500/40 text-white font-semibold cursor-pointer text-[11px] transition-colors border border-emerald-600 dark:border-emerald-500/40 shadow-xs"
             >
-              Atualizar Agora
+              {t.updateNow}
             </button>
             <button
               type="button"
               onClick={() => setUpdateBannerDismissed(true)}
-              className="p-1 text-emerald-400/70 hover:text-emerald-200 cursor-pointer"
-              title="Ocultar aviso"
+              className="p-1 text-emerald-600 dark:text-emerald-400/70 hover:text-emerald-800 dark:hover:text-emerald-200 cursor-pointer"
+              title={t.hideAlert}
             >
               <Icon name="X" className="w-3 h-3" />
             </button>
@@ -583,6 +599,7 @@ export const CommandPalette: React.FC = () => {
             onHoverIndex={setSelectedItemIndex}
             clipboardPreview={clipboardText}
             clipboardImagePreview={clipboardImage}
+            language={settings.language}
           />
         )}
 
@@ -696,6 +713,7 @@ export const CommandPalette: React.FC = () => {
         onOpenCheatsheet={() => setIsCheatsheetOpen(true)}
         availableUpdate={pendingUpdate}
         onOpenUpdateModal={() => setIsUpdateModalOpen(true)}
+        language={settings.language}
       />
 
       {/* Update Notification Modal */}

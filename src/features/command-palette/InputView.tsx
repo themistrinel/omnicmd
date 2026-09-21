@@ -1,6 +1,7 @@
 import React, { useRef, useEffect } from 'react';
-import { PromptAction, Profile } from '@/types';
+import { PromptAction, Profile, Language } from '@/types';
 import { Icon } from '@/components/Icon';
+import { getTranslation } from '@/lib/i18n';
 
 interface InputViewProps {
   action: PromptAction;
@@ -11,6 +12,7 @@ interface InputViewProps {
   onBack: () => void;
   onPasteClipboard: () => void;
   isLoading: boolean;
+  language?: Language;
 }
 
 export const InputView: React.FC<InputViewProps> = ({
@@ -22,8 +24,10 @@ export const InputView: React.FC<InputViewProps> = ({
   onBack,
   onPasteClipboard,
   isLoading,
+  language = 'pt-BR',
 }) => {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const t = getTranslation(language);
 
   useEffect(() => {
     if (textareaRef.current) {
@@ -36,7 +40,6 @@ export const InputView: React.FC<InputViewProps> = ({
   }, []);
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    // Ctrl+Enter or Cmd+Enter executes/submits. Regular Enter inserts a newline.
     if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
       e.preventDefault();
       if (!isLoading && inputText.trim()) {
@@ -54,8 +57,8 @@ export const InputView: React.FC<InputViewProps> = ({
         <div className="flex items-center gap-2.5">
           <button
             onClick={onBack}
-            className="p-1.5 rounded-lg text-zinc-400 hover:text-inherit hover:bg-black/10 dark:hover:bg-zinc-800 transition-colors cursor-pointer"
-            title="Voltar (Esc)"
+            className="p-1.5 rounded-lg text-slate-500 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-inherit hover:bg-black/5 dark:hover:bg-zinc-800 transition-colors cursor-pointer"
+            title={t.backEsc}
           >
             <Icon name="ArrowLeft" className="w-4 h-4" />
           </button>
@@ -70,19 +73,19 @@ export const InputView: React.FC<InputViewProps> = ({
             >
               <Icon name={action.icon} className="w-3.5 h-3.5" />
             </div>
-            <span className="text-sm font-semibold">{action.title}</span>
-            <span className="text-zinc-500 text-sm">•</span>
-            <span className="text-xs text-zinc-400 font-medium">{profile.name}</span>
+            <span className="text-sm font-semibold text-slate-900 dark:text-white">{action.title}</span>
+            <span className="text-slate-400 dark:text-zinc-500 text-sm">•</span>
+            <span className="text-xs text-slate-600 dark:text-zinc-400 font-medium">{profile.name}</span>
           </div>
         </div>
 
         <button
           onClick={onPasteClipboard}
-          className="flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-lg bg-black/5 dark:bg-zinc-900 hover:bg-black/10 dark:hover:bg-zinc-800 text-inherit border border-hud transition-colors cursor-pointer"
-          title="Colar área de transferência"
+          className="flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-lg bg-black/5 dark:bg-zinc-900 hover:bg-black/10 dark:hover:bg-zinc-800 text-slate-700 dark:text-slate-200 border border-hud transition-colors cursor-pointer font-medium"
+          title={t.pasteClipboard}
         >
-          <Icon name="Clipboard" className="w-3.5 h-3.5" style={{ color: 'var(--accent-color)' }} />
-          <span>Usar Clipboard</span>
+          <Icon name="Clipboard" className="w-3.5 h-3.5" style={{ color: 'var(--accent-text, var(--accent-color))' }} />
+          <span>{t.pasteClipboard}</span>
         </button>
       </div>
 
@@ -92,16 +95,16 @@ export const InputView: React.FC<InputViewProps> = ({
           value={inputText}
           onChange={(e) => onChangeInput(e.target.value)}
           onKeyDown={handleKeyDown}
-          placeholder="Digite ou cole o texto aqui... (Pressione Ctrl+Enter para enviar, Enter para quebra de linha)"
-          className="hud-input w-full flex-1 min-h-0 p-4 rounded-xl text-[15px] placeholder:text-zinc-400 focus:outline-none border border-hud resize-none leading-relaxed font-sans"
+          placeholder={t.inputPlaceholder}
+          className="hud-input w-full flex-1 min-h-0 p-4 rounded-xl text-[15px] text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-zinc-500 focus:outline-none border border-hud resize-none leading-relaxed font-sans"
         />
       </div>
 
       <div className="flex items-center justify-between pt-1 text-xs shrink-0">
-        <div className="flex items-center gap-2 text-zinc-400 text-xs">
+        <div className="flex items-center gap-2 text-slate-500 dark:text-zinc-400 text-xs font-medium">
           <span>{inputText.length} caracteres</span>
           <span>•</span>
-          <span><kbd className="bg-black/10 dark:bg-zinc-900 px-1.5 py-0.5 rounded text-inherit border border-hud font-mono text-xs">Ctrl+Enter</kbd> para enviar</span>
+          <span><kbd className="bg-white dark:bg-[#1c1e24] border border-slate-300 dark:border-white/15 px-1.5 py-0.5 rounded text-slate-700 dark:text-slate-200 font-mono text-xs shadow-2xs font-semibold">Ctrl+Enter</kbd> para enviar</span>
         </div>
 
         <button
@@ -109,7 +112,7 @@ export const InputView: React.FC<InputViewProps> = ({
           disabled={isLoading || !inputText.trim()}
           className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all cursor-pointer ${
             isLoading || !inputText.trim()
-              ? 'bg-black/10 dark:bg-zinc-800 text-zinc-500 cursor-not-allowed'
+              ? 'bg-black/10 dark:bg-zinc-800 text-slate-400 dark:text-zinc-500 cursor-not-allowed'
               : 'text-white shadow-md active:scale-95'
           }`}
           style={
@@ -124,12 +127,12 @@ export const InputView: React.FC<InputViewProps> = ({
           {isLoading ? (
             <>
               <Icon name="Loader2" className="w-4 h-4 animate-spin" />
-              <span>Processando...</span>
+              <span>Executando...</span>
             </>
           ) : (
             <>
               <Icon name="Send" className="w-4 h-4" />
-              <span>Executar</span>
+              <span>{t.executeCtrlEnter.split(' ')[0]}</span>
             </>
           )}
         </button>

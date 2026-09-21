@@ -3,6 +3,7 @@ import { HistoryEntry, AppSettings } from '@/types';
 import { StorageService, DEFAULT_SETTINGS } from '@/lib/storage';
 import { ClipboardService } from '@/lib/clipboard';
 import { Icon } from '@/components/Icon';
+import { getTranslation } from '@/lib/i18n';
 
 interface HistoryViewProps {
   onBack: () => void;
@@ -17,6 +18,7 @@ export const HistoryView: React.FC<HistoryViewProps> = ({ onBack, onReuseText })
   const [isLoading, setIsLoading] = useState(true);
   const [settings, setSettings] = useState<AppSettings>(DEFAULT_SETTINGS);
   const searchInputRef = useRef<HTMLInputElement>(null);
+  const t = getTranslation(settings.language);
 
   const loadHistory = async (query?: string) => {
     setIsLoading(true);
@@ -54,7 +56,7 @@ export const HistoryView: React.FC<HistoryViewProps> = ({ onBack, onReuseText })
   };
 
   const handleClearAll = async () => {
-    if (confirm('Tem certeza que deseja limpar todo o histórico?')) {
+    if (confirm(t.confirmClearHistory)) {
       await StorageService.clearHistory();
       await loadHistory();
     }
@@ -145,40 +147,40 @@ export const HistoryView: React.FC<HistoryViewProps> = ({ onBack, onReuseText })
         <div className="flex items-center gap-2.5">
           <button
             onClick={onBack}
-            className="p-1.5 rounded-lg text-zinc-400 hover:text-inherit hover:bg-black/10 dark:hover:bg-zinc-800 transition-colors cursor-pointer"
-            title="Voltar (Esc)"
+            className="p-1.5 rounded-lg text-slate-500 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-inherit hover:bg-black/5 dark:hover:bg-zinc-800 transition-colors cursor-pointer"
+            title={t.backEsc}
           >
             <Icon name="ArrowLeft" className="w-4 h-4" />
           </button>
           <div className="flex items-center gap-2">
             <Icon name="History" className="w-4 h-4" style={{ color: 'var(--accent-color)' }} />
-            <span className="text-sm font-semibold">Histórico de Operações</span>
-            <span className="text-zinc-400 text-xs">({history.length})</span>
+            <span className="text-sm font-semibold text-slate-900 dark:text-white">{t.historyTitle}</span>
+            <span className="text-slate-500 dark:text-zinc-400 text-xs font-mono">({history.length})</span>
           </div>
         </div>
 
         {history.length > 0 && (
           <button
             onClick={handleClearAll}
-            className="flex items-center gap-1.5 text-xs text-zinc-400 hover:text-red-400 transition-colors cursor-pointer px-2 py-1 rounded hover:bg-black/10 dark:hover:bg-zinc-800"
-            title="Limpar todo o histórico do SQLite"
+            className="flex items-center gap-1.5 text-xs text-slate-500 dark:text-zinc-400 hover:text-red-500 dark:hover:text-red-400 transition-colors cursor-pointer px-2 py-1 rounded hover:bg-black/5 dark:hover:bg-zinc-800 font-medium"
+            title={t.clearAll}
           >
             <Icon name="Trash2" className="w-3.5 h-3.5" />
-            <span>Limpar tudo</span>
+            <span>{t.clearAll}</span>
           </button>
         )}
       </div>
 
       <div className="relative shrink-0">
-        <Icon name="Search" className="absolute left-3.5 top-2.5 w-4 h-4 text-zinc-400" />
+        <Icon name="Search" className="absolute left-3.5 top-2.5 w-4 h-4 text-slate-400" />
         <input
           ref={searchInputRef}
           type="text"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          placeholder="Pesquisar por prompt, ação ou resposta no histórico... (Navegue com setas ou Ctrl+J/K)"
+          placeholder={t.historySearchPlaceholder}
           autoFocus
-          className="hud-input w-full pl-9 pr-3.5 py-2 rounded-xl border border-hud text-sm placeholder:text-zinc-400 focus:outline-none"
+          className="hud-input w-full pl-9 pr-3.5 py-2 rounded-xl border border-hud text-sm text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-zinc-500 focus:outline-none"
         />
       </div>
 
@@ -188,9 +190,9 @@ export const HistoryView: React.FC<HistoryViewProps> = ({ onBack, onReuseText })
         <div className="col-span-5 flex flex-col min-h-0 overflow-hidden pr-1">
           <div className="flex-1 min-h-0 overflow-y-auto space-y-1">
             {isLoading ? (
-              <div className="p-6 text-center text-sm text-zinc-400">Carregando...</div>
+              <div className="p-6 text-center text-sm text-slate-500 dark:text-zinc-400">Carregando...</div>
             ) : history.length === 0 ? (
-              <div className="p-6 text-center text-sm text-zinc-400">Nenhum registro encontrado.</div>
+              <div className="p-6 text-center text-sm text-slate-500 dark:text-zinc-400">{t.historyEmpty}</div>
             ) : (
               history.map((item, idx) => {
                 const isSelected = idx === selectedIndex;
@@ -200,15 +202,15 @@ export const HistoryView: React.FC<HistoryViewProps> = ({ onBack, onReuseText })
                     onClick={() => setSelectedIndex(idx)}
                     className={`p-2.5 rounded-xl cursor-pointer transition-all border ${
                       isSelected
-                        ? 'bg-black/10 dark:bg-zinc-800 text-inherit border-hud shadow-xs'
-                        : 'hover:bg-black/5 dark:hover:bg-zinc-900/70 text-zinc-400 hover:text-inherit border-transparent'
+                        ? 'bg-sky-500/10 dark:bg-zinc-800 text-slate-900 dark:text-white border-sky-500/30 dark:border-hud shadow-2xs'
+                        : 'hover:bg-black/5 dark:hover:bg-zinc-900/70 text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-inherit border-transparent'
                     }`}
                   >
                     <div className="flex items-center justify-between text-xs mb-1">
                       <span className="font-semibold" style={isSelected ? { color: 'var(--accent-color)' } : undefined}>{item.action_title}</span>
-                      <span className="text-xs text-zinc-400 font-mono">{item.created_at?.slice(11, 16) || ''}</span>
+                      <span className="text-xs text-slate-500 dark:text-zinc-400 font-mono">{item.created_at?.slice(11, 16) || ''}</span>
                     </div>
-                    <p className="text-xs text-zinc-400 truncate mt-0.5">{item.input_text}</p>
+                    <p className="text-xs text-slate-500 dark:text-zinc-400 truncate mt-0.5">{item.input_text}</p>
                   </div>
                 );
               })
@@ -220,21 +222,21 @@ export const HistoryView: React.FC<HistoryViewProps> = ({ onBack, onReuseText })
         <div className="col-span-7 flex flex-col min-h-0 justify-between overflow-hidden hud-card rounded-xl p-3.5 border border-hud">
           {selectedItem ? (
             <>
-              <div className="flex-1 min-h-0 overflow-y-auto space-y-3 select-text pr-1">
+              <div className="flex-1 min-h-0 overflow-y-auto space-y-3 select-text pr-1 text-slate-900 dark:text-slate-100">
                 <div>
-                  <span className="text-xs uppercase tracking-wider text-zinc-400 font-semibold block mb-1">
-                    Entrada
+                  <span className="text-xs uppercase tracking-wider text-slate-500 dark:text-zinc-400 font-semibold block mb-1">
+                    {t.inputLabel}
                   </span>
-                  <div className="text-[13px] bg-black/10 dark:bg-zinc-950/80 p-3 rounded-lg border border-hud whitespace-pre-wrap leading-relaxed">
+                  <div className="text-[13px] bg-black/5 dark:bg-zinc-950/80 p-3 rounded-lg border border-hud whitespace-pre-wrap leading-relaxed text-slate-900 dark:text-slate-100">
                     {selectedItem.input_text}
                   </div>
                 </div>
 
                 <div>
                   <span className="text-xs uppercase tracking-wider font-semibold block mb-1" style={{ color: 'var(--accent-color)' }}>
-                    Saída ({selectedItem.model})
+                    {t.outputLabel} ({selectedItem.model})
                   </span>
-                  <div className="text-[13px] bg-black/10 dark:bg-zinc-950/80 p-3 rounded-lg border border-hud whitespace-pre-wrap leading-relaxed">
+                  <div className="text-[13px] bg-black/5 dark:bg-zinc-950/80 p-3 rounded-lg border border-hud whitespace-pre-wrap leading-relaxed text-slate-900 dark:text-slate-100">
                     {selectedItem.output_text}
                   </div>
                 </div>
@@ -249,34 +251,34 @@ export const HistoryView: React.FC<HistoryViewProps> = ({ onBack, onReuseText })
                     title="Copiar resultado (c ou Ctrl+C)"
                   >
                     <Icon name={copiedId === selectedItem.id ? 'Check' : 'Copy'} className="w-3.5 h-3.5" />
-                    <span>{copiedId === selectedItem.id ? 'Copiado!' : 'Copiar Saída'}</span>
-                    <kbd className="text-[10px] bg-white/20 px-1 py-0.2 rounded font-mono ml-0.5">c</kbd>
+                    <span>{copiedId === selectedItem.id ? t.copied : t.copy}</span>
+                    <kbd className="text-[10px] bg-white/20 px-1 py-0.2 rounded font-mono ml-0.5 font-semibold">c</kbd>
                   </button>
 
                   <button
                     onClick={() => onReuseText(selectedItem.output_text)}
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-black/5 dark:bg-zinc-800 hover:bg-black/10 dark:hover:bg-zinc-700 text-inherit border border-hud transition-colors cursor-pointer text-xs font-medium"
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-black/5 dark:bg-zinc-800 hover:bg-black/10 dark:hover:bg-zinc-700 text-slate-800 dark:text-inherit border border-hud transition-colors cursor-pointer text-xs font-medium"
                     title="Usar esse texto em uma nova ação (Enter)"
                   >
                     <Icon name="RefreshCw" className="w-3.5 h-3.5" />
-                    <span>Reutilizar</span>
-                    <kbd className="text-[10px] bg-zinc-700 px-1 py-0.2 rounded font-mono ml-0.5">↵</kbd>
+                    <span>{t.reuse}</span>
+                    <kbd className="text-[10px] bg-white dark:bg-zinc-700 border border-slate-300 dark:border-white/10 px-1 py-0.2 rounded font-mono ml-0.5 font-semibold">↵</kbd>
                   </button>
                 </div>
 
                 <button
                   onClick={(e) => handleDelete(e, selectedItem.id)}
-                  className="flex items-center gap-1 p-1.5 rounded-lg text-zinc-400 hover:text-red-400 hover:bg-red-950/20 transition-colors cursor-pointer"
+                  className="flex items-center gap-1 p-1.5 rounded-lg text-slate-400 hover:text-red-500 hover:bg-red-500/10 transition-colors cursor-pointer"
                   title="Excluir este item (d ou Delete)"
                 >
                   <Icon name="Trash2" className="w-4 h-4" />
-                  <kbd className="text-[10px] text-zinc-500 font-mono">d</kbd>
+                  <kbd className="text-[10px] text-slate-500 dark:text-zinc-500 font-mono">d</kbd>
                 </button>
               </div>
             </>
           ) : (
-            <div className="flex items-center justify-center h-full text-zinc-400 text-sm">
-              Selecione um item para ver os detalhes
+            <div className="flex items-center justify-center h-full text-slate-500 dark:text-zinc-400 text-sm">
+              {t.selectItemToView}
             </div>
           )}
         </div>

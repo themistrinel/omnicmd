@@ -32,8 +32,8 @@ pub fn run() {
             // Start UNIX domain socket IPC server for instant Wayland / Hyprland toggles
             ipc::start_ipc_server(handle.clone());
 
-            // Setup global shortcut: Try "Super+Space" then fallback to "Ctrl+Space" or "Alt+Space"
-            let shortcuts_to_try = ["super+space", "ctrl+space", "alt+space"];
+            // Setup global shortcut: Try "Super+A", "Super+Space" then fallback to "Ctrl+Space" or "Alt+Space"
+            let shortcuts_to_try = ["super+a", "super+space", "ctrl+space", "alt+space"];
             let mut registered = false;
 
             for sc_str in &shortcuts_to_try {

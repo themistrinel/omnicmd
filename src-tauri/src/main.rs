@@ -18,10 +18,12 @@ fn main() {
     let is_toggle = args.iter().any(|a| a == "--toggle" || a == "-t" || a == "toggle");
 
     if is_toggle {
-        // Try to toggle existing running instance
+        // Try to toggle existing running instance via IPC
         if app_lib::send_command("toggle") {
             return;
         }
+        // If no running instance is listening, exit with code 1 so launcher/script can start daemon
+        std::process::exit(1);
     } else {
         // If launched normally, check if an instance is already running
         // If so, just bring it to front instead of crashing on port or opening duplicates

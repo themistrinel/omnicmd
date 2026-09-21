@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { PromptAction, Profile } from '@/types';
+import { PromptAction, Profile, Language } from '@/types';
 import { Icon } from '@/components/Icon';
 import { ClipboardService } from '@/lib/clipboard';
+import { getTranslation } from '@/lib/i18n';
 
 interface ResultViewProps {
   action: PromptAction;
@@ -13,6 +14,7 @@ interface ResultViewProps {
   isLoading: boolean;
   enableVimMnemonicShortcuts?: boolean;
   sourceImage?: string | null;
+  language?: Language;
   onCopy: () => void;
   onRegenerate: () => void;
   onEdit: () => void;
@@ -32,6 +34,7 @@ export const ResultView: React.FC<ResultViewProps> = ({
   isLoading,
   enableVimMnemonicShortcuts = true,
   sourceImage,
+  language = 'pt-BR',
   onCopy,
   onRegenerate,
   onEdit,
@@ -43,6 +46,7 @@ export const ResultView: React.FC<ResultViewProps> = ({
   const [copyStatus, setCopyStatus] = useState<string | null>(null);
   const [showMoreMenu, setShowMoreMenu] = useState(false);
   const moreMenuRef = useRef<HTMLDivElement>(null);
+  const t = getTranslation(language);
 
   // Close more menu on click outside
   useEffect(() => {
@@ -180,17 +184,17 @@ export const ResultView: React.FC<ResultViewProps> = ({
         <div className="flex items-center gap-2.5 min-w-0">
           <button
             onClick={onBack}
-            className="p-1.5 rounded-lg text-zinc-400 hover:text-inherit hover:bg-black/10 dark:hover:bg-zinc-800 transition-colors cursor-pointer shrink-0"
-            title="Voltar para busca (Esc)"
+            className="p-1.5 rounded-lg text-slate-500 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-inherit hover:bg-black/5 dark:hover:bg-zinc-800 transition-colors cursor-pointer shrink-0"
+            title={t.backEsc}
           >
             <Icon name="ArrowLeft" className="w-4 h-4" />
           </button>
           <div className="flex items-center gap-2 truncate">
-            <span className="text-sm font-semibold truncate">{action.title}</span>
-            <span className="text-zinc-500 text-sm">•</span>
-            <span className="text-xs font-medium text-zinc-400 shrink-0">{profile.name}</span>
-            <span className="text-zinc-500 text-sm">•</span>
-            <span className="text-xs font-mono bg-black/10 dark:bg-zinc-900/90 px-2 py-0.5 rounded-md border border-hud shrink-0">
+            <span className="text-sm font-semibold truncate text-slate-900 dark:text-white">{action.title}</span>
+            <span className="text-slate-400 dark:text-zinc-500 text-sm">•</span>
+            <span className="text-xs font-medium text-slate-600 dark:text-zinc-400 shrink-0">{profile.name}</span>
+            <span className="text-slate-400 dark:text-zinc-500 text-sm">•</span>
+            <span className="text-xs font-mono bg-black/5 dark:bg-zinc-900/90 text-slate-700 dark:text-slate-300 px-2 py-0.5 rounded-md border border-hud shrink-0 font-medium">
               {model}
             </span>
           </div>
@@ -209,60 +213,60 @@ export const ResultView: React.FC<ResultViewProps> = ({
             title="Copiar para clipboard e fechar HUD (Enter)"
           >
             <Icon name="Check" className="w-3.5 h-3.5" />
-            <span>Copiar &amp; Fechar</span>
-            <kbd className="text-[10px] bg-white/20 px-1 py-0.2 rounded font-mono ml-0.5">↵</kbd>
+            <span>{t.copyAndClose}</span>
+            <kbd className="text-[10px] bg-white/20 px-1 py-0.2 rounded font-mono ml-0.5 font-semibold">↵</kbd>
           </button>
         </div>
       </div>
 
       {/* Main output / error area */}
-      <div className="flex-1 min-h-0 overflow-y-auto p-4 rounded-xl hud-card border border-hud text-[15px] leading-relaxed font-sans whitespace-pre-wrap select-text space-y-3">
+      <div className="flex-1 min-h-0 overflow-y-auto p-4 rounded-xl hud-card border border-hud text-[15px] leading-relaxed font-sans whitespace-pre-wrap select-text space-y-3 text-slate-900 dark:text-slate-100">
         {sourceImage && (
-          <div className="flex items-center gap-3 p-2 rounded-xl bg-zinc-950/80 border border-white/10 max-w-fit">
+          <div className="flex items-center gap-3 p-2 rounded-xl bg-black/5 dark:bg-zinc-950/80 border border-slate-300/80 dark:border-white/10 max-w-fit">
             <img
               src={sourceImage}
               alt="Preview da Imagem Analisada"
-              className="h-16 max-w-[200px] rounded-lg object-contain border border-white/15 bg-zinc-900 shadow-sm"
+              className="h-16 max-w-[200px] rounded-lg object-contain border border-slate-300 dark:border-white/15 bg-white dark:bg-zinc-900 shadow-xs"
             />
             <div className="flex flex-col text-xs pr-2">
-              <span className="font-semibold text-sky-300 flex items-center gap-1.5">
+              <span className="font-semibold text-sky-600 dark:text-sky-300 flex items-center gap-1.5">
                 <Icon name="ImageIcon" className="w-3.5 h-3.5" />
-                Imagem Analisada
+                {t.imageAnalyzed}
               </span>
-              <span className="text-[11px] text-zinc-400">Capturada da área de transferência</span>
+              <span className="text-[11px] text-slate-500 dark:text-zinc-400">{t.fromClipboard}</span>
             </div>
           </div>
         )}
 
         {isLoading ? (
-          <div className="flex flex-col items-center justify-center h-full py-16 text-zinc-400 space-y-3">
-            <Icon name="Loader2" className="w-7 h-7 animate-spin text-sky-400" />
-            <p className="text-sm font-medium text-zinc-200">Processando resposta com {model}...</p>
+          <div className="flex flex-col items-center justify-center h-full py-16 text-slate-500 dark:text-zinc-400 space-y-3">
+            <Icon name="Loader2" className="w-7 h-7 animate-spin text-sky-500 dark:text-sky-400" />
+            <p className="text-sm font-semibold text-slate-800 dark:text-zinc-200">{t.processing.replace('{model}', model)}</p>
           </div>
         ) : errorMessage ? (
-          <div className="p-4 rounded-xl bg-rose-950/40 border border-rose-500/30 text-rose-200 flex flex-col gap-3">
-            <div className="flex items-center gap-2.5 text-rose-300 font-semibold text-sm">
-              <Icon name="AlertTriangle" className="w-5 h-5 text-rose-400 shrink-0" />
-              <span>Falha na execução com {model}</span>
+          <div className="p-4 rounded-xl bg-rose-500/10 dark:bg-rose-950/40 border border-rose-500/30 text-rose-800 dark:text-rose-200 flex flex-col gap-3">
+            <div className="flex items-center gap-2.5 text-rose-700 dark:text-rose-300 font-semibold text-sm">
+              <Icon name="AlertTriangle" className="w-5 h-5 text-rose-500 shrink-0" />
+              <span>{t.executionFailed.replace('{model}', model)}</span>
             </div>
-            <p className="text-xs text-rose-200/90 leading-relaxed font-mono bg-zinc-950/60 p-3 rounded-lg border border-rose-500/20 whitespace-pre-wrap">
+            <p className="text-xs text-rose-900 dark:text-rose-200/90 leading-relaxed font-mono bg-white/70 dark:bg-zinc-950/60 p-3 rounded-lg border border-rose-500/20 whitespace-pre-wrap">
               {errorMessage}
             </p>
             <div className="flex items-center gap-2.5 pt-1">
               <button
                 onClick={onRegenerate}
-                className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg bg-rose-600 hover:bg-rose-500 text-white font-medium transition-colors cursor-pointer"
+                className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg bg-rose-600 hover:bg-rose-500 text-white font-medium transition-colors cursor-pointer shadow-xs"
               >
                 <Icon name="RefreshCw" className="w-3.5 h-3.5" />
-                <span>Tentar Novamente (Ctrl+R)</span>
+                <span>{t.tryAgain}</span>
               </button>
               {onOpenSettings && (
                 <button
                   onClick={onOpenSettings}
-                  className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg bg-zinc-900 hover:bg-zinc-800 text-zinc-300 hover:text-white border border-white/10 transition-colors cursor-pointer"
+                  className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg bg-white dark:bg-zinc-900 hover:bg-slate-100 dark:hover:bg-zinc-800 text-slate-700 dark:text-zinc-300 hover:text-slate-900 dark:hover:text-white border border-slate-300 dark:border-white/10 transition-colors cursor-pointer shadow-2xs"
                 >
-                  <Icon name="Settings" className="w-3.5 h-3.5 text-sky-400" />
-                  <span>Ajustar Configurações (Ctrl+,)</span>
+                  <Icon name="Settings" className="w-3.5 h-3.5 text-sky-500" />
+                  <span>{t.adjustSettings}</span>
                 </button>
               )}
             </div>
@@ -270,7 +274,7 @@ export const ResultView: React.FC<ResultViewProps> = ({
         ) : outputText ? (
           outputText
         ) : (
-          <span className="text-zinc-400 italic">Nenhum resultado gerado.</span>
+          <span className="text-slate-400 dark:text-zinc-400 italic">{t.noResult}</span>
         )}
       </div>
 
@@ -281,36 +285,36 @@ export const ResultView: React.FC<ResultViewProps> = ({
           <button
             onClick={handleCopy}
             disabled={isLoading || !outputText || !!errorMessage}
-            className="flex items-center gap-1.5 text-xs px-2.5 py-1.5 rounded-lg bg-black/5 dark:bg-zinc-900 hover:bg-black/10 dark:hover:bg-zinc-800 text-inherit border border-hud transition-colors disabled:opacity-40 cursor-pointer"
+            className="flex items-center gap-1.5 text-xs px-2.5 py-1.5 rounded-lg bg-black/5 dark:bg-zinc-900 hover:bg-black/10 dark:hover:bg-zinc-800 text-slate-800 dark:text-inherit border border-hud transition-colors disabled:opacity-40 cursor-pointer font-medium"
             title="Apenas copiar sem fechar (c ou Ctrl+C)"
           >
-            <Icon name={copyStatus === 'Copiado!' ? 'Check' : 'Copy'} className="w-3.5 h-3.5" style={{ color: 'var(--accent-color)' }} />
-            <span>{copyStatus === 'Copiado!' ? 'Copiado!' : 'Copiar'}</span>
-            <kbd className="text-[10px] text-zinc-500 font-mono">c</kbd>
+            <Icon name={copyStatus === t.copied ? 'Check' : 'Copy'} className="w-3.5 h-3.5" style={{ color: 'var(--accent-color)' }} />
+            <span>{copyStatus === t.copied ? t.copied : t.copy}</span>
+            <kbd className="text-[10px] text-slate-500 dark:text-zinc-500 font-mono">c</kbd>
           </button>
 
           {/* Regenerate */}
           <button
             onClick={onRegenerate}
             disabled={isLoading}
-            className="flex items-center gap-1.5 text-xs px-2.5 py-1.5 rounded-lg bg-black/5 dark:bg-zinc-900 hover:bg-black/10 dark:hover:bg-zinc-800 text-inherit border border-hud transition-colors disabled:opacity-40 cursor-pointer"
+            className="flex items-center gap-1.5 text-xs px-2.5 py-1.5 rounded-lg bg-black/5 dark:bg-zinc-900 hover:bg-black/10 dark:hover:bg-zinc-800 text-slate-800 dark:text-inherit border border-hud transition-colors disabled:opacity-40 cursor-pointer font-medium"
             title="Regenerar resposta com o modelo (r ou Ctrl+R)"
           >
             <Icon name="RefreshCw" className={`w-3.5 h-3.5 ${isLoading ? 'animate-spin' : ''}`} style={{ color: 'var(--accent-color)' }} />
-            <span>Regenerar</span>
-            <kbd className="text-[10px] text-zinc-500 font-mono">r</kbd>
+            <span>{t.regenerate}</span>
+            <kbd className="text-[10px] text-slate-500 dark:text-zinc-500 font-mono">r</kbd>
           </button>
 
           {/* Edit input */}
           <button
             onClick={onEdit}
             disabled={isLoading}
-            className="flex items-center gap-1.5 text-xs px-2.5 py-1.5 rounded-lg bg-black/5 dark:bg-zinc-900 hover:bg-black/10 dark:hover:bg-zinc-800 text-inherit border border-hud transition-colors disabled:opacity-40 cursor-pointer"
+            className="flex items-center gap-1.5 text-xs px-2.5 py-1.5 rounded-lg bg-black/5 dark:bg-zinc-900 hover:bg-black/10 dark:hover:bg-zinc-800 text-slate-800 dark:text-inherit border border-hud transition-colors disabled:opacity-40 cursor-pointer font-medium"
             title="Editar texto de entrada original (e)"
           >
             <Icon name="Edit3" className="w-3.5 h-3.5" style={{ color: 'var(--accent-color)' }} />
-            <span>Editar</span>
-            <kbd className="text-[10px] text-zinc-500 font-mono">e</kbd>
+            <span>{t.edit}</span>
+            <kbd className="text-[10px] text-slate-500 dark:text-zinc-500 font-mono">e</kbd>
           </button>
 
           {/* Secondary Actions in More Menu (...) */}
@@ -318,13 +322,13 @@ export const ResultView: React.FC<ResultViewProps> = ({
             <button
               onClick={() => setShowMoreMenu((prev) => !prev)}
               disabled={isLoading || (!outputText && !inputText)}
-              className="flex items-center gap-1 text-xs px-2 py-1.5 rounded-lg bg-black/5 dark:bg-zinc-900 hover:bg-black/10 dark:hover:bg-zinc-800 text-zinc-400 hover:text-inherit border border-hud transition-colors disabled:opacity-40 cursor-pointer"
+              className="flex items-center gap-1 text-xs px-2 py-1.5 rounded-lg bg-black/5 dark:bg-zinc-900 hover:bg-black/10 dark:hover:bg-zinc-800 text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-inherit border border-hud transition-colors disabled:opacity-40 cursor-pointer font-medium"
               title="Mais opções de cópia e prompt"
               aria-haspopup="true"
               aria-expanded={showMoreMenu}
             >
               <Icon name="MoreHorizontal" className="w-4 h-4" />
-              <span>Mais</span>
+              <span>{t.more}</span>
             </button>
 
             {showMoreMenu && (
