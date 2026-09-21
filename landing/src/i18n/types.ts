@@ -51,6 +51,7 @@ export interface Translations {
     copy: string;
     paletteImage: string;
     paletteAlt: string;
+    otherPlatforms?: string;
   };
   features: {
     pill: string;

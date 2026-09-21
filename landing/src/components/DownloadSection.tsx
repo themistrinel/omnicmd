@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import { Terminal, Apple, Monitor, Check, Copy, Code2, Download, ShieldCheck, ArrowUpRight } from 'lucide-react';
+import { Terminal, Apple, Monitor, Check, Copy, Code2, Download, ShieldCheck, ArrowUpRight, Cpu, Layers } from 'lucide-react';
 import { OSPlatform, PlatformDownloadLinks } from '../types';
 import { BUILD_FROM_SOURCE_COMMAND, INSTALL_CURL_COMMAND, RELEASES_URL } from '../constants';
 import { getDefaultDownloadLinks } from '../utils';
 import { useLanguage } from '../i18n/LanguageContext';
+import { Marquee } from './animata';
 
 interface DownloadSectionProps {
   detectedOS: OSPlatform;
@@ -332,6 +333,44 @@ windowrulev2 = stayfocused, class:^(omnicmd)$`}
             <ArrowUpRight className="w-3.5 h-3.5" />
           </a>
         </div>
+      </div>
+
+      {/* Cross-Platform Ecosystem Marquee (Animata) */}
+      <div className="mt-12 pt-6 border-t border-white/[0.05]">
+        <div className="text-center mb-6">
+          <span className="text-[10px] font-mono font-semibold uppercase tracking-widest text-slate-500">
+            NATIVE DESKTOP ECOSYSTEM & MULTIPLATFORM MATRIX
+          </span>
+        </div>
+
+        <Marquee pauseOnHover duration="28s" gap="16px" className="py-2">
+          {[
+            { name: 'Wayland & Hyprland', tag: 'IPC Socket', icon: Terminal },
+            { name: 'Arch Linux', tag: 'AUR / .tar.zst', icon: Terminal },
+            { name: 'Ubuntu & Debian', tag: '.deb Package', icon: Terminal },
+            { name: 'Fedora & RHEL', tag: 'AppImage', icon: Terminal },
+            { name: 'macOS Apple Silicon', tag: 'M1/M2/M3/M4', icon: Apple },
+            { name: 'macOS Intel', tag: 'x86_64 DMG', icon: Apple },
+            { name: 'Windows 11 & 10', tag: '.msi Installer', icon: Monitor },
+            { name: 'Rust Core', tag: '100% Native', icon: Cpu },
+            { name: 'Tauri v2', tag: '<15MB HUD', icon: Layers },
+            { name: 'X11 Desktop', tag: 'Direct Hook', icon: Terminal },
+          ].map((item) => {
+            const Icon = item.icon;
+            return (
+              <div
+                key={item.name}
+                className="flex items-center gap-2.5 px-3.5 py-2 rounded-xl bg-[#0b0e15]/90 border border-white/[0.08] hover:border-sky-400/30 hover:bg-[#0f1420] transition-all cursor-default text-xs shrink-0 shadow-sm"
+              >
+                <Icon className="w-3.5 h-3.5 text-sky-400 shrink-0" />
+                <span className="font-medium text-slate-200 whitespace-nowrap font-sans">{item.name}</span>
+                <span className="text-[10px] font-mono font-semibold px-1.5 py-0.5 rounded bg-white/[0.04] text-slate-400 border border-white/[0.06]">
+                  {item.tag}
+                </span>
+              </div>
+            );
+          })}
+        </Marquee>
       </div>
     </section>
   );

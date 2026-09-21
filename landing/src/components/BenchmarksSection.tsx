@@ -1,6 +1,7 @@
 import React from 'react';
 import { Database, Network, ShieldCheck, HardDrive, CheckCircle2, Cpu } from 'lucide-react';
 import { useLanguage } from '../i18n/LanguageContext';
+import { CountUp } from './reactbits';
 
 export const BenchmarksSection: React.FC = () => {
   const { t } = useLanguage();
@@ -39,7 +40,7 @@ export const BenchmarksSection: React.FC = () => {
             <div className="space-y-1">
               <div className="flex justify-between text-[11px] text-slate-200">
                 <span className="text-slate-200 font-semibold">{t.benchmarks.ram.omniDesc}</span>
-                <span className="text-sky-400 font-bold font-mono tabular-nums">23.8 MB</span>
+                <CountUp to={23.8} decimals={1} suffix=" MB" className="text-sky-400 font-bold font-mono" />
               </div>
               <div className="w-full h-2.5 rounded-full bg-white/[0.06] overflow-hidden p-0.5 border border-white/[0.08]">
                 <div className="h-full rounded-full bg-sky-400 w-[5%]" />
@@ -50,7 +51,7 @@ export const BenchmarksSection: React.FC = () => {
             <div className="space-y-1 pt-1">
               <div className="flex justify-between text-[11px] text-slate-500">
                 <span>{t.benchmarks.ram.electronDesc}</span>
-                <span className="text-slate-400 font-mono tabular-nums">480.0 MB</span>
+                <CountUp to={480.0} decimals={1} suffix=" MB" className="text-slate-400 font-mono" />
               </div>
               <div className="w-full h-2.5 rounded-full bg-white/[0.06] overflow-hidden p-0.5 border border-white/[0.05]">
                 <div className="h-full rounded-full bg-slate-700 w-[100%]" />
@@ -68,7 +69,7 @@ export const BenchmarksSection: React.FC = () => {
             <div className="space-y-1">
               <div className="flex justify-between text-[11px] text-slate-200">
                 <span className="text-slate-200 font-semibold">{t.benchmarks.latency.omniDesc}</span>
-                <span className="text-sky-400 font-bold font-mono tabular-nums">18 ms</span>
+                <CountUp to={18} decimals={0} suffix=" ms" className="text-sky-400 font-bold font-mono" />
               </div>
               <div className="w-full h-2.5 rounded-full bg-white/[0.06] overflow-hidden p-0.5 border border-white/[0.08]">
                 <div className="h-full rounded-full bg-sky-400 w-[2%]" />
@@ -78,7 +79,7 @@ export const BenchmarksSection: React.FC = () => {
             <div className="space-y-1 pt-1">
               <div className="flex justify-between text-[11px] text-slate-500">
                 <span>{t.benchmarks.latency.electronDesc}</span>
-                <span className="text-slate-400 font-mono tabular-nums">940 ms</span>
+                <CountUp to={940} decimals={0} suffix=" ms" className="text-slate-400 font-mono" />
               </div>
               <div className="w-full h-2.5 rounded-full bg-white/[0.06] overflow-hidden p-0.5 border border-white/[0.05]">
                 <div className="h-full rounded-full bg-slate-700 w-[95%]" />
