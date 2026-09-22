@@ -115,6 +115,15 @@ export class UpdaterService {
   }
 
   static async relaunchApp(): Promise<void> {
+    if (this.isTauriEnvironment()) {
+      try {
+        const { invoke } = await import('@tauri-apps/api/core');
+        await invoke('restart_app');
+        return;
+      } catch (err) {
+        console.warn('Failed to invoke restart_app command:', err);
+      }
+    }
     window.location.reload();
   }
 
