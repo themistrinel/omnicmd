@@ -15,6 +15,11 @@ fn main() {
     }
 
     let args: Vec<String> = env::args().collect();
+    if args.iter().any(|a| a == "--version" || a == "-v" || a == "-V" || a == "version") {
+        println!("omnicmd {}", env!("CARGO_PKG_VERSION"));
+        return;
+    }
+
     let is_toggle = args.iter().any(|a| a == "--toggle" || a == "-t" || a == "toggle");
 
     if is_toggle {

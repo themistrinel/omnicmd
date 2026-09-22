@@ -61,6 +61,11 @@ pub fn show_window(app: AppHandle) -> Result<(), String> {
 }
 
 #[tauri::command]
+pub fn restart_app(app: AppHandle) {
+    app.restart();
+}
+
+#[tauri::command]
 pub fn copy_to_clipboard(app: AppHandle, text: String) -> Result<(), String> {
     #[cfg(target_os = "linux")]
     {
