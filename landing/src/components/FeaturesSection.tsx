@@ -5,6 +5,7 @@ import {
   Sliders,
 } from 'lucide-react';
 import { useLanguage } from '../i18n/LanguageContext';
+import { PixelCard } from './reactbits';
 
 export const FeaturesSection: React.FC = () => {
   const { t } = useLanguage();
@@ -28,7 +29,13 @@ export const FeaturesSection: React.FC = () => {
       {/* Two-Column Feature Showcase */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch mb-12">
         {/* CARD 1: Directive Library & Prompt Transformation */}
-        <div className="hud-panel rounded-2xl p-6 sm:p-8 flex flex-col justify-between transition-all duration-300 group">
+        <PixelCard
+          gap={14}
+          speed={28}
+          glowColor="rgba(56, 189, 248, 0.12)"
+          colors="#38bdf8,#7dd3fc,#0284c7,#1e293b"
+          className="hud-panel rounded-2xl p-6 sm:p-8 shadow-2xl border border-white/[0.08] hover:border-sky-400/40"
+        >
           {/* Card Header */}
           <div className="space-y-3 mb-6">
             <div className="flex items-center justify-between text-xs text-slate-400">
@@ -51,7 +58,7 @@ export const FeaturesSection: React.FC = () => {
           </div>
 
           {/* Asset Container */}
-          <div className="rounded-xl bg-[#0c0e14] border border-white/[0.08] p-2.5 sm:p-3 relative my-auto shadow-xl group-hover:border-white/[0.14] transition-all">
+          <div className="rounded-xl bg-[#0c0e14]/95 border border-white/[0.08] p-2.5 sm:p-3 relative my-auto shadow-xl group-hover:border-white/[0.14] transition-all">
             <div className="flex items-center justify-between px-3 py-2 bg-white/[0.03] rounded-lg mb-2 border border-white/[0.06] text-xs font-mono text-slate-400">
               <div className="flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-sky-400" />
@@ -88,10 +95,16 @@ export const FeaturesSection: React.FC = () => {
             <span>{t.features.card1.footerConfig}</span>
             <span className="text-sky-400 font-mono font-semibold">{t.features.card1.footerCount}</span>
           </div>
-        </div>
+        </PixelCard>
 
         {/* CARD 2: Global Summon & Floating HUD Window */}
-        <div className="hud-panel rounded-2xl p-6 sm:p-8 flex flex-col justify-between transition-all duration-300 group">
+        <PixelCard
+          gap={14}
+          speed={28}
+          glowColor="rgba(56, 189, 248, 0.12)"
+          colors="#38bdf8,#7dd3fc,#0284c7,#1e293b"
+          className="hud-panel rounded-2xl p-6 sm:p-8 shadow-2xl border border-white/[0.08] hover:border-sky-400/40"
+        >
           {/* Card Header */}
           <div className="space-y-3 mb-6">
             <div className="flex items-center justify-between text-xs text-slate-400">
@@ -114,7 +127,7 @@ export const FeaturesSection: React.FC = () => {
           </div>
 
           {/* Asset Container */}
-          <div className="rounded-xl bg-[#0c0e14] border border-white/[0.08] p-2.5 sm:p-3 relative my-auto shadow-xl group-hover:border-white/[0.14] transition-all">
+          <div className="rounded-xl bg-[#0c0e14]/95 border border-white/[0.08] p-2.5 sm:p-3 relative my-auto shadow-xl group-hover:border-white/[0.14] transition-all">
             <div className="flex items-center justify-between px-3 py-2 bg-white/[0.03] rounded-lg mb-2 border border-white/[0.06] text-xs font-mono text-slate-400">
               <div className="flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-sky-400" />
@@ -163,7 +176,7 @@ export const FeaturesSection: React.FC = () => {
             <span>{t.features.card2.footerCompositor}</span>
             <span className="text-slate-300 font-mono font-semibold">{t.features.card2.footerSwitching}</span>
           </div>
-        </div>
+        </PixelCard>
       </div>
 
       {/* STATUS BAR STRIP */}

@@ -1,11 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Download, Menu, X, ArrowUpRight } from 'lucide-react';
+import { Download, Menu, X, ArrowUpRight, Heart } from 'lucide-react';
 import { GithubIcon } from './GithubIcon';
 import { APP_VERSION, GITHUB_URL } from '../constants';
 import { DownloadInfo, OSPlatform } from '../types';
 import { detectUserOS, getDownloadInfo } from '../utils';
 import { useLanguage } from '../i18n/LanguageContext';
 import { LanguageSelector } from './LanguageSelector';
+import { Magnet, StarBorder } from './reactbits';
 
 interface NavbarProps {
   downloadInfo?: DownloadInfo;
@@ -73,73 +74,92 @@ export const Navbar: React.FC<NavbarProps> = ({ downloadInfo: propDownloadInfo, 
   return (
     <>
       <header
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-200 font-sans ${
-          scrolled
-            ? 'bg-[#08090d]/90 backdrop-blur-md border-b border-white/[0.08] shadow-[0_4px_24px_rgba(0,0,0,0.6)]'
-            : 'bg-transparent border-b border-white/[0.05]'
-        }`}
+        className="fixed top-2 sm:top-4 inset-x-0 z-50 flex justify-center px-2.5 sm:px-6 pointer-events-none font-sans"
       >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
+        <div
+          className={`pointer-events-auto max-w-5xl w-full h-12 sm:h-14 px-3 sm:px-5 flex items-center justify-between gap-2 rounded-2xl sm:rounded-full transition-all duration-300 ${
+            scrolled
+              ? 'bg-[#07090e]/92 backdrop-blur-xl border border-white/[0.14] shadow-[0_12px_40px_rgba(0,0,0,0.75),inset_0_1px_0_rgba(255,255,255,0.08)]'
+              : 'bg-[#090c13]/75 backdrop-blur-lg border border-white/[0.08] shadow-[0_8px_30px_rgba(0,0,0,0.45),inset_0_1px_0_rgba(255,255,255,0.05)]'
+          }`}
+        >
           {/* Logo & Version Tag */}
-          <div className="flex items-center gap-3">
-            <a
-              href="#"
-              className="flex items-center gap-2.5 text-white font-bold tracking-tight text-sm focus:outline-none group"
-            >
-              <div className="w-6 h-6 rounded-md bg-sky-400 text-[#082f49] flex items-center justify-center font-mono font-bold text-xs group-hover:scale-105 transition-transform">
-                &gt;_
-              </div>
-              <span className="font-display font-bold tracking-tight text-base text-white">
-                OMNICMD
-              </span>
-            </a>
+          <div className="flex items-center gap-2 sm:gap-3 shrink-0 min-w-0">
+            <Magnet padding={20} magnetStrength={3} wrapperClassName="shrink-0">
+              <a
+                href="#"
+                className="flex items-center gap-2 text-white font-bold tracking-tight text-sm focus:outline-none group shrink-0"
+              >
+                <div className="w-6 h-6 rounded-md bg-sky-400 text-[#082f49] flex items-center justify-center font-mono font-bold text-xs group-hover:scale-105 group-hover:shadow-[0_0_12px_rgba(56,189,248,0.6)] transition-all shrink-0">
+                  &gt;_
+                </div>
+                <span className="font-display font-bold tracking-tight text-sm sm:text-base text-white whitespace-nowrap">
+                  OMNICMD
+                </span>
+              </a>
+            </Magnet>
 
             <a
               href="#devlog"
-              className="hidden sm:inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-[11px] font-mono font-medium text-slate-400 hover:text-white bg-white/[0.04] border border-white/[0.08] transition-colors"
+              className="hidden sm:inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[11px] font-mono font-medium text-slate-400 hover:text-white bg-white/[0.04] border border-white/[0.08] hover:border-white/[0.16] transition-colors whitespace-nowrap shrink-0"
             >
               <span>v{activeVersion}</span>
             </a>
           </div>
 
-          {/* Navigation Items (Desktop) */}
-          <nav className="hidden md:flex items-center gap-7 text-sm font-medium text-slate-400 font-sans">
+          {/* Navigation Items (Desktop Pill Nav) */}
+          <nav className="hidden md:flex items-center gap-1 text-xs font-medium text-slate-300 font-sans shrink-0">
             {navLinks.map((link) => (
-              <a
-                key={link.label}
-                href={link.href}
-                className="hover:text-white transition-colors"
-              >
-                {link.label}
-              </a>
+              <Magnet key={link.label} padding={25} magnetStrength={4}>
+                <a
+                  href={link.href}
+                  className="px-3 py-1.5 rounded-full text-slate-300 hover:text-white hover:bg-white/[0.07] transition-all duration-150 whitespace-nowrap"
+                >
+                  {link.label}
+                </a>
+              </Magnet>
             ))}
           </nav>
 
           {/* Right Action Cluster */}
-          <div className="flex items-center gap-2.5">
-            {/* Language Selector (Desktop) */}
-            <LanguageSelector variant="desktop" />
+          <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
+            {/* Language Selector (Desktop / Tablets >= sm) */}
+            <div className="hidden sm:block shrink-0">
+              <LanguageSelector variant="desktop" />
+            </div>
 
-            <a
-              href={GITHUB_URL}
-              target="_blank"
-              rel="noreferrer"
-              aria-label="View OmniCmd on GitHub"
-              className="hidden lg:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium font-sans text-slate-300 hover:text-white bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] transition-all"
-            >
-              <GithubIcon className="w-3.5 h-3.5 text-slate-400" />
-              <span>GitHub</span>
-              <ArrowUpRight className="w-3 h-3 text-slate-500" />
-            </a>
+            <Magnet padding={30} magnetStrength={3} wrapperClassName="hidden lg:inline-block shrink-0">
+              <a
+                href={GITHUB_URL}
+                target="_blank"
+                rel="noreferrer"
+                aria-label="View OmniCmd on GitHub"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium font-sans text-slate-300 hover:text-white bg-white/[0.03] hover:bg-white/[0.08] border border-white/[0.08] hover:border-white/[0.18] transition-all whitespace-nowrap"
+              >
+                <GithubIcon className="w-3.5 h-3.5 text-slate-400" />
+                <span>GitHub</span>
+                <ArrowUpRight className="w-3 h-3 text-slate-500" />
+              </a>
+            </Magnet>
 
-            {/* Tactical Primary Action Button */}
-            <a
-              href={downloadInfo.url}
-              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-bold font-sans btn-primary-azure cursor-pointer"
-            >
-              <Download className="w-3.5 h-3.5" />
-              <span>{t.nav.downloadBtn}</span>
-            </a>
+            {/* Tactical StarBorder Action Button */}
+            <Magnet padding={20} magnetStrength={3} wrapperClassName="shrink-0">
+              <StarBorder
+                as="a"
+                href={downloadInfo.url}
+                color="#38bdf8"
+                speed="3s"
+                thickness={1}
+                backgroundColor="rgba(8, 12, 19, 0.95)"
+                borderColor="rgba(255, 255, 255, 0.12)"
+                innerClassName="px-2.5 min-[440px]:px-3.5 py-1.5 flex items-center justify-center gap-1.5 text-xs font-semibold text-white bg-gradient-to-b from-sky-500/15 via-[#0a0e17] to-[#06080e] hover:from-sky-500/25 hover:border-sky-400/40 hover:shadow-[0_0_18px_rgba(56,189,248,0.3)] transition-all cursor-pointer rounded-[9px]"
+                className="rounded-xl shadow-md shadow-black/40"
+                aria-label={`${t.nav.downloadBtn} (${downloadInfo.osName})`}
+              >
+                <Download className="w-3.5 h-3.5 text-sky-400 stroke-[2.5] shrink-0" />
+                <span className="hidden min-[440px]:inline tracking-tight whitespace-nowrap">{t.nav.downloadBtn}</span>
+              </StarBorder>
+            </Magnet>
 
             {/* Mobile Hamburger Button */}
             <button
@@ -149,9 +169,9 @@ export const Navbar: React.FC<NavbarProps> = ({ downloadInfo: propDownloadInfo, 
               aria-expanded={isMobileMenuOpen}
               aria-controls="mobile-drawer"
               aria-label={isMobileMenuOpen ? 'Close navigation menu' : 'Open navigation menu'}
-              className="md:hidden p-1.5 rounded-lg text-slate-400 hover:text-white bg-white/[0.04] border border-white/[0.08] transition-colors cursor-pointer"
+              className="md:hidden w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center rounded-xl text-slate-300 hover:text-white bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] hover:border-white/[0.14] transition-all cursor-pointer shrink-0"
             >
-              {isMobileMenuOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
+              {isMobileMenuOpen ? <X className="w-4 h-4 text-sky-400" /> : <Menu className="w-4 h-4" />}
             </button>
           </div>
         </div>
@@ -165,7 +185,7 @@ export const Navbar: React.FC<NavbarProps> = ({ downloadInfo: propDownloadInfo, 
           role="dialog"
           aria-modal="true"
           aria-label="Mobile Navigation Menu"
-          className="fixed inset-0 z-40 bg-[#08090d]/98 backdrop-blur-2xl md:hidden pt-20 px-6 flex flex-col justify-between pb-8 font-sans overflow-y-auto"
+          className="fixed inset-0 z-40 bg-[#08090d]/98 backdrop-blur-2xl md:hidden pt-20 px-5 sm:px-6 flex flex-col justify-between pb-8 font-sans overflow-y-auto overscroll-contain h-dvh"
         >
           <div className="flex flex-col gap-2">
             <div className="text-[10px] uppercase tracking-wider font-semibold text-slate-500 mb-2 font-mono">
@@ -182,6 +202,20 @@ export const Navbar: React.FC<NavbarProps> = ({ downloadInfo: propDownloadInfo, 
               </a>
             ))}
 
+            <a
+              href="#donate"
+              onClick={closeMobileMenu}
+              className="py-3 text-base font-semibold text-rose-300 hover:text-rose-200 border-b border-white/[0.08] flex items-center justify-between transition-colors"
+            >
+              <span className="flex items-center gap-2">
+                <Heart className="w-4 h-4 text-rose-400 fill-rose-400/20" />
+                {t.footer.links.support}
+              </span>
+              <span className="text-[10px] font-mono uppercase tracking-wider px-2 py-0.5 rounded bg-rose-500/10 text-rose-300 border border-rose-500/20">
+                Pix
+              </span>
+            </a>
+
             {/* Language Selector in Mobile Drawer */}
             <div className="pt-4 pb-2">
               <LanguageSelector variant="mobile" />
@@ -189,21 +223,26 @@ export const Navbar: React.FC<NavbarProps> = ({ downloadInfo: propDownloadInfo, 
           </div>
 
           <div className="flex flex-col gap-3 pt-6 border-t border-white/[0.08]">
-            <a
+            <StarBorder
+              as="a"
               href={downloadInfo.url}
               onClick={closeMobileMenu}
-              className="flex items-center justify-center gap-2 w-full py-3 rounded-xl btn-primary-azure font-bold text-sm"
+              color="#38bdf8"
+              speed="3.5s"
+              backgroundColor="rgba(10, 14, 22, 0.95)"
+              innerClassName="flex items-center justify-center gap-2.5 w-full py-3 rounded-xl bg-gradient-to-b from-sky-500/15 via-[#0b0f19] to-[#06080e] border-sky-400/30 text-white font-bold text-sm shadow-[0_0_20px_rgba(56,189,248,0.25)]"
+              className="w-full rounded-xl"
             >
-              <Download className="w-4 h-4" />
+              <Download className="w-4 h-4 text-sky-400" />
               <span>{t.nav.downloadFor} {downloadInfo.osName}</span>
-            </a>
+            </StarBorder>
 
             <a
               href={GITHUB_URL}
               target="_blank"
               rel="noreferrer"
               onClick={closeMobileMenu}
-              className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl bg-white/[0.04] text-slate-300 border border-white/[0.08] text-sm font-medium"
+              className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl bg-white/[0.04] text-slate-300 hover:text-white hover:bg-white/[0.08] border border-white/[0.08] text-sm font-medium transition-colors"
             >
               <GithubIcon className="w-4 h-4" />
               <span>themistrinel/omnicmd</span>

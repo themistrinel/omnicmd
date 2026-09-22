@@ -62,6 +62,13 @@ export const Footer: React.FC = () => {
           </a>
           <span className="text-slate-700">•</span>
           <a
+            href="#donate"
+            className="hover:text-rose-400 text-slate-300 transition-colors flex items-center gap-1 font-sans"
+          >
+            <span>{t.footer.links.support}</span>
+          </a>
+          <span className="text-slate-700">•</span>
+          <a
             href={GITHUB_URL}
             target="_blank"
             rel="noreferrer"

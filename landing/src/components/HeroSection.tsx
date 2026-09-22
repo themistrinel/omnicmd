@@ -10,6 +10,13 @@ import { DownloadInfo, OSPlatform } from '../types';
 import { GITHUB_URL, INSTALL_CURL_COMMAND } from '../constants';
 import { ProductShowcase } from './ProductShowcase';
 import { useLanguage } from '../i18n/LanguageContext';
+import {
+  StarBorder,
+  Magnet,
+  ShinyText,
+  SpotlightCard,
+  ClickSpark,
+} from './reactbits';
 
 interface HeroSectionProps {
   detectedOS: OSPlatform;
@@ -31,6 +38,13 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
 
   const hotkeyModifier = detectedOS === 'mac' ? 'Cmd' : 'Super';
 
+  const compactBadge =
+    detectedOS === 'linux'
+      ? '.deb / .AppImage'
+      : detectedOS === 'windows'
+        ? '.msi / .exe'
+        : '.dmg';
+
   return (
     <section
       id="cockpit"
@@ -46,21 +60,22 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
       {/* Main Hero Header */}
       <div className="relative z-10 text-center max-w-4xl mx-auto mb-12 sm:mb-16 space-y-6 font-sans">
         {/* Release Pill Badge */}
-        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-white/[0.08] bg-white/[0.03] backdrop-blur-md text-xs font-sans text-slate-300 shadow-sm mx-auto hover:border-white/[0.14] transition-all">
+        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-white/[0.08] bg-white/[0.03] backdrop-blur-md text-xs font-sans text-slate-300 shadow-sm mx-auto hover:border-white/[0.16] transition-all">
           <span className="relative flex h-2 w-2">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-sky-400 opacity-50" />
             <span className="relative inline-flex rounded-full h-2 w-2 bg-sky-400" />
           </span>
           <span className="font-medium tracking-wide">
             {t.hero.badgeRuntime} <span className="font-mono text-slate-400">v0.1.0</span>
           </span>
           <span className="text-slate-600 hidden sm:inline">•</span>
-          <span className="text-slate-400 hidden sm:inline font-normal">
-            {t.hero.badgeZeroCloud}
+          <span className="hidden sm:inline font-normal">
+            <ShinyText text={t.hero.badgeZeroCloud} color="#94a3b8" shineColor="#38bdf8" speed="3.5s" />
           </span>
         </div>
 
         {/* Hero Title */}
-        <h1 className="text-4xl sm:text-6xl md:text-7xl lg:text-[4.8rem] font-extrabold tracking-[-0.035em] text-white font-display leading-[1.04]">
+        <h1 className="text-4xl sm:text-6xl md:text-7xl lg:text-[4.75rem] font-extrabold tracking-[-0.035em] text-white font-display leading-[1.04]">
           {t.hero.headline}
         </h1>
 
@@ -69,84 +84,117 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
           {t.hero.subtitle}
         </p>
 
-        {/* Tactile Hotkey Indicator */}
-        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-lg bg-white/[0.03] border border-white/[0.08] text-xs font-sans text-slate-300">
-          <span className="text-slate-400 font-semibold uppercase tracking-wider text-[11px] font-mono">
-            {t.hero.globalHotkey}
-          </span>
-          <div className="flex items-center gap-1.5 font-mono">
-            <span className="pbt-keycap phosphor-active text-[11px] px-2 py-0.5">
-              {hotkeyModifier}
-            </span>
-            <span className="text-slate-400 text-xs font-bold">+</span>
-            <span className="pbt-keycap phosphor-active text-[11px] px-2 py-0.5">
-              Space
-            </span>
-          </div>
-          <span className="text-slate-500 text-[11px] hidden sm:inline font-normal">
-            {t.hero.hotkeyComment}
-          </span>
+        {/* Direct Call-to-Action Buttons */}
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-2 max-w-xl mx-auto">
+          {/* Primary Tactical StarBorder Button with Magnet */}
+          <Magnet padding={50} magnetStrength={3} wrapperClassName="w-full sm:w-auto">
+            <ClickSpark sparkColor="#38bdf8" sparkSize={7} sparkRadius={22}>
+              <StarBorder
+                as="a"
+                href={downloadInfo.url}
+                color="#38bdf8"
+                speed="3.5s"
+                thickness={1}
+                backgroundColor="rgba(8, 12, 19, 0.96)"
+                borderColor="rgba(255, 255, 255, 0.12)"
+                innerClassName="px-6 py-3.5 flex items-center justify-center gap-3 bg-gradient-to-b from-sky-500/10 via-[#0a0e17]/95 to-[#06080e] hover:from-sky-500/20 hover:border-sky-400/50 hover:shadow-[0_0_32px_-4px_rgba(56,189,248,0.35)] transition-all duration-300 cursor-pointer"
+                className="w-full sm:w-auto shadow-lg shadow-black/40 hover:scale-[1.02] transition-transform duration-200"
+              >
+                <Download className="w-4 h-4 text-sky-400 stroke-[2.5] shrink-0 transition-transform group-hover:translate-y-0.5" />
+                <span className="font-semibold text-white tracking-tight text-sm">
+                  {t.hero.downloadBtn} {downloadInfo.osName}
+                </span>
+                <span className="text-[11px] font-mono font-semibold px-2 py-0.5 rounded-md bg-sky-400/10 border border-sky-400/25 text-sky-300">
+                  {compactBadge}
+                </span>
+              </StarBorder>
+            </ClickSpark>
+          </Magnet>
+
+          {/* GitHub Source Link with Magnet */}
+          <Magnet padding={50} magnetStrength={3} wrapperClassName="w-full sm:w-auto">
+            <a
+              href={GITHUB_URL}
+              target="_blank"
+              rel="noreferrer"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-3.5 btn-secondary-obsidian font-sans text-sm cursor-pointer select-none group border border-white/[0.1] hover:border-white/[0.22] hover:bg-white/[0.08]"
+            >
+              <GithubIcon className="w-4 h-4 text-slate-300 group-hover:text-white transition-colors" />
+              <span className="font-medium text-slate-200 group-hover:text-white transition-colors">
+                {t.hero.githubRepo}
+              </span>
+              <ArrowUpRight className="w-3.5 h-3.5 text-slate-500 group-hover:text-slate-300 transition-colors" />
+            </a>
+          </Magnet>
         </div>
 
-        {/* Central Call-to-Action Buttons */}
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2 max-w-xl mx-auto">
-          {/* Primary High-Contrast Action Button */}
-          <a
-            href={downloadInfo.url}
-            className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-6 py-3.5 btn-primary-azure font-sans font-bold text-sm cursor-pointer"
-          >
-            <Download className="w-4 h-4 stroke-[2.5]" />
-            <span>{t.hero.downloadBtn} {downloadInfo.osName}</span>
-            <span className="text-xs font-mono font-normal opacity-85 pl-2 border-l border-[#082f49]/30">
-              {downloadInfo.format} • {t.hero.downloadDetails}
-            </span>
-          </a>
-
-          {/* GitHub Source Link */}
-          <a
-            href={GITHUB_URL}
-            target="_blank"
-            rel="noreferrer"
-            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-3.5 btn-secondary-obsidian font-sans font-medium text-sm cursor-pointer"
-          >
-            <GithubIcon className="w-4 h-4 text-slate-400" />
-            <span>{t.hero.githubRepo}</span>
-            <ArrowUpRight className="w-3.5 h-3.5 text-slate-500" />
-          </a>
-        </div>
-
-        {/* Terminal cURL Bootstrap Box */}
-        <div className="flex items-center justify-between gap-3 px-4 py-2 rounded-xl bg-[#0c0e14] border border-white/[0.08] font-mono text-xs shadow-inner max-w-md mx-auto">
-          <div className="flex items-center gap-2.5 min-w-0 overflow-hidden pr-2">
-            <span className="text-sky-400 font-bold select-none shrink-0 text-sm">
-              $
-            </span>
-            <span className="text-slate-300 truncate select-all text-[11px] sm:text-xs font-mono">
-              {INSTALL_CURL_COMMAND}
-            </span>
+        {/* Terminal cURL Bootstrap Box with SpotlightCard */}
+        <SpotlightCard
+          spotlightColor="rgba(56, 189, 248, 0.18)"
+          spotlightSize={320}
+          className="w-full max-w-xl sm:max-w-2xl lg:max-w-3xl mx-auto rounded-xl bg-[#0c0e14]/90 border border-white/[0.08] hover:border-sky-500/30 text-xs shadow-inner backdrop-blur-sm transition-all duration-300"
+        >
+          <div className="flex items-center justify-between gap-3 px-3.5 py-2">
+            <div className="flex items-center gap-2 min-w-0 overflow-hidden pr-1">
+              <span className="text-sky-400 font-bold select-none shrink-0 text-xs font-mono">
+                $
+              </span>
+              <span className="text-slate-300 truncate select-all text-[11px] sm:text-[11.5px] font-mono tracking-tight">
+                {INSTALL_CURL_COMMAND}
+              </span>
+            </div>
+            <button
+              type="button"
+              onClick={copyInstallCommand}
+              aria-label={
+                copiedInstallCmd
+                  ? t.hero.copied
+                  : t.hero.copy
+              }
+              className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white/[0.05] hover:bg-white/[0.12] text-slate-300 hover:text-white transition-all cursor-pointer shrink-0 text-xs font-sans font-semibold border border-white/[0.08] active:scale-95"
+            >
+              {copiedInstallCmd ? (
+                <>
+                  <Check className="w-3.5 h-3.5 text-emerald-400" />
+                  <span className="text-emerald-400 font-bold">{t.hero.copied}</span>
+                </>
+              ) : (
+                <>
+                  <Copy className="w-3.5 h-3.5 text-slate-400" />
+                  <span>{t.hero.copy}</span>
+                </>
+              )}
+            </button>
           </div>
-          <button
-            type="button"
-            onClick={copyInstallCommand}
-            aria-label={
-              copiedInstallCmd
-                ? t.hero.copied
-                : t.hero.copy
-            }
-            className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white/[0.05] hover:bg-white/[0.1] text-slate-300 hover:text-white transition-colors cursor-pointer shrink-0 text-xs font-sans font-semibold border border-white/[0.08]"
+        </SpotlightCard>
+
+        {/* Tactile Hotkey Indicator & All Platforms Link */}
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-1 max-w-2xl mx-auto text-xs text-slate-400">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-lg bg-white/[0.03] border border-white/[0.08] text-xs font-sans text-slate-400 shrink-0">
+            <span className="text-slate-500 font-medium uppercase tracking-wider text-[10px] font-mono">
+              {t.hero.globalHotkey}
+            </span>
+            <div className="flex items-center gap-1 font-mono">
+              <span className="pbt-keycap phosphor-active text-[10px] px-1.5 py-0.5">
+                {hotkeyModifier}
+              </span>
+              <span className="text-slate-500 text-xs font-bold">+</span>
+              <span className="pbt-keycap phosphor-active text-[10px] px-1.5 py-0.5">
+                Space
+              </span>
+            </div>
+          </div>
+
+          <span className="text-slate-700 hidden sm:inline">•</span>
+
+          <a
+            href="#downloads"
+            className="inline-flex items-center gap-1.5 text-xs text-slate-400 hover:text-sky-300 transition-colors group"
           >
-            {copiedInstallCmd ? (
-              <>
-                <Check className="w-3.5 h-3.5 text-emerald-400" />
-                <span className="text-emerald-400 font-bold">{t.hero.copied}</span>
-              </>
-            ) : (
-              <>
-                <Copy className="w-3.5 h-3.5 text-slate-400" />
-                <span>{t.hero.copy}</span>
-              </>
-            )}
-          </button>
+            <span className="underline decoration-slate-700 group-hover:decoration-sky-400 underline-offset-4">
+              {t.hero.otherPlatforms || 'Ver todos os sistemas (macOS, Windows, Linux)'}
+            </span>
+          </a>
         </div>
       </div>
 

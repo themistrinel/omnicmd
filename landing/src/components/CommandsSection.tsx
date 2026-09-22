@@ -14,6 +14,7 @@ import {
   ShieldCheck,
 } from 'lucide-react';
 import { useLanguage } from '../i18n/LanguageContext';
+import { TypingText } from './animata';
 
 const COMMAND_ICONS: Record<string, React.ComponentType<{ className?: string }>> = {
   improve: Sparkles,
@@ -140,8 +141,13 @@ export const CommandsSection: React.FC = () => {
               <span className="text-[11px] font-mono text-slate-500 uppercase tracking-wider block font-sans">
                 {t.commands.generatedOutput}
               </span>
-              <div className="p-3 rounded-xl bg-[#0c0e14] border border-sky-400/20 text-sky-300 font-mono text-xs leading-relaxed">
-                {selectedCmd.outputSummary}
+              <div className="p-3.5 rounded-xl bg-[#0a0d14] border border-sky-400/25 text-sky-300 font-mono text-xs leading-relaxed min-h-[4rem] flex items-start shadow-inner">
+                <TypingText
+                  key={selectedCmd.command}
+                  text={selectedCmd.outputSummary}
+                  delay={15}
+                  cursorClassName="text-sky-400 font-bold"
+                />
               </div>
             </div>
           </div>
