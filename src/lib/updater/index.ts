@@ -1,3 +1,7 @@
+import { getVersion } from '@tauri-apps/api/app';
+import { invoke } from '@tauri-apps/api/core';
+import { APP_VERSION } from '@/constants';
+
 export interface UpdateCheckResult {
   available: boolean;
   currentVersion: string;
@@ -6,16 +10,17 @@ export interface UpdateCheckResult {
   body?: string;
 }
 
+export type InstallUpdateResult = { type: 'INSTALLED' } | { type: 'REDIRECTED_TO_BROWSER' };
+
 export class UpdaterService {
   private static isTauriEnvironment(): boolean {
     return typeof window !== 'undefined' && '__TAURI_INTERNALS__' in window;
   }
 
   static async getCurrentVersion(): Promise<string> {
-    const fallbackVersion = '0.1.0';
+    const fallbackVersion = APP_VERSION;
     if (this.isTauriEnvironment()) {
       try {
-        const { getVersion } = await import('@tauri-apps/api/app');
         const v = await getVersion();
         if (v) return v;
       } catch {
@@ -76,10 +81,10 @@ export class UpdaterService {
 
   static async downloadAndInstall(
     onProgress?: (progress: { downloaded: number; total?: number }) => void
-  ): Promise<boolean> {
+  ): Promise<InstallUpdateResult> {
     if (!this.isTauriEnvironment()) {
       window.open('https://github.com/themistrinel/omnicmd/releases/latest', '_blank');
-      return true;
+      return { type: 'REDIRECTED_TO_BROWSER' };
     }
 
     try {
@@ -88,7 +93,7 @@ export class UpdaterService {
       if (!update) {
         // Fallback: abre a página de download do GitHub se o updater interno não tiver o pacote assinado
         window.open('https://github.com/themistrinel/omnicmd/releases/latest', '_blank');
-        return true;
+        return { type: 'REDIRECTED_TO_BROWSER' };
       }
 
       let downloaded = 0;
@@ -106,18 +111,17 @@ export class UpdaterService {
         }
       });
 
-      return true;
+      return { type: 'INSTALLED' };
     } catch (err) {
       console.error('Failed to download & install update via internal updater, opening GitHub:', err);
       window.open('https://github.com/themistrinel/omnicmd/releases/latest', '_blank');
-      return true;
+      return { type: 'REDIRECTED_TO_BROWSER' };
     }
   }
 
   static async relaunchApp(): Promise<void> {
     if (this.isTauriEnvironment()) {
       try {
-        const { invoke } = await import('@tauri-apps/api/core');
         await invoke('restart_app');
         return;
       } catch (err) {

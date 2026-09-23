@@ -74,8 +74,8 @@ export const ResultView: React.FC<ResultViewProps> = ({
   );
 
   const handleCopy = useCallback(() => {
-    handleCopyText(outputText, 'Copiado!');
-  }, [handleCopyText, outputText]);
+    handleCopyText(outputText, t.copied);
+  }, [handleCopyText, outputText, t.copied]);
 
   const handleCopyAndClose = useCallback(async () => {
     if (!outputText) return;
@@ -84,13 +84,13 @@ export const ResultView: React.FC<ResultViewProps> = ({
   }, [outputText, onClose]);
 
   const handleCopyOriginalInput = useCallback(() => {
-    handleCopyText(inputText, 'Entrada Copiada!');
-  }, [handleCopyText, inputText]);
+    handleCopyText(inputText, t.copyInput);
+  }, [handleCopyText, inputText, t.copyInput]);
 
   const handleCopyMarkdown = useCallback(() => {
     const formatted = `### Prompt (${action.title} - ${profile.name})\n${inputText}\n\n### Resposta (${model})\n${outputText}`;
-    handleCopyText(formatted, 'Markdown Copiado!');
-  }, [action.title, profile.name, inputText, model, outputText, handleCopyText]);
+    handleCopyText(formatted, t.copyMarkdown);
+  }, [action.title, profile.name, inputText, model, outputText, handleCopyText, t.copyMarkdown]);
 
   // Global keyboard shortcuts in Result view
   useEffect(() => {
@@ -340,7 +340,7 @@ export const ResultView: React.FC<ResultViewProps> = ({
                 >
                   <div className="flex items-center gap-2">
                     <Icon name="FileText" className="w-3.5 h-3.5 text-sky-400" />
-                    <span>Copiar Entrada Original</span>
+                    <span>{t.copyInput}</span>
                   </div>
                   <kbd className="text-[10px] text-zinc-500 font-mono">i</kbd>
                 </button>
@@ -351,7 +351,7 @@ export const ResultView: React.FC<ResultViewProps> = ({
                 >
                   <div className="flex items-center gap-2">
                     <Icon name="Share2" className="w-3.5 h-3.5 text-emerald-400" />
-                    <span>Copiar com Markdown</span>
+                    <span>{t.copyMarkdown}</span>
                   </div>
                   <kbd className="text-[10px] text-zinc-500 font-mono">m</kbd>
                 </button>
@@ -364,7 +364,7 @@ export const ResultView: React.FC<ResultViewProps> = ({
                   className="w-full text-left px-3 py-2 hover:bg-zinc-800 disabled:opacity-40 flex items-center gap-2 transition-colors cursor-pointer"
                 >
                   <Icon name="Sparkles" className="w-3.5 h-3.5 text-amber-400" />
-                  <span>Encadear como Novo Prompt</span>
+                  <span>{t.chainNewPrompt}</span>
                 </button>
               </div>
             )}
@@ -375,9 +375,9 @@ export const ResultView: React.FC<ResultViewProps> = ({
         <button
           onClick={onClose}
           className="text-xs text-zinc-400 hover:text-zinc-200 px-2.5 py-1.5 rounded-lg bg-zinc-900/60 hover:bg-zinc-800/80 border border-white/10 transition-colors cursor-pointer"
-          title="Fechar painel (Esc)"
+          title={`${t.doneBtn} (Esc)`}
         >
-          <span>Concluir</span>
+          <span>{t.doneBtn}</span>
         </button>
       </div>
     </div>

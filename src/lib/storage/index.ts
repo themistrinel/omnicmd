@@ -1,5 +1,5 @@
 import { invoke } from '@tauri-apps/api/core';
-import { AppSettings, HistoryEntry, AppearanceSettings, PromptAction } from '@/types';
+import { AppSettings, HistoryEntry, AppearanceSettings, PromptAction, Agent, Language } from '@/types';
 import { PROMPT_ACTIONS } from '@/lib/actions';
 import { AGENTS } from '@/lib/agents';
 
@@ -68,78 +68,108 @@ function isTauriEnvironment(): boolean {
   return typeof window !== 'undefined' && '__TAURI_INTERNALS__' in window;
 }
 
+export function parseRawSettings(rawMap: Record<string, string>): AppSettings {
+  const activeProviderId = (rawMap.activeProviderId as any) || DEFAULT_SETTINGS.activeProviderId;
+
+  // Load provider specific settings if stored
+  let parsedProviders = DEFAULT_SETTINGS.providers;
+  if (rawMap.providers_json) {
+    try {
+      parsedProviders = { ...DEFAULT_SETTINGS.providers, ...JSON.parse(rawMap.providers_json) };
+    } catch (_) {}
+  }
+
+  let parsedAppearance: AppearanceSettings = DEFAULT_APPEARANCE;
+  if (rawMap.appearance_json) {
+    try {
+      const decoded = JSON.parse(rawMap.appearance_json);
+      parsedAppearance = { ...DEFAULT_APPEARANCE, ...decoded };
+      if ((parsedAppearance.accentColor as string) === 'amber') {
+        parsedAppearance.accentColor = 'sky';
+      }
+      if (parsedAppearance.hudOpacity === 95 || !parsedAppearance.hudOpacity) {
+        parsedAppearance.hudOpacity = 82;
+      }
+    } catch (_) {}
+  }
+
+  const currentActiveConfig =
+    parsedProviders[activeProviderId as keyof typeof parsedProviders] ||
+    DEFAULT_SETTINGS.providers['9router'];
+  const endpoint = rawMap.endpoint || currentActiveConfig.endpoint;
+  const apiKey = rawMap.apiKey || currentActiveConfig.apiKey;
+  const model = rawMap.model || currentActiveConfig.model;
+
+  let parsedAgents = AGENTS;
+  if (rawMap.agents_json) {
+    try {
+      const savedAgents = JSON.parse(rawMap.agents_json);
+      if (Array.isArray(savedAgents)) {
+        const existingAgentIds = new Set(savedAgents.map((ag: Agent) => ag.id));
+        const missingDefaultAgents = AGENTS.filter((def) => !existingAgentIds.has(def.id));
+        parsedAgents = [...savedAgents, ...missingDefaultAgents];
+      }
+    } catch (_) {}
+  }
+
+  let parsedActions = PROMPT_ACTIONS;
+  if (rawMap.actions_json) {
+    try {
+      const savedList = JSON.parse(rawMap.actions_json);
+      if (Array.isArray(savedList)) {
+        const hydrated = hydrateActions(savedList);
+        const existingIds = new Set(hydrated.map((a) => a.id));
+        const missingDefaultActions = PROMPT_ACTIONS.filter((def) => !existingIds.has(def.id));
+        parsedActions = [...hydrated, ...missingDefaultActions];
+      }
+    } catch (_) {}
+  }
+
+  const validLanguages: Language[] = ['pt-BR', 'en-US', 'es-ES'];
+  const language: Language =
+    rawMap.language && validLanguages.includes(rawMap.language as Language)
+      ? (rawMap.language as Language)
+      : (DEFAULT_SETTINGS.language || 'pt-BR');
+
+  let temperature = DEFAULT_SETTINGS.temperature;
+  if (rawMap.temperature) {
+    const parsedTemp = parseFloat(rawMap.temperature);
+    if (!isNaN(parsedTemp) && isFinite(parsedTemp) && parsedTemp >= 0 && parsedTemp <= 2) {
+      temperature = parsedTemp;
+    }
+  }
+
+  return {
+    activeProviderId,
+    endpoint,
+    apiKey,
+    model,
+    providers: parsedProviders,
+    defaultProfile: rawMap.defaultProfile || DEFAULT_SETTINGS.defaultProfile,
+    globalShortcut: rawMap.globalShortcut || DEFAULT_SETTINGS.globalShortcut,
+    autoReadClipboard: rawMap.autoReadClipboard !== undefined
+      ? rawMap.autoReadClipboard === 'true'
+      : DEFAULT_SETTINGS.autoReadClipboard,
+    temperature,
+    keyboardNavMode: (rawMap.keyboardNavMode as any) || DEFAULT_SETTINGS.keyboardNavMode,
+    enableVimMnemonicShortcuts: rawMap.enableVimMnemonicShortcuts !== undefined
+      ? rawMap.enableVimMnemonicShortcuts === 'true'
+      : DEFAULT_SETTINGS.enableVimMnemonicShortcuts,
+    language,
+    appearance: parsedAppearance,
+    customVisionPrompt: rawMap.customVisionPrompt || undefined,
+    customUiPrompt: rawMap.customUiPrompt || undefined,
+    agents: parsedAgents,
+    actions: parsedActions,
+  };
+}
+
 export class StorageService {
   static async getSettings(): Promise<AppSettings> {
     if (isTauriEnvironment()) {
       try {
         const rawMap = await invoke<Record<string, string>>('db_get_settings');
-        const activeProviderId = (rawMap.activeProviderId as any) || DEFAULT_SETTINGS.activeProviderId;
-
-        // Load provider specific settings if stored
-        let parsedProviders = DEFAULT_SETTINGS.providers;
-        if (rawMap.providers_json) {
-          try {
-            parsedProviders = { ...DEFAULT_SETTINGS.providers, ...JSON.parse(rawMap.providers_json) };
-          } catch (_) {}
-        }
-
-        let parsedAppearance: AppearanceSettings = DEFAULT_APPEARANCE;
-        if (rawMap.appearance_json) {
-          try {
-            const decoded = JSON.parse(rawMap.appearance_json);
-            parsedAppearance = { ...DEFAULT_APPEARANCE, ...decoded };
-            if ((parsedAppearance.accentColor as string) === 'amber') {
-              parsedAppearance.accentColor = 'sky';
-            }
-            if (parsedAppearance.hudOpacity === 95 || !parsedAppearance.hudOpacity) {
-              parsedAppearance.hudOpacity = 82;
-            }
-          } catch (_) {}
-        }
-
-        const currentActiveConfig =
-          parsedProviders[activeProviderId as keyof typeof parsedProviders] ||
-          DEFAULT_SETTINGS.providers['9router'];
-        const endpoint = rawMap.endpoint || currentActiveConfig.endpoint;
-        const apiKey = rawMap.apiKey || currentActiveConfig.apiKey;
-        const model = rawMap.model || currentActiveConfig.model;
-
-        let parsedAgents = AGENTS;
-        if (rawMap.agents_json) {
-          try {
-            parsedAgents = JSON.parse(rawMap.agents_json);
-          } catch (_) {}
-        }
-
-        let parsedActions = PROMPT_ACTIONS;
-        if (rawMap.actions_json) {
-          try {
-            parsedActions = hydrateActions(JSON.parse(rawMap.actions_json));
-          } catch (_) {}
-        }
-
-        return {
-          activeProviderId,
-          endpoint,
-          apiKey,
-          model,
-          providers: parsedProviders,
-          defaultProfile: rawMap.defaultProfile || DEFAULT_SETTINGS.defaultProfile,
-          globalShortcut: rawMap.globalShortcut || DEFAULT_SETTINGS.globalShortcut,
-          autoReadClipboard: rawMap.autoReadClipboard !== undefined
-            ? rawMap.autoReadClipboard === 'true'
-            : DEFAULT_SETTINGS.autoReadClipboard,
-          temperature: rawMap.temperature ? parseFloat(rawMap.temperature) : DEFAULT_SETTINGS.temperature,
-          keyboardNavMode: (rawMap.keyboardNavMode as any) || DEFAULT_SETTINGS.keyboardNavMode,
-          enableVimMnemonicShortcuts: rawMap.enableVimMnemonicShortcuts !== undefined
-            ? rawMap.enableVimMnemonicShortcuts === 'true'
-            : DEFAULT_SETTINGS.enableVimMnemonicShortcuts,
-          appearance: parsedAppearance,
-          customVisionPrompt: rawMap.customVisionPrompt || undefined,
-          customUiPrompt: rawMap.customUiPrompt || undefined,
-          agents: parsedAgents,
-          actions: parsedActions,
-        };
+        return parseRawSettings(rawMap);
       } catch (err) {
         console.warn('Failed to load settings from SQLite, using defaults:', err);
       }
@@ -158,16 +188,32 @@ export class StorageService {
           if (rawApp.hudOpacity === 95 || !rawApp.hudOpacity) {
             rawApp.hudOpacity = 82;
           }
+          const validLanguages: Language[] = ['pt-BR', 'en-US', 'es-ES'];
+          const language: Language =
+            parsed.language && validLanguages.includes(parsed.language)
+              ? parsed.language
+              : (DEFAULT_SETTINGS.language || 'pt-BR');
+          const rawAgents: Agent[] = parsed.agents || [];
+          const existingAgentIds = new Set(rawAgents.map((ag: Agent) => ag.id));
+          const missingDefaultAgents = AGENTS.filter((def) => !existingAgentIds.has(def.id));
+          const mergedAgents = [...rawAgents, ...missingDefaultAgents];
+
+          const rawActions: PromptAction[] = parsed.actions ? hydrateActions(parsed.actions) : [];
+          const existingActionIds = new Set(rawActions.map((a) => a.id));
+          const missingDefaultActions = PROMPT_ACTIONS.filter((def) => !existingActionIds.has(def.id));
+          const mergedActions = [...rawActions, ...missingDefaultActions];
+
           return {
             ...DEFAULT_SETTINGS,
             ...parsed,
+            language,
             providers: {
               ...DEFAULT_SETTINGS.providers,
               ...(parsed.providers || {}),
             },
             appearance: rawApp,
-            agents: parsed.agents || AGENTS,
-            actions: parsed.actions ? hydrateActions(parsed.actions) : PROMPT_ACTIONS,
+            agents: mergedAgents.length > 0 ? mergedAgents : AGENTS,
+            actions: mergedActions.length > 0 ? mergedActions : PROMPT_ACTIONS,
           };
         } catch (_) {}
       }

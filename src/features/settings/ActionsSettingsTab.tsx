@@ -126,9 +126,9 @@ export const ActionsSettingsTab: React.FC<ActionsSettingsTabProps> = ({
       </div>
 
       {/* Split View: List on left, Editor on right */}
-      <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-start">
-        {/* Actions List (Left 4 cols) */}
-        <div className="md:col-span-4 space-y-1.5 max-h-[520px] overflow-y-auto pr-1">
+      <div className="grid grid-cols-1 md:grid-cols-12 gap-3.5 items-start">
+        {/* Actions List (Left 5 cols) */}
+        <div className="md:col-span-5 space-y-1.5 max-h-[440px] overflow-y-auto pr-1">
           {actions.map((act) => {
             const isSelected = act.id === selectedAction?.id;
             return (
@@ -198,9 +198,9 @@ export const ActionsSettingsTab: React.FC<ActionsSettingsTabProps> = ({
           })}
         </div>
 
-        {/* Action Editor (Right 8 cols) */}
+        {/* Action Editor (Right 7 cols) */}
         {selectedAction && (
-          <div className="md:col-span-8 p-4 rounded-xl bg-black/15 dark:bg-zinc-900/60 border border-hud space-y-4">
+          <div className="md:col-span-7 p-4 rounded-xl bg-black/15 dark:bg-zinc-900/60 border border-hud space-y-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <span className="text-xs font-semibold text-zinc-300">Editando Ação:</span>

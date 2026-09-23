@@ -12,6 +12,7 @@ interface ActionListProps {
   clipboardPreview?: string;
   clipboardImagePreview?: string | null;
   language?: Language;
+  searchQuery?: string;
 }
 
 export const ActionList: React.FC<ActionListProps> = ({
@@ -22,6 +23,7 @@ export const ActionList: React.FC<ActionListProps> = ({
   clipboardPreview,
   clipboardImagePreview,
   language = 'pt-BR',
+  searchQuery,
 }) => {
   const listRef = useRef<HTMLDivElement>(null);
   const t = getTranslation(language);
@@ -36,13 +38,39 @@ export const ActionList: React.FC<ActionListProps> = ({
   }, [selectedIndex]);
 
   if (items.length === 0) {
+    const trimmed = searchQuery?.trim() || '';
+    const isFreeText = trimmed.length > 0 && !trimmed.startsWith('/') && !trimmed.startsWith('@');
+
     return (
-      <div className="flex flex-col items-center justify-center py-12 text-slate-500 dark:text-slate-400 text-base select-none">
-        <Icon name="Search" className="w-9 h-9 mb-2 opacity-50 text-slate-400" />
-        <p className="font-semibold text-slate-800 dark:text-slate-200">{t.noResultsTitle}</p>
-        <span className="text-sm text-slate-500 dark:text-slate-400 mt-1">
-          {t.noResultsSubtitle}
-        </span>
+      <div className="flex flex-col items-center justify-center py-12 text-slate-500 dark:text-slate-400 text-base select-none px-6 text-center">
+        {isFreeText ? (
+          <>
+            <div
+              className="w-12 h-12 rounded-2xl flex items-center justify-center mb-3 border shadow-xs"
+              style={{
+                backgroundColor: 'rgba(var(--accent-rgb), 0.12)',
+                borderColor: 'rgba(var(--accent-rgb), 0.3)',
+                color: 'var(--accent-color)',
+              }}
+            >
+              <Icon name="Sparkles" className="w-6 h-6" />
+            </div>
+            <p className="font-semibold text-slate-900 dark:text-slate-100 text-sm">
+              Pergunta em texto livre detectada
+            </p>
+            <span className="text-xs text-slate-500 dark:text-slate-400 mt-1 max-w-sm leading-relaxed">
+              Pressione <kbd className="px-1.5 py-0.5 rounded font-mono font-semibold bg-black/10 dark:bg-white/10 text-slate-800 dark:text-slate-200 border border-hud">↵ Enter</kbd> para enviar diretamente ao Assistente Geral de IA.
+            </span>
+          </>
+        ) : (
+          <>
+            <Icon name="Search" className="w-9 h-9 mb-2 opacity-50 text-slate-400" />
+            <p className="font-semibold text-slate-800 dark:text-slate-200">{t.noResultsTitle}</p>
+            <span className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+              {t.noResultsSubtitle}
+            </span>
+          </>
+        )}
       </div>
     );
   }

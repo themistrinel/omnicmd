@@ -14,6 +14,7 @@ interface StatusBarProps {
   contextBadge?: ContextBadge | null;
   activeProviderId?: AIProviderId;
   onCycleProvider?: () => void;
+  onCycleLanguage?: () => void;
   model: string;
   hasClipboardText: boolean;
   onOpenHistory: () => void;
@@ -28,6 +29,7 @@ export const StatusBar: React.FC<StatusBarProps> = ({
   contextBadge,
   activeProviderId = '9router',
   onCycleProvider,
+  onCycleLanguage,
   model,
   hasClipboardText,
   onOpenHistory,
@@ -96,7 +98,29 @@ export const StatusBar: React.FC<StatusBarProps> = ({
               </kbd>
               <span>Tab</span>
             </span>
+            {hasClipboardText && (
+              <>
+                <span className="text-slate-300 dark:text-white/20">•</span>
+                <span
+                  className="flex items-center gap-1 text-[10px] font-mono px-1.5 py-0.2 rounded bg-sky-500/10 text-sky-600 dark:text-sky-400 border border-sky-500/20 shrink-0 font-medium"
+                  title={t.clipboard}
+                >
+                  <Icon name="Clipboard" className="w-3 h-3" />
+                  <span>Clip</span>
+                </span>
+              </>
+            )}
           </div>
+        )}
+
+        {onCycleLanguage && (
+          <button
+            onClick={onCycleLanguage}
+            className="flex items-center gap-1 px-1.5 py-0.5 rounded-md hover:bg-black/5 dark:hover:bg-white/[0.08] text-slate-700 dark:text-slate-200 transition-colors cursor-pointer font-mono text-[11px] shrink-0"
+            title={`${t.languageSelect} (Clique ou /language)`}
+          >
+            <span>{language === 'en-US' ? '🇺🇸 EN' : language === 'es-ES' ? '🇪🇸 ES' : '🇧🇷 PT'}</span>
+          </button>
         )}
 
         {onCycleProvider && (

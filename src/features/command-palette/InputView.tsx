@@ -102,9 +102,9 @@ export const InputView: React.FC<InputViewProps> = ({
 
       <div className="flex items-center justify-between pt-1 text-xs shrink-0">
         <div className="flex items-center gap-2 text-slate-500 dark:text-zinc-400 text-xs font-medium">
-          <span>{inputText.length} caracteres</span>
+          <span>{inputText.length} {t.charactersCount}</span>
           <span>•</span>
-          <span><kbd className="bg-white dark:bg-[#1c1e24] border border-slate-300 dark:border-white/15 px-1.5 py-0.5 rounded text-slate-700 dark:text-slate-200 font-mono text-xs shadow-2xs font-semibold">Ctrl+Enter</kbd> para enviar</span>
+          <span><kbd className="bg-white dark:bg-[#1c1e24] border border-slate-300 dark:border-white/15 px-1.5 py-0.5 rounded text-slate-700 dark:text-slate-200 font-mono text-xs shadow-2xs font-semibold">Ctrl+Enter</kbd> {t.pressCtrlEnterToSend}</span>
         </div>
 
         <button
@@ -127,7 +127,7 @@ export const InputView: React.FC<InputViewProps> = ({
           {isLoading ? (
             <>
               <Icon name="Loader2" className="w-4 h-4 animate-spin" />
-              <span>Executando...</span>
+              <span>{t.executingState}</span>
             </>
           ) : (
             <>

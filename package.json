@@ -12,7 +12,7 @@
     "preview": "vite preview",
     "preview:landing": "vite preview landing --port 3000 --open",
     "lint": "oxlint",
-    "test": "npx tsx --tsconfig tsconfig.app.json src/lib/prompt-composer/__tests__/composer.test.ts"
+    "test": "npx tsx --tsconfig tsconfig.app.json src/lib/prompt-composer/__tests__/composer.test.ts && npx tsx --tsconfig tsconfig.app.json src/lib/prompt-composer/__tests__/audit-flows.test.ts && npx tsx --tsconfig tsconfig.app.json src/lib/storage/__tests__/storage.test.ts && npx tsx --tsconfig tsconfig.app.json src/lib/storage/__tests__/lifecycle-migration.test.ts"
   },
   "dependencies": {
     "@tauri-apps/api": "^2.11.1",

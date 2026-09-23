@@ -42,7 +42,7 @@
       }
     ],
     "security": {
-      "csp": null
+      "csp": "default-src 'self' ipc: tauri:; img-src 'self' asset: https://asset.localhost tauri: data: blob: https:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; connect-src 'self' ipc: tauri: http://localhost:* ws://localhost:* https://api.github.com https://*; script-src 'self';"
     }
   },
   "bundle": {

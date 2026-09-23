@@ -213,3 +213,121 @@ impl DbState {
         Ok(map)
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn create_test_db() -> DbState {
+        let conn = Connection::open_in_memory().unwrap();
+        conn.execute_batch(
+            "
+            CREATE TABLE IF NOT EXISTS history (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                action_id TEXT NOT NULL,
+                action_title TEXT NOT NULL,
+                model TEXT NOT NULL,
+                profile_id TEXT NOT NULL,
+                input_text TEXT NOT NULL,
+                output_text TEXT NOT NULL,
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+            );
+
+            CREATE INDEX IF NOT EXISTS idx_history_created_at ON history(created_at DESC);
+
+            CREATE TABLE IF NOT EXISTS settings (
+                key TEXT PRIMARY KEY,
+                value TEXT NOT NULL
+            );
+            ",
+        )
+        .unwrap();
+
+        DbState {
+            conn: Mutex::new(conn),
+        }
+    }
+
+    #[test]
+    fn test_sqlite_settings_persistence() {
+        let db = create_test_db();
+        db.set_setting("language", "en-US").unwrap();
+        db.set_setting("theme", "dark").unwrap();
+
+        let settings = db.get_settings().unwrap();
+        assert_eq!(settings.get("language").unwrap(), "en-US");
+        assert_eq!(settings.get("theme").unwrap(), "dark");
+
+        // Update on conflict
+        db.set_setting("language", "es-ES").unwrap();
+        let updated = db.get_settings().unwrap();
+        assert_eq!(updated.get("language").unwrap(), "es-ES");
+    }
+
+    #[test]
+    fn test_sqlite_history_crud() {
+        let db = create_test_db();
+        let item = HistoryItem {
+            id: None,
+            action_id: "translate".into(),
+            action_title: "Traduzir".into(),
+            model: "ag/gemini-3.8-flash-low".into(),
+            profile_id: "general".into(),
+            input_text: "Olá mundo".into(),
+            output_text: "Hello world".into(),
+            created_at: None,
+        };
+
+        let inserted_id = db.save_history(item).unwrap();
+        assert!(inserted_id > 0);
+
+        let list = db.get_history(10, None).unwrap();
+        assert_eq!(list.len(), 1);
+        assert_eq!(list[0].input_text, "Olá mundo");
+        assert_eq!(list[0].output_text, "Hello world");
+
+        // Delete item
+        db.delete_history(inserted_id).unwrap();
+        let after_delete = db.get_history(10, None).unwrap();
+        assert_eq!(after_delete.len(), 0);
+    }
+
+    #[test]
+    fn test_sqlite_search_filtering() {
+        let db = create_test_db();
+        let item1 = HistoryItem {
+            id: None,
+            action_id: "translate".into(),
+            action_title: "Traduzir".into(),
+            model: "ag/gemini-3.8-flash-low".into(),
+            profile_id: "general".into(),
+            input_text: "Código rust de teste".into(),
+            output_text: "Test rust code".into(),
+            created_at: None,
+        };
+        let item2 = HistoryItem {
+            id: None,
+            action_id: "fix_grammar".into(),
+            action_title: "Corrigir texto".into(),
+            model: "ag/gemini-3.8-flash-low".into(),
+            profile_id: "general".into(),
+            input_text: "Texto em português".into(),
+            output_text: "Texto corrigido".into(),
+            created_at: None,
+        };
+
+        db.save_history(item1).unwrap();
+        db.save_history(item2).unwrap();
+
+        let search_rust = db.get_history(10, Some("rust".into())).unwrap();
+        assert_eq!(search_rust.len(), 1);
+        assert_eq!(search_rust[0].action_id, "translate");
+
+        let search_portugues = db.get_history(10, Some("português".into())).unwrap();
+        assert_eq!(search_portugues.len(), 1);
+        assert_eq!(search_portugues[0].action_id, "fix_grammar");
+
+        db.clear_history().unwrap();
+        assert_eq!(db.get_history(10, None).unwrap().len(), 0);
+    }
+}
