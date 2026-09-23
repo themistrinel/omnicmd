@@ -55,9 +55,17 @@ export class WebSpeechProvider implements SpeechProvider {
   }
 }
 
+/**
+ * WhisperSpeechProvider (Status: Planejado / Arquitetural)
+ * 
+ * Captura fluxo de áudio bruto via MediaRecorder para futuro encaminhamento
+ * a endpoints de transcrição compatíveis com Whisper (/v1/audio/transcriptions).
+ * Nota: Atualmente não configurado com endpoint ativo de upload multipart.
+ */
 export class WhisperSpeechProvider implements SpeechProvider {
   readonly id = 'whisper-api';
-  readonly name = 'Whisper Audio Transcription';
+  readonly name = 'Whisper Audio Transcription (Planejado)';
+  readonly isExperimental = true;
   private mediaRecorder: MediaRecorder | null = null;
   private audioChunks: Blob[] = [];
 

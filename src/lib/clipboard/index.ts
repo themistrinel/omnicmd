@@ -5,6 +5,35 @@ function isTauriEnvironment(): boolean {
   return typeof window !== 'undefined' && '__TAURI_INTERNALS__' in window;
 }
 
+function optimizeCanvasDataUrl(canvas: HTMLCanvasElement): string {
+  const MAX_DIM = 1920;
+  const { width, height } = canvas;
+  if (width <= MAX_DIM && height <= MAX_DIM) {
+    return canvas.toDataURL('image/png');
+  }
+
+  let targetW = width;
+  let targetH = height;
+  if (targetW > targetH) {
+    targetH = Math.round((targetH * MAX_DIM) / targetW);
+    targetW = MAX_DIM;
+  } else {
+    targetW = Math.round((targetW * MAX_DIM) / targetH);
+    targetH = MAX_DIM;
+  }
+
+  const scaledCanvas = document.createElement('canvas');
+  scaledCanvas.width = targetW;
+  scaledCanvas.height = targetH;
+  const scaledCtx = scaledCanvas.getContext('2d');
+  if (!scaledCtx) return canvas.toDataURL('image/png');
+
+  scaledCtx.imageSmoothingEnabled = true;
+  scaledCtx.imageSmoothingQuality = 'high';
+  scaledCtx.drawImage(canvas, 0, 0, targetW, targetH);
+  return scaledCanvas.toDataURL('image/jpeg', 0.88);
+}
+
 export class ClipboardService {
   static async read(): Promise<string> {
     // 1. Tenta via comando Tauri nativo (wl-paste nativo no Wayland/Hyprland)
@@ -50,7 +79,7 @@ export class ClipboardService {
               const imgData = ctx.createImageData(size.width, size.height);
               imgData.data.set(rgba);
               ctx.putImageData(imgData, 0, 0);
-              return canvas.toDataURL('image/png');
+              return optimizeCanvasDataUrl(canvas);
             }
           }
         }

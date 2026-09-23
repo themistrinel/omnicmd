@@ -18,7 +18,13 @@ if [[ ":$PATH:" != *":$HOME/.local/bin:"* ]]; then
 fi
 
 OMNICMD_BIN="$(command -v omnicmd 2>/dev/null || echo "$HOME/.local/bin/omnicmd")"
-SOCKET_PATH="${XDG_RUNTIME_DIR:-/tmp}/omnicmd.sock"
+
+if [ -n "$XDG_RUNTIME_DIR" ]; then
+  SOCKET_PATH="$XDG_RUNTIME_DIR/omnicmd.sock"
+else
+  CURRENT_USER="${USER:-default}"
+  SOCKET_PATH="/tmp/omnicmd-${CURRENT_USER}.sock"
+fi
 
 # 1. Se o processo estiver rodando, tenta alternar via IPC (< 1ms)
 if pgrep -x "omnicmd" >/dev/null 2>&1; then

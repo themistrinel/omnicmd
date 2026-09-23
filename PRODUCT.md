@@ -2,7 +2,7 @@
 
 ## Platform
 
-web
+desktop (Tauri v2)
 
 ## Users
 
@@ -10,7 +10,7 @@ Power users, software engineers, and knowledge workers who require instant AI in
 
 ## Product Purpose
 
-AI Commander is a lightweight, floating desktop HUD / command palette launcher that brings generative AI capabilities directly to the user's keystroke, eliminating context switches between everyday tools and browser-based AI chats.
+OmniCmd is a lightweight, floating desktop HUD / command palette launcher that brings generative AI capabilities directly to the user's keystroke, eliminating context switches between everyday tools and browser-based AI chats.
 
 ## Positioning
 
@@ -18,7 +18,7 @@ A zero-friction, keyboard-first floating command interface (always-on-top, borde
 
 ## Operating Context
 
-Triggered globally via hotkey (e.g., Option/Alt+Space or Command/Ctrl+Space) on top of any active IDE, browser, terminal, or document; reads clipboard instantly; navigates strictly with keyboard arrows/Enter/Escape; returns results ready to copy and paste immediately back into the active workflow.
+Triggered globally via hotkey (e.g., Option/Alt+Space, Super+A, or Command/Ctrl+Space) on top of any active IDE, browser, terminal, or document; reads clipboard instantly; navigates strictly with keyboard arrows/Enter/Escape; returns results ready to copy and paste immediately back into the active workflow.
 
 ## Capabilities and Constraints
 
@@ -28,11 +28,11 @@ Triggered globally via hotkey (e.g., Option/Alt+Space or Command/Ctrl+Space) on 
 - Multi-persona profile switching (General, Prompt Engineer, Coding, Translator, Writing, Custom).
 - Configurable AI endpoints via 9router / OpenAI-compatible API specifications with model, key, and temperature controls.
 - Speech-to-text / voice modal input support.
-- Local history tracking and persistent settings storage.
+- Local history tracking and persistent settings storage via SQLite.
 
 ## Brand Commitments
 
-- Product Name: AI Commander (`ai-commander`).
+- Product Name: OmniCmd (`omnicmd`).
 - Voice & Tone: Fast, precise, dense, distraction-free, engineered for developer flow and technical productivity.
 
 ## Evidence on Hand

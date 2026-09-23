@@ -16,6 +16,7 @@ export const UpdateNotificationModal: React.FC<UpdateNotificationModalProps> = (
   const [isInstalling, setIsInstalling] = useState(false);
   const [progress, setProgress] = useState<number | null>(null);
   const [isDone, setIsDone] = useState(false);
+  const [redirectedToBrowser, setRedirectedToBrowser] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   const handleClose = useCallback(() => {
@@ -23,6 +24,7 @@ export const UpdateNotificationModal: React.FC<UpdateNotificationModalProps> = (
     setIsInstalling(false);
     setProgress(null);
     setIsDone(false);
+    setRedirectedToBrowser(false);
     setErrorMsg(null);
     onClose();
   }, [isInstalling, onClose]);
@@ -48,13 +50,17 @@ export const UpdateNotificationModal: React.FC<UpdateNotificationModalProps> = (
     setProgress(0);
 
     try {
-      await UpdaterService.downloadAndInstall((p) => {
+      const res = await UpdaterService.downloadAndInstall((p) => {
         if (p.total && p.total > 0) {
           const pct = Math.min(100, Math.round((p.downloaded / p.total) * 100));
           setProgress(pct);
         }
       });
-      setIsDone(true);
+      if (res.type === 'INSTALLED') {
+        setIsDone(true);
+      } else {
+        setRedirectedToBrowser(true);
+      }
     } catch (err: unknown) {
       console.error('Update failed:', err);
       const message = err instanceof Error ? err.message : String(err);
@@ -169,6 +175,18 @@ export const UpdateNotificationModal: React.FC<UpdateNotificationModalProps> = (
             </div>
           )}
 
+          {redirectedToBrowser && (
+            <div className="p-3.5 rounded-xl bg-sky-500/10 border border-sky-500/30 text-sky-300 flex items-center gap-3">
+              <Icon name="ExternalLink" className="w-5 h-5 text-sky-400 shrink-0" />
+              <div>
+                <p className="font-semibold text-xs text-white">Página de releases aberta no navegador!</p>
+                <p className="text-[11px] text-sky-300/80">
+                  Baixe o pacote v{update.version} para sua plataforma e aplique a instalação.
+                </p>
+              </div>
+            </div>
+          )}
+
           {isDone && (
             <div className="p-3.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 flex items-center gap-3">
               <Icon name="CheckCircle" className="w-5 h-5 text-emerald-400 shrink-0" />
@@ -189,7 +207,7 @@ export const UpdateNotificationModal: React.FC<UpdateNotificationModalProps> = (
             disabled={isInstalling}
             className="px-3 py-1.5 rounded-lg border border-white/10 hover:bg-zinc-800 text-zinc-400 hover:text-white transition-colors cursor-pointer text-xs disabled:opacity-50"
           >
-            Lembrar mais tarde
+            {redirectedToBrowser ? 'Fechar' : 'Lembrar mais tarde'}
           </button>
 
           <div className="flex items-center gap-2">
@@ -205,6 +223,19 @@ export const UpdateNotificationModal: React.FC<UpdateNotificationModalProps> = (
                 <Icon name="RefreshCw" className="w-3.5 h-3.5" />
                 <span>Reiniciar OmniCmd</span>
               </button>
+            ) : redirectedToBrowser ? (
+              <a
+                href="https://github.com/themistrinel/omnicmd/releases/latest"
+                target="_blank"
+                rel="noreferrer"
+                className="px-4 py-1.5 rounded-lg text-xs font-semibold text-white transition-all cursor-pointer flex items-center gap-1.5 shadow-md"
+                style={{
+                  backgroundColor: 'var(--accent-color)',
+                }}
+              >
+                <Icon name="ExternalLink" className="w-3.5 h-3.5" />
+                <span>Ver Releases no GitHub</span>
+              </a>
             ) : (
               <button
                 onClick={handleInstall}

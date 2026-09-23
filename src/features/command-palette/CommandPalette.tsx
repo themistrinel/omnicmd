@@ -46,6 +46,11 @@ export const CommandPalette: React.FC = () => {
   const [activeExecutionPlan, setActiveExecutionPlan] = useState<ComposedExecution | null>(null);
 
   const [settings, setSettings] = useState<AppSettings>(DEFAULT_SETTINGS);
+  const settingsRef = useRef<AppSettings>(settings);
+
+  useEffect(() => {
+    settingsRef.current = settings;
+  }, [settings]);
 
   const [clipboardText, setClipboardText] = useState('');
   const [clipboardImage, setClipboardImage] = useState<string | null>(null);
@@ -60,6 +65,26 @@ export const CommandPalette: React.FC = () => {
   const [updateBannerDismissed, setUpdateBannerDismissed] = useState(false);
 
   const searchInputRef = useRef<HTMLInputElement>(null);
+
+  const checkClipboard = async (customSettings?: AppSettings) => {
+    const current = customSettings || settingsRef.current;
+    if (!current.autoReadClipboard) {
+      setClipboardText('');
+      setClipboardImage(null);
+      return;
+    }
+
+    const [text, img] = await Promise.all([
+      ClipboardService.read(),
+      ClipboardService.readImageDataUrl(),
+    ]);
+    if (text) {
+      setClipboardText(text);
+    } else {
+      setClipboardText('');
+    }
+    setClipboardImage(img);
+  };
 
   // Proactive background update check for older versions
   useEffect(() => {
@@ -81,6 +106,7 @@ export const CommandPalette: React.FC = () => {
   useEffect(() => {
     StorageService.getSettings().then((loaded) => {
       setSettings(loaded);
+      settingsRef.current = loaded;
       if (loaded.appearance) {
         applyAppearanceSettings(loaded.appearance);
       }
@@ -91,20 +117,14 @@ export const CommandPalette: React.FC = () => {
       aiRegistry.setActiveProvider(providerId);
       const provider = aiRegistry.getProvider(providerId) as NineRouterProvider;
       provider.setCredentials(loaded.endpoint, loaded.apiKey, loaded.model);
-    });
 
-    const checkClipboard = async () => {
-      const [text, img] = await Promise.all([
-        ClipboardService.read(),
-        ClipboardService.readImageDataUrl(),
-      ]);
-      if (text) {
-        setClipboardText(text);
+      if (loaded.autoReadClipboard) {
+        checkClipboard(loaded);
+      } else {
+        setClipboardText('');
+        setClipboardImage(null);
       }
-      setClipboardImage(img);
-    };
-
-    checkClipboard();
+    });
 
     // Listen to palette-opened event from Tauri backend
     let unlisten: (() => void) | undefined;
@@ -115,7 +135,12 @@ export const CommandPalette: React.FC = () => {
       setViewMode('SEARCH');
       setSearchQuery('');
       setSelectedItemIndex(0);
-      checkClipboard();
+      if (settingsRef.current.autoReadClipboard) {
+        checkClipboard(settingsRef.current);
+      } else {
+        setClipboardText('');
+        setClipboardImage(null);
+      }
       setTimeout(() => {
         searchInputRef.current?.focus();
       }, 50);
@@ -233,10 +258,30 @@ export const CommandPalette: React.FC = () => {
   };
 
   // Trigger execution from parsed command
-  const runParsedInput = (parsed: ParsedInput) => {
+  const runParsedInput = (
+    parsed: ParsedInput,
+    overrides?: { clipboardText?: string; clipboardImage?: string | null }
+  ) => {
+    const effectiveClipboardImage =
+      overrides && overrides.clipboardImage !== undefined ? overrides.clipboardImage : clipboardImage;
+    const effectiveClipboardText =
+      overrides && overrides.clipboardText !== undefined ? overrides.clipboardText : clipboardText;
+
+    // FLW-01: Verificação estrita para ações de visão
+    if (parsed.action?.isVisionAction && !effectiveClipboardImage) {
+      if (parsed.action) setActiveAction(parsed.action);
+      if (parsed.agent) setActiveAgent(parsed.agent);
+      setCurrentInputText(parsed.payloadText || effectiveClipboardText || '');
+      setViewMode('RESULT');
+      setIsLoading(false);
+      setOutputText('');
+      setErrorMessage(t.noImageInClipboard);
+      return;
+    }
+
     const plan = composeExecutionPlan(parsed, {
-      clipboardText,
-      clipboardImage,
+      clipboardText: effectiveClipboardText,
+      clipboardImage: effectiveClipboardImage,
       customVisionPrompt: settings.customVisionPrompt,
       customUiPrompt: settings.customUiPrompt,
       defaultAgentId: settings.defaultProfile || 'general',
@@ -326,6 +371,18 @@ export const CommandPalette: React.FC = () => {
       const query = searchQuery.trim();
       if (query === '/provider' || query === '/provedor') {
         handleCycleProvider();
+        setSearchQuery('');
+        return;
+      }
+
+      // Check if query is slash command /language
+      if (
+        action.id === 'cycle_language' ||
+        query === '/language' ||
+        query === '/idioma' ||
+        query === '/lang'
+      ) {
+        handleCycleLanguage();
         setSearchQuery('');
         return;
       }
@@ -474,10 +531,15 @@ export const CommandPalette: React.FC = () => {
       } else if (e.key === 'Enter') {
         e.preventDefault();
 
-        // 1. Check if raw query matches /provider command
+        // 1. Check if raw query matches /provider or /language command
         const trimmed = searchQuery.trim();
         if (trimmed === '/provider' || trimmed === '/provedor') {
           handleCycleProvider();
+          setSearchQuery('');
+          return;
+        }
+        if (trimmed === '/language' || trimmed === '/idioma' || trimmed === '/lang') {
+          handleCycleLanguage();
           setSearchQuery('');
           return;
         }
@@ -600,6 +662,7 @@ export const CommandPalette: React.FC = () => {
             clipboardPreview={clipboardText}
             clipboardImagePreview={clipboardImage}
             language={settings.language}
+            searchQuery={searchQuery}
           />
         )}
 
@@ -638,21 +701,44 @@ export const CommandPalette: React.FC = () => {
             errorMessage={errorMessage}
             isLoading={isLoading}
             enableVimMnemonicShortcuts={settings.enableVimMnemonicShortcuts}
-            sourceImage={activeAction.isVisionAction ? clipboardImage : null}
+            sourceImage={activeAction.isVisionAction ? (activeExecutionPlan?.imageToUse ?? clipboardImage) : null}
             onCopy={() => {}}
-            onRegenerate={() => {
-              if (activeExecutionPlan) {
-                executePlan(activeExecutionPlan);
-              } else {
-                const parsed: ParsedInput = {
-                  target: 'action',
-                  action: activeAction,
-                  prefixToken: activeAction.command,
-                  payloadText: currentInputText,
-                  rawInput: currentInputText,
-                };
-                runParsedInput(parsed);
+            onRegenerate={async () => {
+              let effectiveText = clipboardText;
+              let effectiveImg = clipboardImage;
+
+              if (settingsRef.current.autoReadClipboard) {
+                const [latestText, latestImg] = await Promise.all([
+                  ClipboardService.read(),
+                  ClipboardService.readImageDataUrl(),
+                ]);
+                if (latestText !== undefined) {
+                  effectiveText = latestText;
+                  setClipboardText(latestText);
+                }
+                if (latestImg !== undefined) {
+                  effectiveImg = latestImg;
+                  setClipboardImage(latestImg);
+                }
               }
+
+              if (activeAction.isVisionAction && !effectiveImg) {
+                setErrorMessage(t.noImageInClipboard);
+                return;
+              }
+
+              const parsed: ParsedInput = {
+                target: 'action',
+                action: activeAction,
+                prefixToken: activeAction.command,
+                payloadText: currentInputText,
+                rawInput: currentInputText,
+              };
+
+              runParsedInput(parsed, {
+                clipboardText: effectiveText,
+                clipboardImage: effectiveImg,
+              });
             }}
             onEdit={() => setViewMode('INPUT')}
             onOpenSettings={() => setViewMode('SETTINGS')}
@@ -688,6 +774,7 @@ export const CommandPalette: React.FC = () => {
             onBack={() => setViewMode('SEARCH')}
             onSaved={(newSettings) => {
               setSettings(newSettings);
+              settingsRef.current = newSettings;
               if (newSettings.appearance) {
                 applyAppearanceSettings(newSettings.appearance);
               }
@@ -696,6 +783,11 @@ export const CommandPalette: React.FC = () => {
               aiRegistry.setActiveProvider(pid);
               const provider = aiRegistry.getProvider(pid) as NineRouterProvider;
               provider.setCredentials(newSettings.endpoint, newSettings.apiKey, newSettings.model);
+
+              if (!newSettings.autoReadClipboard) {
+                setClipboardText('');
+                setClipboardImage(null);
+              }
             }}
           />
         )}
@@ -706,6 +798,7 @@ export const CommandPalette: React.FC = () => {
         contextBadge={contextBadge}
         activeProviderId={settings.activeProviderId}
         onCycleProvider={handleCycleProvider}
+        onCycleLanguage={handleCycleLanguage}
         model={settings.model}
         hasClipboardText={!!clipboardText}
         onOpenHistory={() => setViewMode('HISTORY')}
@@ -740,6 +833,7 @@ export const CommandPalette: React.FC = () => {
       <KeyboardCheatsheetModal
         isOpen={isCheatsheetOpen}
         onClose={() => setIsCheatsheetOpen(false)}
+        language={settings.language}
       />
     </div>
   );

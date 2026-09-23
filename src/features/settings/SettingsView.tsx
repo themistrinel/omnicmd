@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import {
   AppSettings,
   KeyboardNavigationMode,
@@ -16,6 +16,7 @@ import { Icon } from '@/components/Icon';
 import { ACCENT_COLORS, FONT_FAMILIES, applyAppearanceSettings } from '@/lib/theme';
 import { getTranslation, SUPPORTED_LANGUAGES } from '@/lib/i18n';
 import { UpdaterService, UpdateCheckResult } from '@/lib/updater';
+import { APP_VERSION } from '@/constants';
 import { AgentsSettingsTab } from './AgentsSettingsTab';
 import { ActionsSettingsTab } from './ActionsSettingsTab';
 
@@ -34,71 +35,45 @@ interface SectionItem {
   description: string;
 }
 
-const SECTIONS: SectionItem[] = [
-  {
-    id: 'appearance',
-    label: 'Aparência & HUD',
-    shortLabel: 'Aparência',
-    icon: 'Palette',
-    description: 'Modo de cor, paleta de destaque, desfoque de vidro e tipografia',
-  },
-  {
-    id: 'language',
-    label: 'Idioma & Região',
-    shortLabel: 'Idioma',
-    icon: 'Globe',
-    description: 'Selecione o idioma da interface (Português, English, Español)',
-  },
-  {
-    id: 'providers',
-    label: 'Provedores de IA',
-    shortLabel: 'Provedores',
-    icon: 'Cpu',
-    description: 'Endpoints, chaves de API e modelos (9router, Omni e Custom)',
-  },
-  {
-    id: 'agents',
-    label: 'Agentes de IA (@)',
-    shortLabel: 'Agentes',
-    icon: 'Sparkles',
-    description: 'Prompts de sistema prontos e customizados para @dev, @prompt, @writer...',
-  },
-  {
-    id: 'actions',
-    label: 'Ações de Prompt (/)',
-    shortLabel: 'Ações',
-    icon: 'Terminal',
-    description: 'Prompts prontos e customizados para /traduzir, /corrigir, /resumir...',
-  },
-  {
-    id: 'keyboard',
-    label: 'Teclado & Atalhos',
-    shortLabel: 'Teclado',
-    icon: 'Sliders',
-    description: 'Ergonomia de navegação zero-mouse, modos Vim/Readline e atalho global',
-  },
-  {
-    id: 'vision',
-    label: 'Visão & Prompts',
-    shortLabel: 'Visão',
-    icon: 'Eye',
-    description: 'Prompts de sistema especializados para inspeção 360° e engenharia reversa',
-  },
-  {
-    id: 'updater',
-    label: 'Atualizações & Devlog',
-    shortLabel: 'Updates',
-    icon: 'RefreshCw',
-    description: 'Verifique novas versões, changelogs e notas de atualização do Tauri',
-  },
-  {
-    id: 'general',
-    label: 'Geral & Padrões',
-    shortLabel: 'Geral',
-    icon: 'Sliders',
-    description: 'Agente padrão para texto livre, leitura de clipboard e temperatura',
-  },
-];
+function getLocalizedSections(lang: Language = 'pt-BR'): SectionItem[] {
+  if (lang === 'en-US') {
+    return [
+      { id: 'appearance', label: 'Appearance & HUD', shortLabel: 'Appearance', icon: 'Palette', description: 'Color mode, accent palette, glass blur and typography' },
+      { id: 'language', label: 'Language & Region', shortLabel: 'Language', icon: 'Globe', description: 'Select interface language (Português, English, Español)' },
+      { id: 'providers', label: 'AI Providers', shortLabel: 'Providers', icon: 'Cpu', description: 'Endpoints, API keys and models (9router, Omni, Custom)' },
+      { id: 'agents', label: 'AI Agents (@)', shortLabel: 'Agents', icon: 'Sparkles', description: 'System prompts for @dev, @prompt, @writer, etc.' },
+      { id: 'actions', label: 'Prompt Actions (/)', shortLabel: 'Actions', icon: 'Terminal', description: 'Built-in and custom prompts for /translate, /fix, /summarize' },
+      { id: 'keyboard', label: 'Keyboard & Shortcuts', shortLabel: 'Keyboard', icon: 'Sliders', description: 'Zero-mouse navigation, Vim/Readline modes, and global hotkeys' },
+      { id: 'vision', label: 'Vision & Prompts', shortLabel: 'Vision', icon: 'Eye', description: 'Specialized system prompts for 360° inspection and reverse engineering' },
+      { id: 'updater', label: 'Updates & Devlog', shortLabel: 'Updates', icon: 'RefreshCw', description: 'Check for new releases, changelogs and Tauri updates' },
+      { id: 'general', label: 'General & Defaults', shortLabel: 'General', icon: 'Sliders', description: 'Default agent for free text, clipboard auto-read, temperature' },
+    ];
+  }
+  if (lang === 'es-ES') {
+    return [
+      { id: 'appearance', label: 'Apariencia y HUD', shortLabel: 'Apariencia', icon: 'Palette', description: 'Modo de color, acento, desenfoque de cristal y tipografía' },
+      { id: 'language', label: 'Idioma y Región', shortLabel: 'Idioma', icon: 'Globe', description: 'Selecciona el idioma de la interfaz (Português, English, Español)' },
+      { id: 'providers', label: 'Proveedores de IA', shortLabel: 'Proveedores', icon: 'Cpu', description: 'Endpoints, claves de API y modelos (9router, Omni, Custom)' },
+      { id: 'agents', label: 'Agentes de IA (@)', shortLabel: 'Agentes', icon: 'Sparkles', description: 'Prompts de sistema para @dev, @prompt, @writer, etc.' },
+      { id: 'actions', label: 'Acciones de Prompt (/)', shortLabel: 'Acciones', icon: 'Terminal', description: 'Prompts listos y personalizados para /traducir, /corregir, /resumir' },
+      { id: 'keyboard', label: 'Teclado y Atajos', shortLabel: 'Teclado', icon: 'Sliders', description: 'Navegación zero-mouse, modos Vim/Readline y atajo global' },
+      { id: 'vision', label: 'Visión y Prompts', shortLabel: 'Visión', icon: 'Eye', description: 'Prompts especializados para inspección técnica y reversa' },
+      { id: 'updater', label: 'Actualizaciones y Devlog', shortLabel: 'Updates', icon: 'RefreshCw', description: 'Verifica nuevas versiones, notas de release y actualizaciones' },
+      { id: 'general', label: 'General y Ajustes', shortLabel: 'General', icon: 'Sliders', description: 'Agente predeterminado, lectura de portapapeles y temperatura' },
+    ];
+  }
+  return [
+    { id: 'appearance', label: 'Aparência & HUD', shortLabel: 'Aparência', icon: 'Palette', description: 'Modo de cor, paleta de destaque, desfoque de vidro e tipografia' },
+    { id: 'language', label: 'Idioma & Região', shortLabel: 'Idioma', icon: 'Globe', description: 'Selecione o idioma da interface (Português, English, Español)' },
+    { id: 'providers', label: 'Provedores de IA', shortLabel: 'Provedores', icon: 'Cpu', description: 'Endpoints, chaves de API e modelos (9router, Omni e Custom)' },
+    { id: 'agents', label: 'Agentes de IA (@)', shortLabel: 'Agentes', icon: 'Sparkles', description: 'Prompts de sistema prontos e customizados para @dev, @prompt, @writer...' },
+    { id: 'actions', label: 'Ações de Prompt (/)', shortLabel: 'Ações', icon: 'Terminal', description: 'Prompts prontos e customizados para /traduzir, /corrigir, /resumir...' },
+    { id: 'keyboard', label: 'Teclado & Atalhos', shortLabel: 'Teclado', icon: 'Sliders', description: 'Ergonomia de navegação zero-mouse, modos Vim/Readline e atalho global' },
+    { id: 'vision', label: 'Visão & Prompts', shortLabel: 'Visão', icon: 'Eye', description: 'Prompts de sistema especializados para inspeção 360° e engenharia reversa' },
+    { id: 'updater', label: 'Atualizações & Devlog', shortLabel: 'Updates', icon: 'RefreshCw', description: 'Verifique novas versões, changelogs e notas de atualização do Tauri' },
+    { id: 'general', label: 'Geral & Padrões', shortLabel: 'Geral', icon: 'Sliders', description: 'Agente padrão para texto livre, leitura de clipboard e temperatura' },
+  ];
+}
 
 const PROVIDER_METADATA: Record<
   AIProviderId,
@@ -161,6 +136,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ onBack, onSaved }) =
   });
 
   // Updater state
+  const [appVersion, setAppVersion] = useState<string>(APP_VERSION);
   const [checkingUpdate, setCheckingUpdate] = useState(false);
   const [updateResult, setUpdateResult] = useState<UpdateCheckResult | null>(null);
   const [installingUpdate, setInstallingUpdate] = useState(false);
@@ -197,6 +173,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ onBack, onSaved }) =
   }, []);
 
   useEffect(() => {
+    UpdaterService.getCurrentVersion().then(setAppVersion);
     StorageService.getSettings().then((loaded) => {
       setSettings(loaded);
       setActiveProviderTab(loaded.activeProviderId || '9router');
@@ -208,6 +185,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ onBack, onSaved }) =
 
   const appearance: AppearanceSettings = settings.appearance || DEFAULT_APPEARANCE;
   const t = getTranslation(settings.language);
+  const sections = useMemo(() => getLocalizedSections(settings.language || 'pt-BR'), [settings.language]);
 
   const handleUpdateLanguage = useCallback((lang: Language) => {
     setSettings((prev) => {
@@ -308,7 +286,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ onBack, onSaved }) =
       if (!isTyping) {
         if (/^[1-5]$/.test(e.key)) {
           e.preventDefault();
-          const targetSection = SECTIONS[parseInt(e.key, 10) - 1];
+          const targetSection = sections[parseInt(e.key, 10) - 1];
           if (targetSection) {
             setCurrentSection(targetSection.id);
           }
@@ -318,8 +296,8 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ onBack, onSaved }) =
         if (e.key === 'ArrowUp' || (e.ctrlKey && e.key.toLowerCase() === 'k')) {
           e.preventDefault();
           setCurrentSection((prev) => {
-            const idx = SECTIONS.findIndex((s) => s.id === prev);
-            return idx > 0 ? SECTIONS[idx - 1].id : SECTIONS[SECTIONS.length - 1].id;
+            const idx = sections.findIndex((s: SectionItem) => s.id === prev);
+            return idx > 0 ? sections[idx - 1].id : sections[sections.length - 1].id;
           });
           return;
         }
@@ -327,8 +305,8 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ onBack, onSaved }) =
         if (e.key === 'ArrowDown' || (e.ctrlKey && e.key.toLowerCase() === 'j')) {
           e.preventDefault();
           setCurrentSection((prev) => {
-            const idx = SECTIONS.findIndex((s) => s.id === prev);
-            return idx < SECTIONS.length - 1 ? SECTIONS[idx + 1].id : SECTIONS[0].id;
+            const idx = sections.findIndex((s: SectionItem) => s.id === prev);
+            return idx < sections.length - 1 ? sections[idx + 1].id : sections[0].id;
           });
           return;
         }
@@ -337,11 +315,11 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ onBack, onSaved }) =
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [handleSave]);
+  }, [handleSave, sections]);
 
   const activeAccent = ACCENT_COLORS[appearance.accentColor] || ACCENT_COLORS.sky;
   const currentProviderConfig = settings.providers[activeProviderTab];
-  const activeSectionInfo = SECTIONS.find((s) => s.id === currentSection) || SECTIONS[0];
+  const activeSectionInfo = sections.find((s: SectionItem) => s.id === currentSection) || sections[0];
 
   return (
     <div className="flex flex-col flex-1 min-h-0 select-none">
@@ -399,16 +377,16 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ onBack, onSaved }) =
       {/* Split Master-Detail Layout */}
       <div className="flex-1 min-h-0 grid grid-cols-12 overflow-hidden">
         {/* Left Sidebar Navigation */}
-        <aside className="col-span-4 border-r border-hud flex flex-col justify-between p-2.5 overflow-hidden">
+        <aside className="col-span-3 border-r border-hud flex flex-col justify-between p-2.5 overflow-hidden">
           <nav className="space-y-1" aria-label="Categorias de configuração">
-            {SECTIONS.map((section, idx) => {
+            {sections.map((section: SectionItem, idx: number) => {
               const isSelected = currentSection === section.id;
               return (
                 <button
                   key={section.id}
                   type="button"
                   onClick={() => setCurrentSection(section.id)}
-                  className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium transition-all text-left cursor-pointer border ${
+                  className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-xl text-xs font-medium transition-all text-left cursor-pointer border ${
                     isSelected
                       ? 'bg-black/10 dark:bg-white/10 text-slate-900 dark:text-white border-hud shadow-xs'
                       : 'border-transparent text-slate-600 dark:text-zinc-400 hover:text-slate-950 dark:hover:text-inherit hover:bg-black/5 dark:hover:bg-white/5'
@@ -422,10 +400,10 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ onBack, onSaved }) =
                       : undefined
                   }
                 >
-                  <div className="flex items-center gap-2.5 min-w-0">
+                  <div className="flex items-center gap-2 min-w-0">
                     <Icon
                       name={section.icon}
-                      className="w-4 h-4 shrink-0 transition-colors"
+                      className="w-3.5 h-3.5 shrink-0 transition-colors"
                       style={isSelected ? { color: 'var(--accent-color)' } : undefined}
                     />
                     <span className="truncate">{section.label}</span>
@@ -433,7 +411,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ onBack, onSaved }) =
 
                   {section.id === 'providers' && (
                     <span
-                      className="text-[10px] px-1.5 py-0.5 rounded font-mono font-normal border shrink-0"
+                      className="text-[9px] px-1 py-0.2 rounded font-mono font-normal border shrink-0"
                       style={{
                         backgroundColor: 'rgba(var(--accent-rgb), 0.15)',
                         borderColor: 'rgba(var(--accent-rgb), 0.3)',
@@ -453,29 +431,29 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ onBack, onSaved }) =
           </nav>
 
           {/* Bottom Sidebar Status Card */}
-          <div className="p-2.5 rounded-xl border border-hud hud-card space-y-1.5 text-[11px] text-slate-600 dark:text-zinc-400">
+          <div className="p-2 rounded-xl border border-hud hud-card space-y-1 text-[11px] text-slate-600 dark:text-zinc-400">
             <div className="flex items-center justify-between">
-              <span className="font-medium">Tema do HUD</span>
-              <span className="capitalize font-mono text-slate-800 dark:text-inherit text-[10px] px-1.5 py-0.5 rounded bg-black/10 dark:bg-white/10">
+              <span className="font-medium text-[10px]">{t.themeModeLabel}</span>
+              <span className="capitalize font-mono text-slate-800 dark:text-inherit text-[9px] px-1.5 py-0.2 rounded bg-black/10 dark:bg-white/10">
                 {appearance.themeMode}
               </span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="font-medium">Destaque</span>
-              <span className="flex items-center gap-1.5 font-medium" style={{ color: 'var(--accent-color)' }}>
-                <span className="w-2 h-2 rounded-full" style={{ backgroundColor: 'var(--accent-color)' }} />
-                {activeAccent.name}
+              <span className="font-medium text-[10px]">{t.accentColorLabel}</span>
+              <span className="flex items-center gap-1 font-medium text-[10px]" style={{ color: 'var(--accent-color)' }}>
+                <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: 'var(--accent-color)' }} />
+                <span className="truncate max-w-[80px]">{activeAccent.name.split(' ')[0]}</span>
               </span>
             </div>
-            <div className="pt-1 border-t border-hud flex items-center justify-between text-[10px] text-slate-400 dark:text-zinc-500 font-mono">
-              <span>↑↓ Navegar</span>
-              <span>1-5 Alternar</span>
+            <div className="pt-1 border-t border-hud flex items-center justify-between text-[9px] text-slate-400 dark:text-zinc-500 font-mono">
+              <span>↑↓ {settings.language === 'en-US' ? 'Navigate' : 'Navegar'}</span>
+              <span>1-5 {settings.language === 'en-US' ? 'Switch' : 'Alternar'}</span>
             </div>
           </div>
         </aside>
 
         {/* Right Content Pane */}
-        <main className="col-span-8 flex flex-col min-h-0 overflow-y-auto px-4 py-3 text-sm">
+        <main className="col-span-9 flex flex-col min-h-0 overflow-y-auto px-4 py-3 text-sm">
           {/* ======================================================== */}
           {/* SECTION: IDIOMA & REGIÃO                                 */}
           {/* ======================================================== */}
@@ -1172,7 +1150,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ onBack, onSaved }) =
                       <div className="flex items-center gap-2">
                         <span className="font-semibold text-xs text-inherit">Versão Atual:</span>
                         <span className="px-2 py-0.5 rounded font-mono text-[11px] font-bold bg-black/20 dark:bg-white/10 text-inherit border border-hud">
-                          v0.1.0
+                          v{appVersion}
                         </span>
                       </div>
                       <p className="text-[11px] text-zinc-400 mt-0.5">

@@ -218,7 +218,13 @@ if [ "$INSTALLED_FROM_LOCAL" = false ]; then
       fi
     fi
     
-    cp "$DOWNLOAD_FILE" "$INSTALL_DIR/omnicmd"
+    if [ -z "$FOUND_BIN" ] || [ ! -f "$FOUND_BIN" ]; then
+      log_error "Falha crítica: Não foi possível extrair um executável nativo válido do pacote baixado."
+      rm -rf "$TMP_DIR"
+      exit 1
+    fi
+
+    cp "$FOUND_BIN" "$INSTALL_DIR/omnicmd"
     rm -rf "$TMP_DIR"
     log_success "Binário baixado com sucesso!"
   else

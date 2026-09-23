@@ -45,6 +45,12 @@ export interface TranslationDictionary {
   more: string;
   copyMarkdown: string;
   copyInput: string;
+  chainNewPrompt: string;
+  doneBtn: string;
+  charactersCount: string;
+  pressCtrlEnterToSend: string;
+  executingState: string;
+  noImageInClipboard: string;
   tryAgain: string;
   adjustSettings: string;
   executionFailed: string;
@@ -136,6 +142,12 @@ export const TRANSLATIONS: Record<Language, TranslationDictionary> = {
     more: 'Mais',
     copyMarkdown: 'Copiar como Markdown',
     copyInput: 'Copiar Prompt de Entrada',
+    chainNewPrompt: 'Encadear como Novo Prompt',
+    doneBtn: 'Concluir',
+    charactersCount: 'caracteres',
+    pressCtrlEnterToSend: 'para enviar',
+    executingState: 'Executando...',
+    noImageInClipboard: 'Nenhuma imagem detectada na área de transferência. Tire um print ou copie uma imagem para usar ações de visão (/analisar, /analisar-ui).',
     tryAgain: 'Tentar Novamente (Ctrl+R)',
     adjustSettings: 'Ajustar Configurações (Ctrl+,)',
     executionFailed: 'Falha na execução com {model}',
@@ -222,6 +234,12 @@ export const TRANSLATIONS: Record<Language, TranslationDictionary> = {
     more: 'More',
     copyMarkdown: 'Copy as Markdown',
     copyInput: 'Copy Input Prompt',
+    chainNewPrompt: 'Chain as New Prompt',
+    doneBtn: 'Done',
+    charactersCount: 'characters',
+    pressCtrlEnterToSend: 'to send',
+    executingState: 'Executing...',
+    noImageInClipboard: 'No image detected in clipboard. Take a screenshot or copy an image to use vision actions (/analyze, /analyze-ui).',
     tryAgain: 'Try Again (Ctrl+R)',
     adjustSettings: 'Adjust Settings (Ctrl+,)',
     executionFailed: 'Execution failed with {model}',
@@ -308,6 +326,12 @@ export const TRANSLATIONS: Record<Language, TranslationDictionary> = {
     more: 'Más',
     copyMarkdown: 'Copiar como Markdown',
     copyInput: 'Copiar Prompt de Entrada',
+    chainNewPrompt: 'Encadenar como Nuevo Prompt',
+    doneBtn: 'Concluir',
+    charactersCount: 'caracteres',
+    pressCtrlEnterToSend: 'para enviar',
+    executingState: 'Ejecutando...',
+    noImageInClipboard: 'No se detectó ninguna imagen en el portapapeles. Haz una captura o copia una imagen para usar acciones de visión (/analizar, /analisar-ui).',
     tryAgain: 'Reintentar (Ctrl+R)',
     adjustSettings: 'Ajustar Configuración (Ctrl+,)',
     executionFailed: 'Error en la ejecución con {model}',

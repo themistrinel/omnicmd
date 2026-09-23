@@ -75,15 +75,18 @@ fs.writeFileSync(cargoPath, content);
 "
 echo "  ✓ Updated src-tauri/Cargo.toml"
 
-# 5. Update landing/src/constants.ts (APP_VERSION)
+# 5. Update landing/src/constants.ts and src/constants.ts (APP_VERSION)
 node -e "
 const fs = require('fs');
-const constPath = '${ROOT_DIR}/landing/src/constants.ts';
-let content = fs.readFileSync(constPath, 'utf8');
-content = content.replace(/(export const APP_VERSION\s*=\s*')[^']+(';)/, '\$1${NEW_VERSION}\$2');
-fs.writeFileSync(constPath, content);
+for (const p of ['${ROOT_DIR}/landing/src/constants.ts', '${ROOT_DIR}/src/constants.ts']) {
+  if (fs.existsSync(p)) {
+    let content = fs.readFileSync(p, 'utf8');
+    content = content.replace(/(export const APP_VERSION\s*=\s*')[^']+(';)/, '\$1${NEW_VERSION}\$2');
+    fs.writeFileSync(p, content);
+  }
+}
 "
-echo "  ✓ Updated landing/src/constants.ts"
+echo "  ✓ Updated landing/src/constants.ts and src/constants.ts"
 
 # 6. Run typecheck & build to verify consistency
 echo "🔍 Verifying builds with new version..."

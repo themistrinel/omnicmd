@@ -130,6 +130,17 @@ export const PROMPT_ACTIONS: PromptAction[] = [
         : 'Inspecione detalhadamente esta interface/UI para implementação técnica no frontend com Tailwind CSS e React.',
   },
   {
+    id: 'cycle_language',
+    title: 'Alternar idioma',
+    description: 'Alterna instantaneamente o idioma da interface (PT ↔ EN ↔ ES)',
+    icon: 'Globe',
+    command: '/language',
+    aliases: ['/idioma', '/lang'],
+    systemPrompt:
+      'Você é o assistente de controle de idioma do OmniCmd.',
+    userPromptTemplate: () => '',
+  },
+  {
     id: 'check_update',
     title: 'Verificar atualizações',
     description: 'Verifica novas versões do OmniCmd no GitHub Releases e instala se disponível',

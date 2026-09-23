@@ -59,7 +59,7 @@ version_gt() {
   test "$(printf '%s\n' "$@" | sort -V | head -n 1)" != "$1"
 }
 
-if ! version_gt "$LATEST_VERSION" "$CURRENT_VERSION" && [ "$LATEST_VERSION" = "$CURRENT_VERSION" ]; then
+if ! version_gt "$LATEST_VERSION" "$CURRENT_VERSION"; then
   log_success "Você já está rodando a versão mais recente do OmniCmd (v${CURRENT_VERSION})!"
   exit 0
 fi
@@ -140,7 +140,13 @@ elif [[ "$DOWNLOAD_URL" =~ \.AppImage$ ]]; then
   fi
 fi
 
-chmod +x "$DOWNLOAD_FILE"
+if [ -z "$FOUND_BIN" ] || [ ! -f "$FOUND_BIN" ]; then
+  log_error "Falha crítica: Não foi possível extrair um executável nativo válido do pacote baixado."
+  log_info "A instalação anterior não foi modificada."
+  exit 1
+fi
+
+chmod +x "$FOUND_BIN"
 
 # Fechar instâncias do omnicmd antes de sobrescrever o executável
 if pgrep -x "omnicmd" >/dev/null 2>&1; then
@@ -150,7 +156,7 @@ if pgrep -x "omnicmd" >/dev/null 2>&1; then
 fi
 
 mkdir -p "$INSTALL_DIR"
-cp "$DOWNLOAD_FILE" "$TARGET_BIN"
+cp "$FOUND_BIN" "$TARGET_BIN"
 chmod +x "$TARGET_BIN"
 
 log_success "OmniCmd atualizado com sucesso para v${LATEST_VERSION}!"

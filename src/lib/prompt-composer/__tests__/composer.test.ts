@@ -133,6 +133,43 @@ console.log('--- Test 7: Custom User-Created Action (/commit) with Template ---'
   console.log('✓ Custom user action with template parsed and composed correctly.');
 }
 
+console.log('--- Test 8: Slash Action /language & /idioma resolution ---');
+{
+  const parsed1 = parseCommandInput('/language');
+  assertEqual(parsed1.target, 'action');
+  assertEqual(parsed1.action?.id, 'cycle_language');
+
+  const parsed2 = parseCommandInput('/idioma');
+  assertEqual(parsed2.target, 'action');
+  assertEqual(parsed2.action?.id, 'cycle_language');
+
+  const parsed3 = parseCommandInput('/lang');
+  assertEqual(parsed3.target, 'action');
+  assertEqual(parsed3.action?.id, 'cycle_language');
+  console.log('✓ /language action and aliases resolution confirmed.');
+}
+
+console.log('--- Test 9: Vision Action Payload & Isolation ---');
+{
+  const parsed = parseCommandInput('/analisar');
+  assertEqual(parsed.target, 'action');
+  assertEqual(parsed.action?.id, 'analyze_image');
+  assertTrue(parsed.action?.isVisionAction === true);
+
+  // Com imagem
+  const mockImage = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==';
+  const planWithImg = composeExecutionPlan(parsed, { clipboardImage: mockImage });
+  assertEqual(planWithImg.isVision, true);
+  assertEqual(planWithImg.imageToUse, mockImage);
+  assertTrue(Array.isArray(planWithImg.userMessageContent), 'User content should be array of text + image');
+
+  // Sem imagem
+  const planWithoutImg = composeExecutionPlan(parsed, { clipboardImage: null, clipboardText: 'texto residual' });
+  assertEqual(planWithoutImg.isVision, true);
+  assertEqual(planWithoutImg.imageToUse, null);
+  console.log('✓ Vision action payload handling confirmed.');
+}
+
 console.log('\n=============================================');
-console.log('ALL 7 CORE ARCHITECTURE & CUSTOM TESTS PASSED! 🚀');
+console.log('ALL 9 CORE ARCHITECTURE & VISION TESTS PASSED! 🚀');
 console.log('=============================================');
